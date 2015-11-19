@@ -54,7 +54,7 @@ int main(){
     }
     for(int i=1; i<=n; i++){
         if(!vis[i] && dfs(i)){
-            puts("Poor yeaFe");
+            puts("-1");
             return 0;
         }
     }

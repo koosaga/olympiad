@@ -21,8 +21,8 @@ typedef long long lint;
 typedef long double llf;  
 typedef pair<int, int> pi;  
 
-int n, a[1005];  
-int nd[1005], vis[1005];  
+int n, a[10005];  
+int nd[10005], vis[10005];  
 
 int main(){
 	scanf("%d",&n);

@@ -1,4 +1,4 @@
 # olympiad
 Olympiad in Informatics solutions
 
-todo : upload ioi solutions. apio solutions. usaco solutions 2011~
+todo : upload usaco solutions 2011~

@@ -76,7 +76,6 @@ int main(){
 		}
 		// case 1. get s from empty set
 		// case 2. get s from nonempty + get m from empty
-		// case 3. swap s from empty set
 	}
 	cout<< ret;
 }

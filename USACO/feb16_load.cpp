@@ -86,8 +86,6 @@ int trial(int x){
 }
 
 int main(){
-	freopen("balancing.in","r",stdin);
-	freopen("balancing.out","w",stdout);
 	scanf("%d",&n);
 	for(int i=0; i<n; i++){
 		scanf("%d %d",&a[i].first, &a[i].second);

@@ -26,8 +26,6 @@ int A, B, n, m, a[25005], b[25005];
 priority_queue<int, vector<int>, greater<int> > pq1, pq2;
 
 int main(){
-	freopen("fencedin.in","r",stdin);
-	freopen("fencedin.out","w",stdout);
 	scanf("%d %d %d %d",&A,&B,&n,&m);
 	for(int i=1; i<=n; i++) scanf("%d",&a[i]);
 	for(int i=1; i<=m; i++) scanf("%d",&b[i]);

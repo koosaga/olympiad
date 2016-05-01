@@ -1,54 +1,62 @@
-#include <cstdio>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <limits.h>
+#include <math.h>
+#include <time.h>
+#include <iostream>
+#include <functional>
+#include <numeric>
 #include <algorithm>
+#include <stack>
+#include <queue>
+#include <deque>
 #include <vector>
-#include <cstring>
+#include <string>
+#include <bitset>
+#include <map>
+#include <set>
 using namespace std;
- 
-int n,m;
-int up[1505];
+typedef long long lint;
+typedef long double llf;
+typedef pair<int, int> pi;
+
 char str[1505];
-int cnt[15005];
- 
-vector<int> v;
+int len[1505], ds[1505];
+int n, m;
+
+int mark[15005];
+
 int main(){
-    int ret = 0;
-    scanf("%d %d\n",&n,&m);
-    for (int i=1; i<=n; i++) {
-        scanf("%s",str);
-        int count = 0;
-        for (int j=0; j<m; j++) {
-            if(str[j] == '1'){
-                if(up[j] == 0) count++;
-                up[j]++;
-            }
-            else{
-                if(up[j] != 0) cnt[up[j]]++;
-                up[j] = 0;
-            }
-        }
-        vector<int> ins(count,0);
-        v.insert(v.begin(),ins.begin(),ins.end());
-        for (auto &j : v){
-            if(cnt[j]){
-                cnt[j]--;
-                j = -1;
-            }
-        }
-        int pt = (int)v.size();
-        for (int j=(int)v.size()-1; j>=0; j--){
-            pt--;
-            while (pt >= 0 && v[pt] == -1) pt--;
-            if(pt >= 0) v[j] = v[pt];
-            else v[j] = -1;
-        }
-        v.erase(v.begin(),lower_bound(v.begin(),v.end(),0));
-        for (auto &j : v){
-            j++;
-        }
-        int piv = (int)v.size();
-        for (auto &j : v){
-            ret = max(ret,j * piv--);
-        }
-    }
-    printf("%d",ret);
+	cin >> n >> m;
+	int ret = 0;
+	for(int i=0; i<n; i++){
+		scanf("%s",str);
+		for(int j=0; j<m; j++) ds[j]++;
+		for(int j=0; j<m; j++){
+			if(str[j] == '1') len[j]++;
+			else{
+				mark[len[j]+1]++;
+				len[j] = 0;
+			}
+		}
+		int p = 0;
+		for(int j=0; j<m; j++){
+			if(mark[ds[j]]){
+				mark[ds[j]]--;
+			}
+			else{
+				ds[p] = ds[j];
+				p++;
+			}
+		}
+		for(int j=p; j<m; j++){
+			ds[j] = 0;
+		}
+		for(int i=0; i<m; i++){
+			ret = max(ret, (i+1) * ds[i]);
+		}
+	}
+	cout << ret;
 }

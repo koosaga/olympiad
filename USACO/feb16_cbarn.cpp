@@ -71,8 +71,6 @@ lint solve(){
 	return dp[k][n];
 }
 int main(){
-	freopen("cbarn.in","r",stdin);
-	freopen("cbarn.out","w",stdout);
 	scanf("%d %d",&n,&k);
 	for(int i=1; i<=n; i++){
 		scanf("%d",&a[i]);

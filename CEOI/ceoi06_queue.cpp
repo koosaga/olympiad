@@ -20,31 +20,30 @@ typedef long long lint;
 typedef long double llf;
 typedef pair<int, int> pi;
 const int inf = 1e9;
-
+ 
 map<int, int> nxt, prv, low;
-
+ 
 int getprv(int x){
 	if(prv.find(x) != prv.end()) return prv[x];
 	return x - 1;
 }
-
+ 
 int getnxt(int x){
 	if(nxt.find(x) != nxt.end()) return nxt[x];
 	return x + 1;
 }
-
+ 
 int main(){
 	int n;
 	scanf("%d",&n);
 	for(int i=0; i<n; i++){
 		int a, b;
 		scanf("%d %d",&a,&b);
-		if(getnxt(a) == b) continue;
 		int pa = getprv(a);
 		int na = getnxt(a);
-		int pb = getprv(b);
 		nxt[pa] = na;
 		prv[na] = pa;
+		int pb = getprv(b);
 		nxt[pb] = a;
 		prv[a] = pb;
 		nxt[a] = b;

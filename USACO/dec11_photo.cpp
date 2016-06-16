@@ -41,4 +41,3 @@ int main(){
         printf("%d\n",link[res[i]]);
     }
 }
-소스코드 공개    공개   비공개   맞았을 때만 공개  

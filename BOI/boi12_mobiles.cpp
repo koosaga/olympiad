@@ -1,64 +1,43 @@
-#include <cstdio>
-#include <algorithm>
-#include <cmath>
-#include <deque>
-#include <vector>
+#include <bits/stdc++.h>
 using namespace std;
 typedef pair<int,int> pi;
- 
-int n, l, x[1000005], y[1000005];
- 
-struct segs{
-    double st, ed, x, y;
-    segs(double s, double e, pi t){
-        st = s, ed = e, x = t.first, y = t.second;
-    }
-};
- 
-vector<pi> points;
-deque<pi> dq;
-vector<segs> v;
- 
+
+int n, l;
+pi a[1000005];
+deque<pi> stk;
+
 double cross(pi a, pi b){
-    int x1 = a.first, x2 = b.first, y1 = a.second, y2 = b.second;
-    return 1.0 * (1ll * x2 * x2 + 1ll * y2 * y2 - 1ll * x1 * x1 - 1ll * y1 * y1) / (2.0 * (x2 - x1));
+	int x1 = a.first, x2 = b.first, y1 = a.second, y2 = b.second;
+	return 1.0 * (1ll * x2 * x2 + 1ll * y2 * y2 - 1ll * x1 * x1 - 1ll * y1 * y1) / (2.0 * (x2 - x1));
 }
- 
-double dist(pi a, pi b){
-    return hypot(a.first - b.first,a.second - b.second);
+
+double solve(double s, double e, pi t){
+	return max(hypot(s - t.first, t.second), hypot(e - t.first, t.second));
 }
- 
+
 int main(){
-    scanf("%d %d",&n,&l);
-    for (int i=0; i<n; i++) {
-        int x, y;
-        scanf("%d %d",&x,&y);
-        if(y < 0 ) y = -y;
-        points.push_back(pi(x,y));
-    }
-    sort(points.begin(),points.end());
-    for (int i=0; i<points.size();) {
-        int e = i;
-        while (e < points.size() && points[e].first == points[i].first) {
-            e++;
-        }
-        int x = points[i].first, y = points[i].second;
-        while (dq.size() >= 2 && cross(dq[dq.size()-2],dq.back()) > cross(dq.back(),pi(x,y))) {
-            dq.pop_back();
-        }
-        dq.push_back(pi(x,y));
-        i = e;
-    }
-    while (dq.size() >= 2 && cross(dq[0],dq[1]) < 0) dq.pop_front();
-    while (dq.size() >= 2 && cross(dq[dq.size()-2],dq.back()) > l) dq.pop_back();
-    v.push_back(*new segs(0,cross(dq[0],dq[1]),dq.front()));
-    for (int i=0; i<dq.size()-2; i++) {
-        v.push_back(*new segs(cross(dq[i],dq[i+1]),cross(dq[i+1],dq[i+2]),dq[i+1]));
-    }
-    v.push_back(*new segs(cross(dq[dq.size()-2],dq.back()),l,dq.back()));
-    double ret = 0;
-    for(int i=0; i<v.size(); i++){
-        ret = max(ret,max(hypot(v[i].st - v[i].x, v[i].y), hypot(v[i].ed - v[i].x,v[i].y)));
-    }
-    printf("%lf",ret);
+	scanf("%d %d",&n,&l);
+	for (int i=0; i<n; i++) {
+		scanf("%d %d",&a[i].first, &a[i].second);
+		a[i].second = abs(a[i].second);
+	}
+	sort(a, a+n);
+	for (int i=0; i<n; ) {
+		int e = i;
+		while(e < n && a[e].first == a[i].first) e++;
+		while (stk.size() >= 2 && cross(stk[stk.size()-2], stk.back()) > cross(stk.back(), a[i])) {
+			stk.pop_back();
+		}
+		stk.push_back(a[i]);
+		i = e;
+	}
+	double ret = 0;
+	while(stk.size() >= 2 && cross(stk[0], stk[1]) < 0) stk.pop_front();
+	while(stk.size() >= 2 && cross(stk[stk.size()-2], stk.back()) > l) stk.pop_back();
+	ret = max(ret, solve(0, cross(stk[0], stk[1]), stk[0]));
+	ret = max(ret, solve(cross(stk[stk.size()-2], stk.back()), l, stk.back()));
+	for(int i=1; i+1<stk.size(); i++){
+		ret = max(ret, solve(cross(stk[i-1], stk[i]), cross(stk[i], stk[i+1]), stk[i]));
+	}
+	printf("%lf",ret);
 }

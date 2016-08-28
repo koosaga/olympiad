@@ -27,6 +27,7 @@ struct sfxarray{
 	int ord[MAXN], nord[MAXN], cnt[MAXN], aux[MAXN];
 	void init(int n, char *str, int *sfx, int *rev, int *lcp){
 		int p = 1;
+		memset(ord, 0, sizeof(ord));
 		for(int i=0; i<n; i++){
 			sfx[i] = i;
 			ord[i] = str[i];

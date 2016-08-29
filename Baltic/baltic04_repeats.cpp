@@ -148,7 +148,7 @@ int main(){
 			for(int j=1; j<n; j++){
 				rmq1[i][j] = rmq1[i-1][j];
 				rmq2[i][j] = rmq2[i-1][j];
-				if(j > (1<<i)){
+				if(j > (1<<(i-1))){
 					rmq1[i][j] = min(rmq1[i][j], rmq1[i-1][j - (1<<(i-1))]);
 					rmq2[i][j] = min(rmq2[i][j], rmq2[i-1][j - (1<<(i-1))]);
 				}

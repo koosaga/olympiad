@@ -142,6 +142,10 @@ struct manacher{
 			while(i - cur - 1 >= 0 && i + cur + 1 < 2*n-1 && aux[i-cur-1] == aux[i+cur+1]){
 				cur++;
 			}
+			if(i + cur > p){
+				c = i;
+				p = i + cur;
+			}
 			ret[i] = cur;
 		}
 	}

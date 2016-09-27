@@ -66,8 +66,5 @@ int main(){
 			}
 		}
 	}
-	for(int i=0; i<(1<<n); i++){
-		if(ok[i]) printf("%d\n",i);
-	}
 	cout << count(ok + 1, ok + (1<<n), true);
 }

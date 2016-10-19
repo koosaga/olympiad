@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-static char _buffer[1024];
+static char _buffer[1 << 19];
 static int _currentChar = 0;
 static int _charsNumber = 0;
 

@@ -1,31 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <limits.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
-#include <functional>
-#include <numeric>
-#include <algorithm>
-#include <stack>
-#include <queue>
-#include <deque>
-#include <vector>
-#include <string>
-#include <bitset>
-#include <map>
-#include <set>
-using namespace std;
-typedef long long lint;
-typedef long double llf;
-typedef pair<int, int> pi;
-
 const int MAXN = 500005;
 struct sfxarray{
 	int ord[MAXN], nord[MAXN], cnt[MAXN], aux[MAXN];
-	void init(int n, char *str, int *sfx, int *rev, int *lcp){
+	void solve(int n, char *str, int *sfx, int *rev, int *lcp){
 		int p = 1;
 		memset(ord, 0, sizeof(ord));
 		for(int i=0; i<n; i++){
@@ -141,10 +117,6 @@ struct manacher{
 			if(i <= p) cur = min(ret[2 * c - i], p - i);
 			while(i - cur - 1 >= 0 && i + cur + 1 < 2*n-1 && aux[i-cur-1] == aux[i+cur+1]){
 				cur++;
-			}
-			if(i + cur > p){
-				c = i;
-				p = i + cur;
 			}
 			ret[i] = cur;
 		}

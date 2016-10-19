@@ -125,9 +125,37 @@ struct bpm{
 		}
 		return ret;
 	}
+
+	bool chk[MAXN + MAXM];
+
+	void rdfs(int x, int n){
+		if(chk[x]) return;
+		chk[x] = 1;
+		for(int idx=0; idx<gph[x].size(); idx++){
+			int i = gph[x][idx];
+			chk[i + n] = 1;
+			rdfs(r[i], n);
+		}
+	}
+
+	vector<int> getcover(int n, int m){
+		match(n);
+		memset(chk, 0, sizeof(chk));
+		for(int i=0; i<n; i++){
+			if(l[i] == -1) rdfs(i, n);
+		}
+		vector<int> v;
+		for(int i=0; i<n; i++){
+			if(!chk[i]) v.push_back(i);
+		}
+		for(int i=n; i<n+m; i++){
+			if(chk[i]) v.push_back(i);
+		}
+		return v;
+	}
 }bpm;
 
-const int MAXN = 150;
+const int MAXN = 500;
 struct mincostflow{
 	struct edg{ int pos, cap, rev, cost; };
 	vector<edg> gph[MAXN];

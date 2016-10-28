@@ -67,7 +67,7 @@ const int MAXM = 50005;
 
 struct bpm{
 	vector<int> gph[MAXN];
-	int dis[MAXN], l[MAXN], r[MAXN];
+	int dis[MAXN], l[MAXN], r[MAXN], vis[MAXM];
 
 	void clear(){
 		for(int i=0; i<MAXN; i++){
@@ -102,10 +102,11 @@ struct bpm{
 		}
 		return ok;
 	}
-
+	
 	bool dfs(int x){
 		for(auto &i : gph[x]){
-			if(r[i] == -1 || (dis[r[i]] == dis[x] + 1 && dfs(r[i]))){
+			if(r[i] == -1 || (!vis[r[i]] && dis[r[i]] == dis[x] + 1 && dfs(r[i]))){
+				vis[r[i]] = 1;
 				l[x] = i;
 				r[i] = x;
 				return 1;
@@ -113,18 +114,19 @@ struct bpm{
 		}
 		return 0;
 	}
-
+ 
 	int match(int n){
 		memset(l, -1, sizeof(l));
 		memset(r, -1, sizeof(r));
 		int ret = 0;
 		while(bfs(n)){
+			memset(vis, 0, sizeof(vis));
 			for(int i=0; i<n; i++){
-				if(dis[i] == 1 && dfs(i)) ret++;
+				if(l[i] == -1 && dfs(i)) ret++;
 			}
 		}
 		return ret;
-	}
+	} 
 
 	bool chk[MAXN + MAXM];
 

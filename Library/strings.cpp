@@ -1,5 +1,5 @@
 const int MAXN = 500005;
-struct sfxarray{
+namespace sfxarray{
 	int ord[MAXN], nord[MAXN], cnt[MAXN], aux[MAXN];
 	void solve(int n, char *str, int *sfx, int *rev, int *lcp){
 		int p = 1;
@@ -104,7 +104,7 @@ struct aho_corasick{
 }aho_corasick;
 
 const int MAXN = 1000005;
-struct manacher{
+namespace manacher{
 	int aux[2 * MAXN - 1];
 	void solve(int n, int *str, int *ret){
 		for(int i=0; i<n; i++){

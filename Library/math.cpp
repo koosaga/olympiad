@@ -179,7 +179,7 @@ namespace nt_fft{
 namespace miller_rabin{
 	lint mul(lint a, lint b, lint p){
 		lint ret = 0;
-		while(b){
+		while(a){
 			if(a&1) ret = (ret + b) % p;
 			a >>= 1;
 			b = (b << 1) % p;

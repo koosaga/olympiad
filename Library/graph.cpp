@@ -220,6 +220,25 @@ struct mincostflow{
 	}
 }mcmf;
 
+struct circ{
+	maxflow mf;
+	lint lsum;
+	void clear(){
+		lsum = 0;
+		mf.clear();
+	}
+	void add_edge(int s, int e, int l, int r){
+		lsum += l;
+		mf.add_edge(s + 2, e + 2, r - l);
+		mf.add_edge(0, e + 2, l);
+		mf.add_edge(s + 2, 1, l);
+	}
+	bool solve(int s, int e){
+		mf.add_edge(e+2, s+2, 1e9);
+		return lsum == mf.match(0, 1);
+	}
+}circ;
+
 struct gomory_hu{
 	struct edg{ int s, e, x; };
 	vector<edg> edgs;
@@ -263,6 +282,28 @@ struct gomory_hu{
 		return ret;
 	}
 }gh;
+
+const int MAXN = 500005;
+struct disj{
+	int pa[MAXN], sz[MAXN];
+	void init(int n){
+		for(int i=0; i<=n; i++){
+			pa[i] = i;
+			sz[i] = 1;
+		}
+	}
+	int find(int x){
+		return pa[x] = (pa[x] == x ? x : find(pa[x]));
+	}
+	bool uni(int p, int q){
+		p = find(p);
+		q = find(q);
+		if(p == q) return 0;
+		pa[q] = p;
+		sz[p] += sz[q];
+		return 1;
+	}
+}disj;
 
 namespace stable_marriage{
 	vector<vector<int>> rev;

@@ -15,6 +15,14 @@ struct line{
 	int dx, dy, i1, i2;
 };
 
+lint ccw(pnt a, pnt b){
+	return 1ll * a.x * b.y - 1ll * b.x * a.y;
+}
+
+lint ccw(line a, line b){
+	return 1ll * a.dx * b.dy - 1ll * b.dx * a.dy;
+}
+
 vector<line> v;
 int n, k, rev[2505];
 
@@ -41,7 +49,7 @@ int main(){
 		}
 	}
 	sort(v.begin(), v.end(), [&](const line &a, const line &b){
-		return 1ll * a.dx * b.dy - 1ll * b.dx * a.dy;
+		return ccw(a, b) > 0;
 	});
 	double ret = 1e9;
 	for(int i=0; i<v.size(); i++){

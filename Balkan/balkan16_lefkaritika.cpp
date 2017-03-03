@@ -91,15 +91,10 @@ struct segtree{
 		add(s, e, pm+1, pe, 2*p+1, v);
 		if(tree2[p] == 0) tree[p] = tree[2*p] + tree[2*p+1];
 	}
-	void clear(){
-		memset(tree, 0, sizeof(tree));
-		memset(tree2, 0, sizeof(tree2));
-	}
 }segt;
 
 lint solve(int x){
 	swp.clear();
-	segt.clear();
 	lint ret = 1ll * (w + 1 - x) * (h + 1 - x);
 	for(int i=0; i<n; i++){
 		int sx = a[i].first - x + 1;
@@ -138,7 +133,9 @@ int main(){
 	if(n > 200){
 		lint ret = 0;
 		for(int i=2; i<=min(w, h); i++){
-			ret += solve(i);
+			lint k = solve(i);
+			if(k == 0) break;
+			ret += k;
 		}
 		cout << ret;
 		return 0;
@@ -162,4 +159,5 @@ int main(){
 	}
 	cout << ret;
 }
+
 

@@ -7,7 +7,7 @@ typedef pair<int, int> pi;
 int n, m, a[1000005];
 int ans[1000005], occ[1000005], chk[1000005];
 vector<int> pnt[1000005];
-
+vector<pi> v;
 void solve(int s, int e){
 	if(e - s + 1 < 0) return;
 	for(int i=1; i<=m; i++) pnt[i].clear();
@@ -26,10 +26,6 @@ void solve(int s, int e){
 			pnt[y].push_back(y);
 		}
 	}
-	vector<pi> v;
-	for(int i=1; i<=m; i++) v.push_back(pi(occ[i], i));
-	sort(v.begin(), v.end());
-	reverse(v.begin(), v.end());
 	for(int i=1; i<=m; i++){
 		int cur = -1e9;
 		for(auto &j : pnt[i]) chk[j]++;
@@ -49,6 +45,9 @@ int main(){
 	}
 	memset(ans, 0x3f, sizeof(ans));
 	for(int i=1; i<=n; i++) occ[a[i]]++;
+	for(int i=1; i<=m; i++) v.push_back(pi(occ[i], i));
+	sort(v.begin(), v.end());
+	reverse(v.begin(), v.end());
 	if(n % 2 == 0) solve(1, n), solve(2, n-1);
 	else solve(1, n-1), solve(2, n);
 	for(int i=1; i<=m; i++) printf("%d\n", ans[i]);

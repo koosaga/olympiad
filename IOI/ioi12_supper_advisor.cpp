@@ -17,7 +17,7 @@ int getnxt(int val, int time){
 }
  
 bool PopPrevRequest[100005];
-bool PopK[25005];
+bool PopK[100005];
  
 void ComputeAdvice(int *C, int N, int K, int M) {
     for(int i=0; i<N; i++){

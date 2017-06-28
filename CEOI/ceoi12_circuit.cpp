@@ -23,7 +23,6 @@ typedef pair<int, int> pi;
 int n;
 pi a[100005];
 vector<pi> v;
-pi tree[270000];
   
 int gcd(int x, int y){
 	return y ? gcd(y, x%y) : x;
@@ -53,6 +52,8 @@ double crs(line a, line b){
 pi compare(pi p, pi q, int r1, int r2){
 	if(p.first == -1) return q;
 	if(q.first == -1) return p;
+	r1 = max(r1, 0);
+	r2 = min(r2, (int)v.size() - 1);
 	line p1 = {a[p.second].second - a[p.first].second, a[p.first].first - a[p.second].first, 0ll};
 	p1.c = - 1ll * p1.a * a[p.first].first - 1ll * p1.b * a[p.first].second;
 	line p2 = {a[q.second].second - a[q.first].second, a[q.first].first - a[q.second].first, 0ll};
@@ -61,29 +62,53 @@ pi compare(pi p, pi q, int r1, int r2){
 	if(crs(p1, p3) < crs(p2, p3)) return p;
 	return q;
 }
-  
-void add(int s, int e, int ps, int pe, int p, pi v){
-	if(e < ps || pe < s) return;
-	if(s <= ps && pe <= e){
-		tree[p] = compare(tree[p], v, ps, pe + 1);
-		return;
+
+struct seg{
+	int lim;
+	pi tree[270000];
+	int ps[270000], pe[270000];
+	void init(int n){
+		fill(tree, tree + 270000, pi(-1, -1));
+		for(lim = 1; lim <= n; lim <<= 1);
+		for(int i=0; i<lim; i++){
+			ps[i + lim] = pe[i + lim] = i;
+		}
+		for(int i=lim-1; i; i--){
+			ps[i] = ps[2*i];
+			pe[i] = pe[2*i+1];
+		}
 	}
-	int pm = (ps + pe) / 2;
-	add(s, e, ps, pm, 2*p, v);
-	add(s, e, pm+1, pe, 2*p+1, v);
-}
-  
-pi query(int pos, int ps, int pe, int p){
-	if(ps == pe) return tree[p];
-	int pm = (ps + pe) / 2;
-	if(pos <= pm) return compare(tree[p], query(pos, ps, pm, 2*p), pos, pos + 1);
-	return compare(tree[p], query(pos, pm+1, pe, 2*p+1), pos, pos + 1);
-}
+	void add(int s, int e, pi v){
+		s += lim;
+		e += lim;
+		while(s < e){
+			if(s%2 == 1){
+				tree[s] = compare(tree[s], v, ps[s], pe[s] + 1);
+				s++;
+			}
+			if(e%2 == 0){
+				tree[e] = compare(tree[e], v, ps[e], pe[e] + 1);
+				e--;
+			}
+			s >>= 1;
+			e >>= 1;
+		}
+		if(s == e) tree[s] = compare(tree[s], v, ps[s], pe[s] + 1);
+	}
+	pi query(int p){
+		p += lim;
+		pi ret = tree[p];
+		while(p > 1){
+			p >>= 1;
+			ret = compare(ret, tree[p], ps[p], pe[p] + 1);
+		}
+		return ret;
+	}
+}seg;
 
 pi queries[100005];
 
 int main(){
-	fill(tree, tree + 270000, pi(-1, -1));
 	scanf("%d",&n);
 	for(int i=0; i<n; i++){
 		scanf("%d %d",&a[i].first, &a[i].second);
@@ -93,6 +118,7 @@ int main(){
 	a[n] = a[0];
 	sort(v.begin(), v.end(), ccw);
 	v.resize(unique(v.begin(), v.end()) - v.begin());
+	seg.init(v.size() - 1);
 	for(int i=0; i<n; i++){
 		int s = lower_bound(v.begin(), v.end(), a[i], ccw) - v.begin();
 		int e = lower_bound(v.begin(), v.end(), a[i+1], ccw) - v.begin();
@@ -102,10 +128,10 @@ int main(){
 			swap(s, e);
 			swap(val.first, val.second);
 		}
-		add(s, e-1, 0, v.size()-2, 1, val);
+		seg.add(s, e-1, val);
 	}
 	for(int i=0; i<v.size()-1; i++){
-		queries[i] = query(i, 0, v.size()-2, 1);
+		queries[i] = query(i);
 	}
 	vector<int> v2;
 	for(int i=0; i<n; i++){

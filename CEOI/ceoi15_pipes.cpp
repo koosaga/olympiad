@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <vector>
 #include <algorithm>
+#include <cstring>
 using namespace std;
 typedef pair<int,int> pi;
   
@@ -23,9 +24,8 @@ struct disj{
 }disj1, disj2;
   
 int n, m;
-vector<pi> tree, bri;
+pi bri[100005];
 vector<int> graph[100005];
-vector<pi> procession[100005];
   
 int par[100005][17], dep[100005];
 bool vis[100005];
@@ -33,9 +33,6 @@ bool vis[100005];
 void dfs(int x, int pa){
     vis[x] = 1;
     par[x][0] = pa;
-    for(int i=1; i<17; i++){
-        par[x][i] = par[par[x][i-1]][i-1];
-    }
     for (auto &i : graph[x]){
         if(i == pa) continue;
         dep[i] = dep[x] + 1;
@@ -62,6 +59,7 @@ int lca(int x, int y){
 int up[100005];
   
 void dfs2(int x, int pa){
+    vis[x] = 1;
     for (auto &i : graph[x]){
         if(i == pa) continue;
         dfs2(i,x);
@@ -69,10 +67,12 @@ void dfs2(int x, int pa){
     }
     if(pa != 0 && up[x] == 0) printf("%d %d\n",pa,x);
 }
+
 int main(){
     scanf("%d %d\n",&n,&m);
     disj1.init(n);
     disj2.init(n);
+    int c = 0;
     while(m--){
         int u = 0, v = 0;
         char str[15];
@@ -88,29 +88,27 @@ int main(){
             pos++;
         }
         if(disj1.uni(u,v)){
-            tree.push_back(pi(u,v));
+            graph[u].push_back(v);
+            graph[v].push_back(u);
         }
-        else if(disj2.uni(u,v)){
-            bri.push_back(pi(u,v));
-        }
-    }
-    for(auto &i : tree){
-        graph[i.first].push_back(i.second);
-        graph[i.second].push_back(i.first);
-    }
-    for(auto &i : bri){
-        procession[disj1.find(i.first)].push_back(i);
+        else if(disj2.uni(u,v)) bri[c++] = pi(u, v);
     }
     for(int i=1; i<=n; i++){
-        if(!vis[i]){
-            int pos = disj1.find(i);
-            dfs(pos,0);
-            for (auto &i : procession[pos]){
-                int l = lca(i.first,i.second);
-                up[i.first] = max(up[i.first],dep[i.first] - dep[l]);
-                up[i.second] = max(up[i.second],dep[i.second] - dep[l]);
-            }
-            dfs2(pos,0);
+        if(!vis[i]) dfs(i, 0);
+    }
+    memset(vis, 0, sizeof(vis));
+    for(int i=1; i<17; i++){
+        for(int j=1; j<=n; j++){
+            par[j][i] = par[par[j][i-1]][i-1];
         }
+    }
+    for(int k=0; k<c; k++){
+        pi i = bri[k];
+        int l = lca(i.first,i.second);
+        up[i.first] = max(up[i.first],dep[i.first] - dep[l]);
+        up[i.second] = max(up[i.second],dep[i.second] - dep[l]);
+    }
+    for(int i=1; i<=n; i++){
+        if(!vis[i]) dfs2(i, 0);     
     }
 }

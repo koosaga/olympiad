@@ -58,4 +58,3 @@ int main(){
 	seq.push_back(e);
 	for(auto &i : seq) printf("%d ", i);
 }
-

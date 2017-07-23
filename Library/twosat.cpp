@@ -52,26 +52,14 @@ struct strongly_connected{
 struct twosat{
 	strongly_connected scc;
 	int n;
-	bool res[MAXN];
-
-	void init(int _n){
-		scc.clear();
-		n = _n;
-		memset(res, 0, sizeof(res));
-	}
-
-	int NOT(int x){
-		return x >= n ? (x - n) : (x + n);
-	}
-
+	void init(int _n){ scc.clear(); n = _n; }
+	int NOT(int x){ return x >= n ? (x - n) : (x + n); }
 	void add_edge(int x, int y){
 		if((x >> 31) & 1) x = (~x) + n;
 		if((y >> 31) & 1) y = (~y) + n;
-		scc.add_edge(x, y);
-		scc.add_edge(NOT(y), NOT(x));
+		scc.add_edge(x, y), scc.add_edge(NOT(y), NOT(x));
 	}
-
-	bool satisfy(){
+	bool satisfy(int *res){
 		scc.get_scc(2*n);
 		for(int i=0; i<n; i++){
 			if(scc.comp[i] == scc.comp[NOT(i)]) return 0;

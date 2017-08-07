@@ -4,13 +4,13 @@ typedef long long lint;
 typedef long double llf;
 typedef pair<int, int> pi;
 const int MAXN = 100005;
- 
+
 #include <stdio.h>
 #include <stdlib.h>
 static char _buffer[1 << 19];
 static int _currentChar = 0;
 static int _charsNumber = 0;
- 
+
 static inline int _read() {
 	if (_charsNumber < 0) {
 		exit(1);
@@ -24,7 +24,7 @@ static inline int _read() {
 	}
 	return _buffer[_currentChar++];
 }
- 
+
 static inline int _readInt() {
 	int c, x, s;
 	c = _read();
@@ -43,29 +43,29 @@ static inline int _readInt() {
 	if (s < 0) x = -x;
 	return x;
 }
- 
+
 int n, m;
 vector<pi> gph[MAXN];
 int ptr[MAXN], vis[1000005];
- 
+
 vector<vector<int>> pth;
 vector<int> lis;
- 
+
 void dfs(int x){
-	while(1){
-		lis.push_back(x);
+	while(true){
 		while(ptr[x] < gph[x].size() && vis[gph[x][ptr[x]].second]){
 			ptr[x]++;
 		}
 		if(ptr[x] == gph[x].size()) break;
 		int nxt = gph[x][ptr[x]].first;
 		vis[gph[x][ptr[x]].second] = 1;
-		x = nxt;
+		dfs(nxt);
+		lis.push_back(x);
 	}
 }
- 
+
 bool instk[MAXN];
- 
+
 int main(){
 	n = _readInt();
 	m = _readInt();
@@ -89,6 +89,8 @@ int main(){
 		if(gph[i].empty()) continue;
 		lis.clear();
 		dfs(i);
+		reverse(lis.begin(), lis.end());
+		lis.push_back(i);
 		stack<int> stk;
 		for(auto &i : lis){
 			if(instk[i]){
@@ -114,3 +116,4 @@ int main(){
 		puts("");
 	}
 }
+

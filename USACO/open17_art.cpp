@@ -3,15 +3,13 @@ using namespace std;
 typedef long long lint;
 typedef pair<lint, lint> pi;
 const int mod = 1e9 + 7;
-
+ 
 int n, a[1005][1005];
 int dx[1005][1005];
 int sx[1000005], ex[1000005], sy[1000005], ey[1000005];
 int chk[1000005];
-
+ 
 int main(){
-	freopen("art.in", "r", stdin);
-	freopen("art.out", "w", stdout);
 	scanf("%d",&n);
 	memset(sx, 0x3f, sizeof(sx));
 	memset(sy, 0x3f, sizeof(sy));
@@ -46,7 +44,6 @@ int main(){
 	for(int i=1; i<=n*n; i++){
 		if(!chk[i]) ans++;
 	}
-	if(cnt == 1) ans--;
+	if(cnt == 1 && n > 1) ans--;
 	cout << ans;
 }
-

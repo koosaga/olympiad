@@ -1,33 +1,34 @@
 namespace fft{
 	typedef complex<double> base;
-	void fft(vector<base> &v, bool inv){
-		int n = v.size();
-		vector<base> w(n/2), aux(n);
-		for(int i=0; i<n/2; i++){
-			int k = i&-i;
-			if(i == k){
-				double ang = 2 * M_PI * i / n;
-				if(inv) ang *= -1;
-				w[i] = base(cos(ang), sin(ang));
+	void fft(vector<base> &a, bool inv){
+		int n = a.size(), j = 0;
+		vector<base> roots(n/2);
+		for(int i=1; i<n; i++){
+			int bit = (n >> 1);
+			while(j >= bit){
+				j -= bit;
+				bit >>= 1;
 			}
-			else w[i] = w[i-k] * w[k];
+			j += bit;
+			if(i < j) swap(a[i], a[j]);
 		}
-		for(int i=n/2; i; i>>=1){
-			aux = v;
-			for(int k=0; 2*k<n; k+=i){
-				for(int j=0; j<i; j++){
-					base a = aux[2*k + j], b = aux[2*k + j + i] * w[k];
-					v[k + j] = a + b;
-					v[k + j + n/2] = a - b;
+		double ang = 2 * acos(-1) / n * (inv ? -1 : 1);
+		for(int i=0; i<n/2; i++){
+			roots[i] = base(cos(ang * i), sin(ang * i));
+		}
+		for(int i=2; i<=n; i<<=1){
+			int step = n / i;
+			for(int j=0; j<n; j+=i){
+				for(int k=0; k<i/2; k++){
+					base u = a[j+k], v = a[j+k+i/2] * roots[step * k];
+					a[j+k] = u+v;
+					a[j+k+i/2] = u-v;
 				}
 			}
 		}
-		if(inv){
-			for(int i=0; i<n; i++){
-				v[i] /= n;
-			}
-		}
+		if(inv) for(int i=0; i<n; i++) a[i] /= n;
 	}
+
 	vector<lint> multiply(vector<lint> &v, vector<lint> &w){
 		vector<base> fv(v.begin(), v.end()), fw(w.begin(), w.end());
 		int n = 1;
@@ -40,39 +41,45 @@ namespace fft{
 		for(int i=0; i<n; i++) fv[i] *= fw[i];
 		fft(fv, 1);
 		vector<lint> ret(n);
-		for(int i=0; i<n; i++) ret[i] = round(fv[i].real());
+		for(int i=0; i<n; i++) ret[i] = (lint)round(fv[i].real());
 		return ret;
 	}
-	vector<lint> multiply(vector<lint> &v, vector<lint> &w, int b){
+	vector<lint> multiply(vector<lint> &v, vector<lint> &w, lint mod){
 		int n = 1;
 		while(n < max(v.size(), w.size())) n <<= 1;
 		n <<= 1;
-		vector<base> v1(n), v2(n), v3(n), v4(n), r1(n), r2(n), r3(n);
+		vector<base> v1(n), v2(n);
+		vector<base> r1(n), r2(n);
 		for(int i=0; i<v.size(); i++){
-			v1[i] = base(v[i] / b, 0);
-			v2[i] = base(v[i] % b, 0);
+			v1[i] = base(v[i] >> 15, v[i] & 32767);
 		}
 		for(int i=0; i<w.size(); i++){
-			v3[i] = base(w[i] / b, 0);
-			v4[i] = base(w[i] % b, 0);
+			v2[i] = base(w[i] >> 15, w[i] & 32767);
 		}
 		fft(v1, 0);
 		fft(v2, 0);
-		fft(v3, 0);
-		fft(v4, 0);
 		for(int i=0; i<n; i++){
-			r1[i] = v1[i] * v3[i];
-			r2[i] = v1[i] * v4[i] + v2[i] * v3[i];
-			r3[i] = v2[i] * v4[i];
+			int j = (i ? (n - i) : i);
+			base ans1 = (v1[i] + conj(v1[j])) * base(0.5, 0);
+			base ans2 = (v1[i] - conj(v1[j])) * base(0, -0.5);
+			base ans3 = (v2[i] + conj(v2[j])) * base(0.5, 0);
+			base ans4 = (v2[i] - conj(v2[j])) * base(0, -0.5);
+			r1[i] = (ans1 * ans3) + (ans1 * ans4) * base(0, 1);
+			r2[i] = (ans2 * ans3) + (ans2 * ans4) * base(0, 1);
 		}
 		fft(r1, 1);
 		fft(r2, 1);
-		fft(r3, 1);
 		vector<lint> ret(n);
 		for(int i=0; i<n; i++){
-			ret[i] = (lint)round(r1[i].real()) * b * b + (lint)round(r2[i].real()) * b + (lint)round(r3[i].real());
+			lint av = (lint)round(r1[i].real());
+			lint bv = (lint)round(r1[i].imag()) + (lint)round(r2[i].real());
+			lint cv = (lint)round(r2[i].imag());
+			av %= mod, bv %= mod, cv %= mod;
+			ret[i] = (av << 30) + (bv << 15) + cv;
+			ret[i] %= mod;
+			ret[i] += mod;
+			ret[i] %= mod;
 		}
 		return ret;
 	}
 }
-

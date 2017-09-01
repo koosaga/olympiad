@@ -72,6 +72,7 @@ long long Yquery(int s, int e, int ps, int pe, nodey* p){
     long long r = 0;
     int pm = (ps+pe)/2;
     if(p->ls) r = gcd2(r,Yquery(s,e,ps,pm,p->ls));
+    if(r == 1) return r;
     if(p->rs) r = gcd2(r,Yquery(s,e,pm+1,pe,p->rs));
     return r;
 }
@@ -110,6 +111,7 @@ long long Xquery(int s, int e, int ps, int pe, int sy, int ey, nodex *p){
     int pm = (ps+pe)/2;
     long long r = 0;
     if(p->ls) r = gcd2(Xquery(s,e,ps,pm,sy,ey,p->ls),r);
+    if(r == 1) return r;
     if(p->rs) r = gcd2(Xquery(s,e,pm+1,pe,sy,ey,p->rs),r);
     return r;
 }

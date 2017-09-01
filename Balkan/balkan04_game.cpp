@@ -8,10 +8,11 @@ int lmin[2005][2005], rmin[2005][2005];
  
 int main(){
     int n, m;
-    scanf("%d %d",&n,&m);
+    scanf("%d",&n);
     for(int i=1; i<=n; i++){
         scanf("%d",&a[i]);
     }
+    scanf("%d",&m);
     for(int i=1; i<=m; i++){
         scanf("%d",&b[i]);
     }

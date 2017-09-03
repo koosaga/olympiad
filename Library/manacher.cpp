@@ -14,6 +14,9 @@ struct manacher{
 				cur++;
 			}
 			ret[i] = cur;
+			if (i + cur >= p) {
+				p = i + cur, c = i;
+			}
 		}
 	}
 }manacher;

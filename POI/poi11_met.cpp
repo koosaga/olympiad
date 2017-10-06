@@ -4,75 +4,90 @@ typedef long long lint;
 typedef long double llf;
 typedef pair<int, int> pi;
 
-int n;
-vector<int> gph[1000005];
-int sz[1000005], par[1000005];
+int n, m, q;
+vector<int> own[300005];
+int crit[300005];
+int l[300005], r[300005], a[300005];
+int s[300005], e[300005];
 
-void dfs(int x, int p){
-	par[x] = p;
-	sz[x] = 1;
-	for(auto &i : gph[x]){
-		if(i == p) continue;
-		dfs(i, x);
-		sz[x] += sz[i];
+struct bit{
+	lint tree[300005];
+	void init(){
+		memset(tree, 0, sizeof(tree));
 	}
-}
-
-lint solve(int x, int p, int d){
-	lint ret = 2 * d;
-	for(auto &i : gph[x]){
-		if(i == p) continue;
-		ret += solve(i, x, d+1);
+	void add(int x, int v){
+		while(x <= m){
+			tree[x] += v;
+			x += x & -x;
+		}
 	}
-	return ret;
-}
-
-int dfs2(int x, int p){
-	int ret = 0;
-	for(auto &i : gph[x]){
-		if(i == p) continue;
-		ret = max(ret, dfs2(i, x) + 1);
+	lint query(int x){
+		lint ret = 0;
+		while(x){
+			ret += tree[x];
+			x -= x & -x;
+		}
+		return ret;
 	}
-	return ret;
-}
+}seg;
 
 int main(){
-	scanf("%d",&n);
-	for(int i=1; i<n; i++){
-		int s, e;
-		scanf("%d %d",&s,&e);
-		gph[s].push_back(e);
-		gph[e].push_back(s);
+	cin >> n >> m;
+	for(int i=1; i<=m; i++){
+		int x;
+		scanf("%d",&x);
+		own[x].push_back(i);
 	}
-	dfs(1, 0);
 	for(int i=1; i<=n; i++){
-		int szmx = 0, szmn = 1e9;
-		for(auto &j : gph[i]){
-			if(par[i] == j){
-				szmx = max(szmx, n - sz[i]);
+		scanf("%d",&crit[i]);
+	}
+	cin >> q;
+	for(int i=1; i<=q; i++){
+		scanf("%d %d %d",&l[i],&r[i],&a[i]);
+	}
+	for(int i=1; i<=n; i++){
+		s[i] = 1, e[i] = q + 1;
+	}
+	while(1){
+		seg.init();
+		vector<pi> v;
+		for(int i=1; i<=n; i++){
+			if(s[i] != e[i]){
+				v.push_back(pi((s[i] + e[i]) / 2, i));
+			}
+		}
+		if(v.empty()) break;
+		sort(v.begin(), v.end());
+		int p = 0;
+		for(int i=1; i<=q; i++){
+			if(l[i] <= r[i]){
+				seg.add(l[i], a[i]);
+				seg.add(r[i] + 1, -a[i]);
 			}
 			else{
-				szmx = max(szmx, sz[j]);
+				seg.add(l[i], a[i]);
+				seg.add(1, a[i]);
+				seg.add(r[i] + 1, -a[i]);
 			}
-		}
-		if(n - szmx < szmx) puts("-1");
-		else{
-			lint ret = solve(i, 0, 0);
-			int dmax = 0;
-			for(auto &j : gph[i]){
-				if(par[i] == j){
-					if(n - sz[i] == szmx) dmax = max(dmax, dfs2(j, i) + 1);
+			while(p < v.size() && v[p].first == i){
+				lint tmp = 0;
+				for(auto &k : own[v[p].second]){
+					tmp += seg.query(k);
+					tmp = min(tmp, (lint)1e18);
+				}
+				if(tmp < crit[v[p].second]){
+					s[v[p].second] = v[p].first + 1;
 				}
 				else{
-					if(sz[j] == szmx) dmax = max(dmax, dfs2(j, i) + 1);
+					e[v[p].second] = v[p].first;
 				}
+				p++;
 			}
-			if(szmx != n - szmx){
-				for(auto &j : gph[i]){
-					dmax = max(dmax, dfs2(j, i) + 1);
-				}
-			}
-			printf("%lld\n", ret - dmax);
 		}
 	}
+	for(int i=1; i<=n; i++){
+		if(s[i] > q) puts("NIE");
+		else printf("%d\n", s[i]);
+	}
 }
+

@@ -1,183 +1,176 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <limits.h>
-#include <stack>
-#include <queue>
-#include <map>
-#include <set>
-#include <algorithm>
-#include <string>
-#include <functional>
-#include <vector>
-#include <numeric>
-#include <deque>
-#include <utility>
-#include <bitset>
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
-typedef long long lint;
-typedef long double llf;
 typedef pair<int, int> pi;
+const int MAXN = 30005;
+typedef long long lint;
 
-struct query{
-    int type, a, b, time;
-};
-
-vector<query> v;
-
-struct disj{
-    int pa[30005];
-    void init(int n){
-        for(int i=0; i<=n; i++) pa[i] = i;
+struct lct{
+    struct node{
+        node *p, *l, *r, *pp;
+        int cnt, sum, lazy;
+        node(){
+            p = l = r = pp = NULL;
+            cnt = sum = lazy = 0;
+        }
+    }*n[MAXN];
+    void init(int v){
+        for(int i=1; i<=v; i++) n[i] = new node();
     }
-    int find(int x){
-        return pa[x] = (pa[x] == x ? x : find(pa[x]));
+    void push(node *p){
+        if(p->lazy){
+            swap(p->l, p->r);
+            if(p->l) p->l->lazy ^= 1;
+            if(p->r) p->r->lazy ^= 1;
+            p->lazy = 0;
+        }
     }
-    bool uni(int p, int q){
-        p = find(p), q = find(q);
-        if(p == q) return 0;
-        pa[q] = p;
+    void pull(node *p){
+        p->sum = p->cnt + (p->l ? p->l->sum : 0) + (p->r ? p->r->sum : 0);
+    }
+    void rotate(node *x){
+        if(!x->p) return;
+        push(x->p);  // if there's lazy stuff
+        push(x);
+        node *p = x->p;
+        bool is_left = (p->l == x);
+        node *b = (is_left ? x->r : x->l);
+        x->p = p->p;
+        if(x->p && x->p->l == p) x->p->l = x;
+        if(x->p && x->p->r == p) x->p->r = x;
+        if(is_left){
+            if(b) b->p = p;
+            p->l = b;
+            p->p = x;
+            x->r = p;
+        }
+        else{
+            if(b) b->p = p;
+            p->r = b;
+            p->p = x;
+            x->l = p;
+        }
+        pull(p); // if there's something to pull up
+        pull(x);
+        if(p->pp){
+            x->pp = p->pp;
+            p->pp = NULL;
+        }
+    }
+    void splay(node *x){
+        while(x->p){
+            node *p = x->p;
+            node *g = p->p;
+            if(g){
+                if((p->l == x) ^ (g->l == p)) rotate(x);
+                else rotate(p);
+            }
+            rotate(x);
+        }
+    }
+    void access(node *x){
+        splay(x);
+        push(x);
+        if(x->r){
+            x->r->pp = x;
+            x->r->p = NULL;
+            x->r = NULL;
+        }
+        pull(x);
+        while(x->pp){
+            node *nxt = x->pp;
+            splay(nxt);
+            push(nxt);
+            if(nxt->r){
+                nxt->r->pp = nxt;
+                nxt->r->p = NULL;
+                nxt->r = NULL;
+            }
+            nxt->r = x;
+            x->p = nxt;
+            x->pp = NULL;
+            pull(nxt);
+            splay(x);
+        }
+    }
+    node *root(node *x){
+        access(x);
+        while(x->l){
+            push(x);
+            x = x->l;
+        }
+        access(x);
+        return x;
+    }
+    node *lca(node *s, node *t){
+        access(s);
+        access(t);
+        splay(s);
+        if(s->pp == NULL) return s;
+        return s->pp;
+    }
+    bool link(int s, int e){
+        node *par = n[s];
+        node *son = n[e];
+        if(root(par) == root(son)) return 0;
+        access(par);
+        access(son);
+        son->lazy ^= 1;
+        push(son);
+        son->l = par;
+        par->p = son;
+        pull(son);
         return 1;
     }
-}disj;
+    void update(int x, int v){
+        access(n[x]);
+        n[x]->cnt = v;
+        pull(n[x]);
+    }
+    int query(int s, int e){
+        if(root(n[s]) != root(n[e])) return -1;
+        access(n[s]);
+        int ans = n[s]->sum;
+        access(n[e]);
+        ans += n[e]->sum;
+        node *p = lca(n[s], n[e]);
+        access(p);
+        ans -= 2 * p->sum;
+        ans += p->cnt;
+        return ans;
+    }
+}lct;
 
-int n, q, a[30005];
-int type[300005], ret[300005];
-
-vector<int> graph[30005];
-int dfn[30005], size[30005], p;
-int par[15][30005], dep[30005];
-
-int lca(int a, int b){
-    if(dep[a] > dep[b]) swap(a, b);
-    int dx = dep[b] - dep[a];
-    for(int i=0; i<15; i++){
-        if((dx >> i) & 1) b = par[i][b];
-    }
-    for(int i=14; i>=0; i--){
-        if(par[i][a] != par[i][b]){
-            a = par[i][a];
-            b = par[i][b];
-        }
-    }
-    if(a == b) return a;
-    return par[0][a];
-}
-
-int dfs(int x, int pa){
-    dfn[x] = ++p;
-    size[x] = 1;
-    par[0][x] = pa;
-    for(int i=1; i<15; i++){
-        par[i][x] = par[i-1][par[i-1][x]];
-    }
-    for(auto &i : graph[x]){
-        if(i == pa) continue;
-        dep[i] = dep[x] + 1;
-        size[x] += dfs(i, x);
-    }
-    return size[x];
-}
-
-struct seg{
-    int tree[132000], lazy[132000];
-    void lazydown(int p, int ps, int pe){
-        int pm = (ps + pe) / 2;
-        tree[2*p] += (pm - ps + 1) * lazy[p];
-        tree[2*p+1] += (pe - pm) * lazy[p];
-        lazy[2*p] += lazy[p];
-        lazy[2*p+1] += lazy[p];
-        lazy[p] = 0;
-    }
-    void add(int s, int e, int ps, int pe, int p, int v){
-        if(e < ps || pe < s) return;
-        if(s <= ps && pe <= e){
-            lazy[p] += v;
-            tree[p] += v * (pe - ps + 1);
-            return;
-        }
-        lazydown(p, ps, pe);
-        int pm = (ps + pe) / 2;
-        add(s, e, ps, pm, 2*p, v);
-        add(s, e, pm+1, pe, 2*p+1, v);
-        tree[p] = tree[2*p] + tree[2*p+1];
-    }
-    int query(int pos, int ps, int pe, int p){
-        if(pos == 0) return 0;
-        if(ps == pe) return tree[p];
-        int pm = (ps + pe) / 2;
-        lazydown(p, ps, pe);
-        if(pos <= pm) return query(pos, ps, pm, 2*p);
-        return query(pos, pm+1, pe, 2*p+1);
-    }
-}seg;
+int n;
 
 int main(){
     scanf("%d",&n);
+    lct.init(n);
     for(int i=1; i<=n; i++){
-        scanf("%d",&a[i]);
+        int x;
+        scanf("%d",&x);
+        lct.update(i, x);
     }
-    disj.init(n);
-    scanf("%d",&q);
-    for(int i=0; i<q; i++){
-        char str[20];
-        int a, b;
-        scanf("%s %d %d",str, &a, &b);
-        if(*str == 'b'){
-            type[i] = 1;
-            if(disj.uni(a, b)){
-                graph[a].push_back(b);
-                graph[b].push_back(a);
-                ret[i] = 1;
-            }
+    int q; scanf("%d",&q);
+    while(q--){
+        char buf[20];
+        scanf("%s", buf);
+        if(*buf == 'b'){
+            int x, y;
+            scanf("%d %d",&x,&y);
+            if(lct.link(x, y)) puts("yes");
+            else puts("no");
         }
-        if(*str == 'p'){
-            type[i] = 2;
-            v.push_back({2, a, b, i});
+        if(*buf == 'p'){
+            int x, v;
+            scanf("%d %d",&x,&v);
+            lct.update(x, v);
         }
-        if(*str == 'e'){
-            type[i] = 3;
-            if(disj.find(a) != disj.find(b)){
-                ret[i] = -1;
-            }
-            else{
-                v.push_back({3, a, b, i});
-            }
-        }
-    }
-    for(int i=2; i<=n; i++){
-        if(disj.uni(1, i)){
-            graph[1].push_back(i);
-            graph[i].push_back(1);
-        }
-    }
-    dfs(1, 0);
-    for(int i=1; i<=n; i++){
-        seg.add(dfn[i], dfn[i] + size[i] - 1, 1, n, 1, a[i]);
-    }
-    for(auto &i : v){
-        if(i.type == 2){
-            seg.add(dfn[i.a], dfn[i.a] + size[i.a] - 1, 1, n, 1, i.b - a[i.a]);
-            a[i.a] = i.b;
-        }
-        else if(i.type == 3){
-            int l = lca(i.a, i.b);
-            int val = seg.query(dfn[i.a], 1, n, 1) 
-            + seg.query(dfn[i.b], 1, n, 1)
-            - seg.query(dfn[par[0][l]], 1, n, 1)
-            - seg.query(dfn[l], 1, n, 1);
-            ret[i.time] = val;
-        }
-    }
-    for(int i=0; i<q; i++){
-        if(type[i] == 1){
-            puts(ret[i] ? "yes" : "no");
-        }
-        else if(type[i] == 3){
-            if(ret[i] == -1) puts("impossible");
-            else printf("%d\n",ret[i]);
+        if(*buf == 'e'){
+            int x, y;
+            scanf("%d %d",&x,&y);
+            int v = lct.query(x, y);
+            if(v < 0) puts("impossible");
+            else printf("%d\n", v);
         }
     }
 }

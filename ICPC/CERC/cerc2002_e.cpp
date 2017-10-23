@@ -1,58 +1,73 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <limits.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
-#include <functional>
-#include <numeric>
-#include <algorithm>
-#include <stack>
-#include <queue>
-#include <deque>
-#include <vector>
-#include <string>
-#include <bitset>
-#include <map>
-#include <set>
+#include <bits/stdc++.h>
 using namespace std;
 typedef long long lint;
-typedef long double llf;
-typedef pair<int, int> pi;
+typedef pair<lint, lint> pi;
 
-int n;
-vector<pi> gph[50005];
-bool inque[50005];
-int dist[50005];
+int dist[11][30005];
+int n, m, a[30005];
+vector<pi> gph[30005];
+
+bool pareto_optimal(int pos, int r, int d){
+	return r == 10 || dist[r+1][pos] > d;
+}
 
 int main(){
-	cin >> n;
-	for(int i=0; i<n; i++){
+	cin >> n >> m;
+	for(int i=1; i<=n; i++){
+		scanf("%d",&a[i]);
+	}
+	for(int i=0; i<m; i++){
 		int s, e, x;
 		scanf("%d %d %d",&s,&e,&x);
-		gph[s].emplace_back(e+1, -x);
+		gph[s].push_back(pi(x, e));
+		gph[e].push_back(pi(x, s));
 	}
-	for(int i=0; i<50001; i++){
-		gph[i+1].emplace_back(i, 1);
-		gph[i].emplace_back(i+1, 0);
-	}
-	queue<int> que;
-	que.push(0);
 	memset(dist, 0x3f, sizeof(dist));
-	dist[0] = 0;
-	while(!que.empty()){
-		int x = que.front();
-		que.pop();
-		inque[x] = 0;
-		for(auto &i : gph[x]){
-			if(dist[i.first] > dist[x] + i.second){
-				dist[i.first] = dist[x] + i.second;
-				if(!inque[i.first]) que.push(i.first);
-				inque[i.first] = 1;
+	for(int i=10; i; i--){
+		priority_queue<pi, vector<pi>, greater<pi> > pq;
+		for(int j=1; j<=n; j++){
+			if(a[j] == i){
+				dist[i][j] = 0;
+				pq.push(pi(0, j));
+			}
+		}
+		while(!pq.empty()){
+			auto x = pq.top();
+			pq.pop();
+			if(dist[i][x.second] != x.first) continue;
+			for(auto &j : gph[x.second]){
+				if(dist[i][j.second] > x.first + j.first){
+					dist[i][j.second] = x.first + j.first;
+					pq.push(pi(dist[i][j.second], j.second));
+				}
 			}
 		}
 	}
-	cout << -dist[50001];
+	for(int i=9; i; i--){
+		for(int j=1; j<=n; j++){
+			dist[i][j] = min(dist[i][j], dist[i+1][j]);
+		}
+	}
+	int ret = 0;
+	for(int i=1; i<=n; i++){
+		priority_queue<pi, vector<pi>, greater<pi> > pq;
+		vector<int> mod = {i};
+		dist[0][i] = 0;
+		pq.push(pi(0, i));
+		while(!pq.empty()){
+			auto x = pq.top();
+			pq.pop();
+			if(dist[0][x.second] != x.first) continue;
+			ret++;
+			mod.push_back(x.second);
+			for(auto &j : gph[x.second]){
+				if(pareto_optimal(j.second, a[i], x.first + j.first) && dist[0][j.second] > x.first + j.first){
+					dist[0][j.second] = x.first + j.first;
+					pq.push(pi(dist[0][j.second], j.second));
+				}
+			}
+		}
+		for(auto &i : mod) dist[0][i] = 1e9;
+	}
+	cout << ret;
 }

@@ -1,36 +1,36 @@
 // This is a collection of useful code for solving problems that
 // involve modular linear equations.  Note that all of the
-// algorithms described here work on nonnegative integers.
+// algorithms described here work on nonnegative lintegers.
 
 #include <iostream>
 #include <vector>
 #include <algorithm>
 
 using namespace std;
-
-typedef vector<int> VI;
-typedef pair<int, int> PII;
+typedef long long lint;
+typedef vector<lint> VI;
+typedef pair<lint, lint> PII;
 
 // return a % b (positive value)
-int mod(int a, int b) {
+lint mod(lint a, lint b) {
 	return ((a%b) + b) % b;
 }
 
 // computes gcd(a,b)
-int gcd(int a, int b) {
-	while (b) { int t = a%b; a = b; b = t; }
+lint gcd(lint a, lint b) {
+	while (b) { lint t = a%b; a = b; b = t; }
 	return a;
 }
 
 // computes lcm(a,b)
-int lcm(int a, int b) {
+lint lcm(lint a, lint b) {
 	return a / gcd(a, b)*b;
 }
 
 // (a^b) mod m via successive squaring
-int powermod(int a, int b, int m)
+lint ipow(lint a, lint b, lint m)
 {
-	int ret = 1;
+	lint ret = 1;
 	while (b)
 	{
 		if (b & 1) ret = mod(ret*a, m);
@@ -41,12 +41,12 @@ int powermod(int a, int b, int m)
 }
 
 // returns g = gcd(a, b); finds x, y such that d = ax + by
-int extended_euclid(int a, int b, int &x, int &y) {
-	int xx = y = 0;
-	int yy = x = 1;
+lint extended_euclid(lint a, lint b, lint &x, lint &y) {
+	lint xx = y = 0;
+	lint yy = x = 1;
 	while (b) {
-		int q = a / b;
-		int t = b; b = a%b; a = t;
+		lint q = a / b;
+		lint t = b; b = a%b; a = t;
 		t = xx; xx = x - q*xx; x = t;
 		t = yy; yy = y - q*yy; y = t;
 	}
@@ -54,22 +54,22 @@ int extended_euclid(int a, int b, int &x, int &y) {
 }
 
 // finds all solutions to ax = b (mod n)
-VI modular_linear_equation_solver(int a, int b, int n) {
-	int x, y;
+VI modular_linear_equation_solver(lint a, lint b, lint n) {
+	lint x, y;
 	VI ret;
-	int g = extended_euclid(a, n, x, y);
+	lint g = extended_euclid(a, n, x, y);
 	if (!(b%g)) {
 		x = mod(x*(b / g), n);
-		for (int i = 0; i < g; i++)
+		for (lint i = 0; i < g; i++)
 			ret.push_back(mod(x + i*(n / g), n));
 	}
 	return ret;
 }
 
 // computes b such that ab = 1 (mod n), returns -1 on failure
-int mod_inverse(int a, int n) {
-	int x, y;
-	int g = extended_euclid(a, n, x, y);
+lint mod_inverse(lint a, lint n) {
+	lint x, y;
+	lint g = extended_euclid(a, n, x, y);
 	if (g > 1) return -1;
 	return mod(x, n);
 }
@@ -77,9 +77,9 @@ int mod_inverse(int a, int n) {
 // Chinese remainder theorem (special case): find z such that
 // z % m1 = r1, z % m2 = r2.  Here, z is unique modulo M = lcm(m1, m2).
 // Return (z, M).  On failure, M = -1.
-PII chinese_remainder_theorem(int m1, int r1, int m2, int r2) {
-	int s, t;
-	int g = extended_euclid(m1, m2, s, t);
+PII chinese_remainder_theorem(lint m1, lint r1, lint m2, lint r2) {
+	lint s, t;
+	lint g = extended_euclid(m1, m2, s, t);
 	if (r1%g != r2%g) return make_pair(0, -1);
 	return make_pair(mod(s*r2*m1 + t*r1*m2, m1*m2) / g, m1*m2 / g);
 }
@@ -91,7 +91,7 @@ PII chinese_remainder_theorem(int m1, int r1, int m2, int r2) {
 // to be relatively prime.
 PII chinese_remainder_theorem(const VI &m, const VI &r) {
 	PII ret = make_pair(r[0], m[0]);
-	for (int i = 1; i < m.size(); i++) {
+	for (lint i = 1; i < m.size(); i++) {
 		ret = chinese_remainder_theorem(ret.second, ret.first, m[i], r[i]);
 		if (ret.second == -1) break;
 	}
@@ -100,7 +100,7 @@ PII chinese_remainder_theorem(const VI &m, const VI &r) {
 
 // computes x and y such that ax + by = c
 // returns whether the solution exists
-bool linear_diophantine(int a, int b, int c, int &x, int &y) {
+bool linear_diophantine(lint a, lint b, lint c, lint &x, lint &y) {
 	if (!a && !b)
 	{
 		if (c) return false;
@@ -119,7 +119,7 @@ bool linear_diophantine(int a, int b, int c, int &x, int &y) {
 		x = c / a; y = 0;
 		return true;
 	}
-	int g = gcd(a, b);
+	lint g = gcd(a, b);
 	if (c % g) return false;
 	x = c / g * mod_inverse(a / g, b / g);
 	y = (c - a*x) / b;
@@ -131,13 +131,13 @@ int main() {
 	cout << gcd(14, 30) << endl;
 
 	// expected: 2 -2 1
-	int x, y;
-	int g = extended_euclid(14, 30, x, y);
+	lint x, y;
+	lint g = extended_euclid(14, 30, x, y);
 	cout << g << " " << x << " " << y << endl;
 
 	// expected: 95 451
 	VI sols = modular_linear_equation_solver(14, 30, 100);
-	for (int i = 0; i < sols.size(); i++) cout << sols[i] << " ";
+	for (lint i = 0; i < sols.size(); i++) cout << sols[i] << " ";
 	cout << endl;
 
 	// expected: 8

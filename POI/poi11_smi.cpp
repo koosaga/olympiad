@@ -26,6 +26,11 @@ static inline int _read() {
 }
 
 static inline int _readInt() {
+
+	int x;
+	cin >> x;
+		return x;
+		/*
 	int c, x, s;
 	c = _read();
 	while (c <= 32) c = _read();
@@ -41,7 +46,7 @@ static inline int _readInt() {
 		c = _read();
 	}
 	if (s < 0) x = -x;
-	return x;
+	return x;*/
 }
 
 int n, m;

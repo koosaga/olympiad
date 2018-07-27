@@ -23,77 +23,111 @@ typedef pair<int, int> pi;
 int n, a[1005], s[1005];
 char dp[1005][8195];
 char dir[1005][8195];
+int maxbit[8195];
 
-void getdp(){
-	memset(dp[n+1], 0, sizeof(dp[n+1]));
-	dp[n+1][s[n]] = 1;
-	for(int i=n; i>=1; i--){
-		for(int j=0; j<=s[i-1]; j++){
-			int l = j, r = s[i-1] - j;
-			int lsbl = (l & -l), lsbr = (r & -r);
-			dp[i][j] = 0;
-			if(l == 0 || lsbl >= a[i]){
-				if(dp[i+1][l + a[i]]){
-					dp[i][l] = 1;
-					dir[i][l] = 1;
-					continue;
+bool f(int pos, int l, int r){
+	if(pos == n + 1) return l == s[n];
+	if(~dp[pos][l]) return dp[pos][l];
+	int lsbl = l & -l;
+	int lsbr = r & -r;
+	int ans = 0;
+	if(l == 0 || lsbl >= a[pos] || (lsbl == l && a[pos] >= lsbl)){
+		if(lsbl == l){
+			if(a[pos] > lsbl){
+				if(f(pos + 1, a[pos], s[pos - 1])){
+					dir[pos][l] = 1;
+					ans = 1;
 				}
 			}
-			if(r == 0 || lsbr >= a[i]){
-				int tr = r + a[i];
-				if((tr & -tr) == tr && l < 2 * tr){
-					dp[i][l] = dp[i+1][l+tr];
+			else{
+				if(f(pos + 1, l + a[pos], r)){
+					dir[pos][l] = 1;
+					ans = 1;
 				}
-				else{
-					dp[i][l] = dp[i+1][l];
-				}
-				if(dp[i][l]) dir[i][l] = 2;
+			}
+		}
+		else{
+			if(f(pos + 1, l + a[pos], r)){
+				dir[pos][l] = 1;
+				ans = 1;
 			}
 		}
 	}
+	if(r == 0 || lsbr >= a[pos]){
+		int tr = r + a[pos];
+		if((tr & -tr) == tr && maxbit[l] <= tr){
+			if(f(pos + 1, s[pos], 0)){
+				dir[pos][l] = 2;
+				ans = 1;
+			}
+		}
+		else{
+			if(f(pos + 1, l, r + a[pos])){
+				dir[pos][l] = 2;
+				ans = 1;
+			}
+		}
+	}
+	return dp[pos][l] = ans;
 }
 
 void track(int pos, int l, int r){
-	if(pos == n+1) return;
+//	printf("%d %d %d\n", pos, l, r);
+	if(pos == n + 1) return;
 	if(dir[pos][l] == 1){
-		putchar('l');
-		track(pos+1, l+a[pos], r);
-	}
-	else{
-		putchar('r');
-		int tr = (r + a[pos]);
-		if((tr & -tr) == tr && l < 2 * tr){
-			track(pos + 1, l + tr, 0);
+		printf("l");
+		int lsbl = l & -l;
+		if(lsbl == l){
+			if(a[pos] > lsbl){
+				track(pos + 1, a[pos], s[pos - 1]);
+			}
+			else{
+				track(pos + 1, l + a[pos], r);
+			}
 		}
 		else{
-			track(pos + 1, l, tr);
+			track(pos + 1, l + a[pos], r);
+		}
+
+	}
+	else{
+		printf("r");
+		int tr = r + a[pos];
+		if((tr & -tr) == tr && maxbit[l] <= tr){
+			track(pos + 1, s[pos], 0);
+		}
+		else{
+			track(pos + 1, l, r + a[pos]);
 		}
 	}
 }
 
 void solve(){
-	getdp();
-	if(!dp[1][0]){
-		puts("no");
+	if(s[n] != (s[n] & -s[n])){
+		printf("no");
+		return;
+	}
+	for(int i=0; i<n+2; i++) memset(dp[i], -1, sizeof(dp[i]));
+	if(!f(1, 0, 0)){
+		printf("no");
 		return;
 	}
 	track(1, 0, 0);
-	putchar('\n');
 }
 
 int main(){
 	int t;
 	cin >> t;
-	while(t--){
+	for(int i=0; i<=13; i++){
+		for(int j=(1<<i); j<=8192; j++) maxbit[j] = (1<<i);
+	}
+	for(int i=0; i<t; i++){
 		scanf("%d",&n);
 		for(int i=1; i<=n; i++){
 			scanf("%d",&a[i]);
 			s[i] = a[i] + s[i-1];
 		}
-		if(s[n] != (s[n] & -s[n])){
-			puts("no");
-			continue;
-		}
 		solve();
+		puts("");
 	}
 }

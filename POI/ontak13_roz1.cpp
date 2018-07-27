@@ -14,7 +14,7 @@ struct fuckstl{
 		for(int i=0; i<782; i++) E[i] = ~E[i];
 	}
 	void get(vector<int> &v, int n){
-		for(int i=0; i<782; i++){
+		for(int i=0; i<782 && i * 64 < n; i++){
 			while(E[i]){
 				int p = __builtin_ctzll(E[i]);
 				E[i] ^= (1ull << p);
@@ -33,6 +33,8 @@ fuckstl operator|(const fuckstl &a, const fuckstl &b){
 
 int n, a[MAXN][5];
 char buf[10];
+pi ans[100005];
+int cnt;
 
 int main(){
 	scanf("%d",&n);
@@ -44,21 +46,23 @@ int main(){
 			bs[j][a[i][j]].set(i);
 		}
 	}
-	vector<pi> ans;
 	for(int i=0; i<n; i++){
 		fuckstl na = bs[0][a[i][0]] | bs[1][a[i][1]] | bs[2][a[i][2]] | bs[3][a[i][3]] | bs[4][a[i][4]];
 		na.negate();
 		vector<int> v;
-		na.get(v, n);
+		na.get(v, i);
 		for(auto &j : v){
-			if(j < i){
-				ans.push_back(pi(j, i));
+			ans[cnt++] = pi(j, i);
+			if(cnt == 100000){
+				printf("%d\n",cnt);
+				for(int i=0; i<cnt; i++) printf("%d %d\n", ans[i].first+1, ans[i].second+1);
+				return 0;
 			}
-			else break;
 		}
-		if(ans.size() >= 100000) break;
 	}
-	while(ans.size() > 100000) ans.pop_back();
-	printf("%d\n", ans.size());
-	for(auto &i : ans) printf("%d %d\n", i.first+1, i.second+1);
+	{
+		printf("%d\n",cnt);
+		for(int i=0; i<cnt; i++) printf("%d %d\n", ans[i].first+1, ans[i].second+1);
+		return 0;
+	}
 }

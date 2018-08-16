@@ -4,17 +4,18 @@
 #include <utility>
 #include <queue>
 using namespace std;
+using lint = long long;
 typedef pair<int,int> pi;
- 
-struct edge{int dist, pos, used;};
+
+struct edge{lint dist, pos, used;};
 bool operator<(edge a, edge b){return a.dist > b.dist; }
- 
+
 priority_queue<edge> pq;
 vector<pi> graph[10005];
- 
+
 int v[10005][21];
 int n,m,k;
- 
+
 int main(){
     scanf("%d %d %d",&n,&m,&k);
     for (int i=0; i<m; i++) {
@@ -28,7 +29,7 @@ int main(){
         edge x = pq.top();
         pq.pop();
         if(x.pos == n){
-            printf("%d",x.dist);
+            printf("%lld",x.dist);
             return 0;
         }
         if(v[x.pos][x.used]) continue;

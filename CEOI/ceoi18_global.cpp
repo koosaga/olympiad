@@ -1,61 +1,58 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long lint;
-typedef pair<int, int> pi;
-const int MAXN = 2005;
+using lint = long long;
+using pi = pair<lint, int>;
+const int MAXN = 200005;
+const int mod = 1e9 + 7;
 
-int p1[6], p2[6], pt[6][3];
-int ans[4];
-
-int main(){
-	string s[4];
-	map<string, int> mp;
-	for(int i=0; i<4; i++){
-		cin >> s[i];
-		mp[s[i]] = i;
-	}
-	for(int i=0; i<6; i++){
-		string a, b;
-		double x, y, z;
-		cin >> a >> b >> x >> y >> z;
-		p1[i] = mp[a];
-		p2[i] = mp[b];
-		pt[i][0] = (int)round(1000 * x);
-		pt[i][1] = (int)round(1000 * y);
-		pt[i][2] = (int)round(1000 * z);
-	}
-	srand(0x14004);
-	int cnt = 0;
-	while(clock() < 0.995 * CLOCKS_PER_SEC){
-		cnt += 60000;
-		for(int it = 0; it < 10000; it++){
-			int sc[4] = {}, p[4] = {0, 1, 2, 3};
-			for(int j=0; j<6; j++){
-				int dice = rand() % 1000;
-				if(dice < pt[j][0]) sc[p1[j]] += 3;
-				else if(dice < pt[j][0] + pt[j][1]) sc[p1[j]] += 1, sc[p2[j]] += 1;
-				else sc[p2[j]] += 3;
-			}
-
-			sort(p, p + 4, [&](int x, int y){
-				return sc[x] > sc[y];
-			});
-			if(sc[p[1]] == sc[p[2]]){
-				int lop = 1, rip = 2;
-				if(sc[p[0]] == sc[p[1]]) lop = 0;
-				if(sc[p[2]] == sc[p[3]]) rip = 3;
-				int gyesu = (2 - lop) * (12 / (rip - lop + 1));
-				for(int j=lop; j<=rip; j++){
-					ans[p[j]] += gyesu;
-				}
-				for(int j=0; j<lop; j++) ans[p[j]] += 12;
-			}
-			else{
-				ans[p[0]] += 12;
-				ans[p[1]] += 12;
-			}
-
+struct bit{
+	int tree[MAXN];
+	void upd(int x, int v){
+		while(x < MAXN){
+			tree[x] = max(tree[x], v);
+			x += x & -x;
 		}
 	}
-	for(int i=0; i<4; i++) printf("%.10f\n", 0.5 * ans[i]/cnt);
+	int query(int x){
+		int ret = 0;
+		while(x){
+			ret = max(ret, tree[x]);
+			x -= x & -x;
+		}
+		return ret;
+	}
+}bit;
+
+int n, x, a[MAXN], dl[MAXN], dr[MAXN];
+vector<int> v;
+
+int main(){
+	scanf("%d %d",&n,&x);
+	for(int i=1; i<=n; i++){
+		scanf("%d",&a[i]);
+		v.push_back(a[i]);
+	}
+	sort(v.begin(), v.end());
+	v.resize(unique(v.begin(), v.end()) - v.begin());
+	vector<int> l;
+	for(int i=1; i<=n; i++){
+		auto it = lower_bound(l.begin(), l.end(), a[i]);
+		dl[i] = it - l.begin() + 1;
+		if(it == l.end()) l.push_back(a[i]);
+		else *it = a[i];
+	}
+	l.clear();
+	for(int i=n; i; i--){
+		auto it = lower_bound(l.begin(), l.end(), -a[i]);
+		dr[i] = it - l.begin() + 1;
+		if(it == l.end()) l.push_back(-a[i]);
+		else *it = -a[i];
+	}
+	int ans = l.size();
+	for(int i=1; i<=n; i++){
+		auto l = lower_bound(v.begin(), v.end(), a[i] + x) - v.begin();
+		ans = max(ans, dr[i] + bit.query(l));
+		bit.upd(lower_bound(v.begin(), v.end(), a[i]) - v.begin() + 1, dl[i]);
+	}
+	cout << ans << endl;
 }

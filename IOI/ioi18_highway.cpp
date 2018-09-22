@@ -5,7 +5,6 @@ using lint = long long;
 using pi = pair<int, int>;
 const int MAXN = 90005;
 
-int dist[MAXN];
 vector<int> gph[MAXN];
 
 lint cut_ask(int m, vector<int> &c, vector<int> &u, vector<int> &v){
@@ -49,7 +48,7 @@ void find_pair(int N, std::vector<int> U, std::vector<int> V, int A, int B) {
 	}
 	int S = -1, T = -1;
 	for(int i=0; i<2; i++){
-		s = 0, e = (int)bord[i].size() - 1;
+		int s = 0, e = (int)bord[i].size() - 1;
 		while(s != e){
 			int m = (s + e + 1) / 2;
 			vector<int> C(bord[i].begin() + m, bord[i].end());

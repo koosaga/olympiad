@@ -44,13 +44,13 @@ string pfx, sfx;
 int getp(int x, int y){
 	if(pfx.size() == x) return y;
 	if(x != 0 && y == 0) return 0;
-	getp(x+1, pfx_trie[y][gt[pfx[x]]]);
+	return getp(x+1, pfx_trie[y][gt[pfx[x]]]);
 }
 
 int gets(int x, int y){
 	if(sfx.size() == x) return y;
 	if(x != 0 && y == 0) return 0;
-	gets(x+1, sfx_trie[y][gt[sfx[x]]]);
+	return gets(x+1, sfx_trie[y][gt[sfx[x]]]);
 }
 
 struct seg{

@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int MAXN = 10005;
+const int MAXN = 100005;
 
 int n;
 vector<int> gph[MAXN];
@@ -13,7 +13,6 @@ int query(int k){
 		if(i == 1) break;
 		vector<int> v;
 		for(auto &j : gph[i]) v.push_back(dp[j] + 1);
-		if(v.size() % 2 == 0) v.push_back(0);
 		sort(v.begin(), v.end());
 		auto trial_pos = [&](int x){
 			int l = 0, r = v.size() - 1;
@@ -21,16 +20,21 @@ int query(int k){
 				if(l == x) l++;
 				if(r == x) r--;
 				if(v[l] + v[r] > k) return 0;
+				l++;
+				r--;
 			}
 			return 1;
 		};
+		if(v.size() % 2 == 0){
+			v.insert(v.begin(), 0);
+		}
 		int s = 0, e = v.size();
 		while(s != e){
 			int m = (s+e)/2;
 			if(trial_pos(m)) e = m;
 			else s = m + 1;
 		}
-		if(s == v.size()) return 0;
+		if(s == v.size() || v[s] >= k) return 0;
 		dp[i] = v[s];
 	}
 	vector<int> v;

@@ -1,30 +1,29 @@
-#include <cstdio>
-#include <algorithm>
-#include <utility>
+#include <bits/stdc++.h>
 using namespace std;
-typedef pair<int,int> pi;
- 
-int n;
-pi a[55];
-int dp[101][101];
- 
-int calc(int start, int end){
-	if(start > end) return 0;
-	if(dp[start][end]) return dp[start][end];
-	int res = 0;
-	for (int i=0; i<n; i++) {
-		if(start < a[i].first && a[i].second < end){
-			res = max(res,1 + calc(start,a[i].first) + calc(a[i].first,a[i].second) + calc(a[i].second,end));
-		}
+
+int adj[105][105];
+int dp[105][105];
+
+int f(int s, int e){
+	if(~dp[s][e]) return dp[s][e];
+	if(s > e) return 0;
+	int ret = 0;
+	if(adj[s][e]){
+		ret = max(ret, 1 + f(s + 1, e - 1));
 	}
-	return dp[start][end] = res;
+	for(int i=s; i<e; i++){
+		ret = max(ret, f(s, i) + f(i + 1, e));
+	}
+	return dp[s][e] = ret;
 }
- 
+
 int main(){
-	scanf("%d",&n);
-	for (int i=0; i<n; i++) {
-		scanf("%d %d",&a[i].first,&a[i].second);
-		if(a[i].second < a[i].first) swap(a[i].first,a[i].second);
+	int n; cin >> n;
+	for(int i=0; i<n;i++){
+		int s, e; cin >> s >> e;
+		if(s > e) swap(s, e);
+		adj[s][e] = 1;
 	}
-	printf("%d",calc(0,100));
+	memset(dp, -1, sizeof(dp));
+	cout << f(1, 100) << endl;
 }

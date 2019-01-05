@@ -65,9 +65,9 @@ int main(){
 			}
 		}
 	}
-	int tc; cin >> tc;
+	int tc; scanf("%d",&tc);
 	while(tc--){
-		int a, b; cin >> a >> b;
+		int a, b; scanf("%d %d",&a,&b);
 		bool ok = 0;
 		{
 			if(dp[3][0][a][b]){

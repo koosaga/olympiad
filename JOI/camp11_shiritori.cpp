@@ -9,6 +9,7 @@ deque<long long> adj[105][105],key[105];
 vector<int> res;
 
 int indeg[105], outdeg[105],n;
+int start;
 
 int input(){
     long long t;
@@ -19,21 +20,20 @@ int input(){
         outdeg[t/100000000LL]++;
         adj[t/100000000LL][t%100].push_back(t);
         key[t/100000000LL].push_back(t);
+        if(i == 0) start = t / 100000000LL;
     }
     int s = -1, e = -1;
     for (int i=0; i<100; i++) {
-        if(indeg[i] == outdeg[i]) continue;
-        else if(indeg[i] + 1 == outdeg[i]){
-            if(s == -1) s = i;
-            else{
-                printf("impossible");
-                return 1;
-            }
+        if(indeg[i] + 2 <= outdeg[i]){
+            printf("impossible\n");
+            return 1;
         }
-        else if(outdeg[i] + 1 == indeg[i]){
-            if(e == -1) e = i;
+        else if(indeg[i] + 1 == outdeg[i]){
+            if(s == -1){
+            	s = start = i;
+           	}
             else{
-                printf("impossible");
+                printf("impossible\n");
                 return 1;
             }
         }
@@ -63,26 +63,14 @@ void f(int pos){
 
 int main(){
     if(input()) return 0;
-    int found = 0;
-    for (int i=0; i<100; i++) {
-        if(indeg[i] == outdeg[i] - 1){
-            f(i);
-            found = 1;
-        }
+    f(start);
+    if((int)res.size() - 1 < n){
+      puts("impossible");
+      return 0;
     }
-    if(!found){
-        for (int i=0; i<100; i++) {
-            if(indeg[i] == outdeg[i]){
-                f(i);
-                found = 1;
-            }
-        }
-    }
-    else{
-        reverse(res.begin(),res.end());
-        for (int i=1; i<res.size(); i++) {
-            printf("%010lld\n",adj[res[i-1]][res[i]].front());
-            adj[res[i-1]][res[i]].pop_front();
-        }
+    reverse(res.begin(),res.end());
+    for (int i=1; i<res.size(); i++) {
+        printf("%010lld\n",adj[res[i-1]][res[i]].front());
+        adj[res[i-1]][res[i]].pop_front();
     }
 }

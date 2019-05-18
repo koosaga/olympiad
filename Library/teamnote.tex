@@ -2060,6 +2060,17 @@ vector<lint> poly_divide(const vector<lint> &a, const vector<lint> &b){
 \end{minted}
 \subsection{Black Box Linear Algebra + Kitamasa}
 \begin{minted}{cpp}
+const int mod = 998244353;
+using lint = long long;
+lint ipow(lint x, lint p){
+	lint ret = 1, piv = x;
+	while(p){
+		if(p & 1) ret = ret * piv % mod;
+		piv = piv * piv % mod;
+		p >>= 1;
+	}
+	return ret;
+}
 vector<int> berlekamp_massey(vector<int> x){
 	vector<int> ls, cur;
 	int lf, ld;
@@ -2131,8 +2142,8 @@ int guess_nth_term(vector<int> x, lint n){
 	return get_nth(v, x, n);
 }
 struct elem{int x, y, v;}; // A_(x, y) <- v, 0-based. no duplicate please..
-vector<int> get_min_poly(int n, vector<elem> M){ 
-	// smallest poly P such that A^i = sum_{j < i} {A^j \times P_j} 
+vector<int> get_min_poly(int n, vector<elem> M){
+	// smallest poly P such that A^i = sum_{j < i} {A^j \times P_j}
 	vector<int> rnd1, rnd2;
 	mt19937 rng(0x14004);
 	auto randint = [&rng](int lb, int ub){
@@ -2161,7 +2172,7 @@ vector<int> get_min_poly(int n, vector<elem> M){
 	reverse(sol.begin(), sol.end());
 	return sol;
 }
-lint det(int n, vector<elem> M){ 
+lint det(int n, vector<elem> M){
 	vector<int> rnd;
 	mt19937 rng(0x14004);
 	auto randint = [&rng](int lb, int ub){
@@ -2176,6 +2187,7 @@ lint det(int n, vector<elem> M){
 	for(auto &i : rnd) sol = 1ll * sol * ipow(i, mod - 2) % mod;
 	return sol;
 }
+
 \end{minted}
 \subsection{Gaussian Elimination}
 \begin{minted}{cpp}

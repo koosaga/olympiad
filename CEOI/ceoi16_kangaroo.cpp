@@ -8,8 +8,6 @@ lint dp[2005][2005];
 int n, s, t;
 
 int main(){
-	freopen("kangaroo.in", "r", stdin);
-	freopen("kangaroo.out", "w", stdout);
 	cin >> n >> s >> t;
 	dp[n+1][1] = 1;
 	int f = 2;

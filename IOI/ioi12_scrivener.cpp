@@ -1,11 +1,11 @@
 char ops[1000005];
 int prev[1000005][20], size[1000005], sz;
 int go[1000005];
- 
+
 void Init(){
-     
+    sz = 1;
 }
- 
+
 void TypeLetter(char L){
     int p = sz;
     go[p] = p;
@@ -17,12 +17,12 @@ void TypeLetter(char L){
     size[p] = size[prev[p][0]]+1;
     sz++;
 }
- 
+
 void UndoCommands(int U){
     go[sz] = go[sz-U-1];
     sz++;
 }
- 
+
 char GetLetter(int P){
     int pos = go[sz-1];
     int obj = P+1;

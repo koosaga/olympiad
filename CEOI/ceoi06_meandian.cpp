@@ -1,31 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <limits.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
-#include <functional>
-#include <numeric>
-#include <algorithm>
-#include <stack>
-#include <queue>
-#include <deque>
-#include <vector>
-#include <string>
-#include <bitset>
-#include <map>
-#include <set>
+#include <bits/stdc++.h>
 using namespace std;
-typedef long long lint;
-typedef long double llf;
 typedef pair<int, int> pi;
 #include "libmean.h"
-
-int n, arr[100];
+ 
+int n, arr[166];
 deque<int> Q;
-
+ 
 void resolve(int a, int b, int c, int d, int e){
 	vector<pi> v;
 	v.emplace_back(Meandian(a, b, c, d), e);
@@ -38,15 +18,14 @@ void resolve(int a, int b, int c, int d, int e){
 	for(int i=1; i<4; i++){
 		sum += v[i].first;
 	}
-	sum /= 2;
-	arr[v[2].second] = sum - v[2].first;
+	arr[v[2].second] = sum - 2 * v[2].first;
 }
-
+ 
 int main(){
 	n = Init();
 	memset(arr, -1, sizeof(arr));
 	for(int i=0; i<n; i++){
-		Q.push_back(i);
+		Q.push_back(i + 1);
 	}
 	while(Q.size() >= 5){
 		resolve(Q[0], Q[1], Q[2], Q[3], Q[4]); 
@@ -59,5 +38,5 @@ int main(){
 			Q.push_back(i);
 		}
 	}
-	Solution(arr);
+	Solution(arr + 1);
 }

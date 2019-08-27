@@ -1,0 +1,18 @@
+Common Bug List
+1. Array sizes
+2. Clearing/Initializing arrays
+3. Storing floating point in int
+4. Integer overflow
+5. Recursion into wrong function
+6. Initialize single variables (some platform don't initialize to 0)
+7. long long and ints, add explicit casting everywhere
+8. reread problem for possible ambiguity, especially in first paragraph of text
+9. add epsilon when outputting floats, sometimes perturb multiplicatively
+10. double computations don't involve #s  too small (SLOW)
+11. comparisons have epsilons in the right direction
+12. Key duplication in set / map
+13. r & c reversed in 2D array indices
+14. Recursive calls overwriting local states stored globally
+15. Only updating one of several corresponding data structures (extra careful when multiple arrays are correlated)
+16. Negative integer division rounds toward zero (not down)
+17. vector.size()-1 can overflow as it's unsigned 

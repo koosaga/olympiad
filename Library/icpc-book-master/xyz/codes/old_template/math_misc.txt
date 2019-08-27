@@ -1,0 +1,80 @@
+///////////////////////////
+//
+// math misc
+//
+///////////////////////////
+dirichlet convolution:
+e = 1*mu
+g = f*1 <=> f = g*mu
+e = id^k * (id^k mu)
+sigma = id*1
+d = 1*1
+sigma_k = id^k*1
+id = phi*1
+sigma = phi*d
+
+dls sieve:
+f, g, h mult func. f*g = h. F, G, H corresponding prefix sum.
+Then 
+F(n) = H(n) - sum_{2 <= d <= n} g(d) F(n/d)
+
+Newton method:
+G(F_t(x)) = 0 (mod x^2^t)
+=>
+F_{t+1}(x) = F_t(x) - G(F_t(x))/G'(F_t(x)) (mod x^2^(t+1))
+
+inv: b_{t+1} = b_t*(2-a*b_t)
+sqrt: b_{t+1} = (b_t + a/b_t)/2
+ln: integral(a'/a)
+exp: b_{t+1} = (1 - ln b_t + a) b_t
+
+ODE: x' = f(x)
+(x_{2n}*r)' = (f(x_n)-f'(x_n)*x_n)*r
+where r = exp(-integral(f'(x_n) dt))
+
+linear interpolation
+P(x) = sum_{0<=j<=k} (-1)^(k-j) binom(x,j) binom(x-j-1, k-j) P(j)
+
+Sylvester determinant identity
+det(I+AB) = det(I+BA)
+
+Matrix determinant lemma
+det(A+uv^T) = (1+v^TA^-1u)det(A)
+
+Woodbury matrix identity
+(A+UCV)^-1 = A^-1 - A^-1 U(C^-1 + V A^-1 U)^-1 V A^-1
+
+pentagon number theorem
+p(n) = sum (-1)^(k-1) p(n-g_k)
+g_k = k(3k-1)/2
+k= 1, -1, 2, -2, ...
+
+Bell number
+number of labeled partitions
+e^(e^t-1)
+
+Bernoulli number
+B(t) = t/(e^t-1)
+B_m = [m=0] - sum_{0<=k<m} binom(m, k) B_k/(m-k+1)
+BB_m = 1 - sum_{0<=k<m} binom(m, k) BB_k/(m-k+1)
+BB_1 = -B_1
+S_m(n) = 1/(m+1) sum_{0<=k<=m} binom(m+1, k) BB_k n^(m+1-k)
+
+Stirling 2nd kind
+{n,k} n labeled partition into k
+Bell_n = sum_k {n,k}
+{n+1,k} = k{n,k} + {n,k-1}
+e.g.f = (e^t-1)^k/k!
+{n,k} = 1/k! sum_{0<=j<=k} (-1)^(k-j) binom(k,j) j^n
+
+Stirling 1st kind
+[n,k] number of permutations with k cycles
+n! = sum_k [n,k]
+[n+1,k] = n[n,k] + [n,k-1]
+e.g.f. of (-1)^(n-k)[n,k] = (log(1+t))^k/k!
+
+Pell equation
+x_k+y_k sqrt n = (x_1 + y_1 sqrt n)^k
+
+Stirling formula
+n! ~ sqrt(2 pi n) (n/e)^n (1 + 1/(12n) + 1/(288n^2) - 139/(51840n^3) - 571/(2488320n^4) + ...)

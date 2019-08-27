@@ -1,0 +1,16 @@
+///////////////////////////
+//
+// geometry misc
+//
+///////////////////////////
+三角形/四面体重心：顶点平均
+凸形三角剖分容易求（固定顶点取所有面）带符号
+
+经纬度球面距离
+double sphereDis(double lon1, double lat1, double lon2, double lat2, double R) {
+	return R * acos(cos(lat1) * cos(lat2) * cos(lon1 - lon2) + sin(lat1) * sin(lat2));
+}
+
+重心（离圆心距离）
+扇形：4r sin(th/2)/(3 th)
+弧：4r sin^3(th/2)/(3(th - sin th))

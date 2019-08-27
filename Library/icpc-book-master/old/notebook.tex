@@ -1,0 +1,149 @@
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[landscape,left=0.4in,right=0.4in,top=0.7in,bottom=0.4in]{geometry}
+\usepackage{multicol}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{amsbsy, amssymb, amsmath}
+\usepackage{listings}
+\usepackage{framed}
+\usepackage{tocloft}
+\usepackage{titletoc}
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+\pagestyle{fancy}
+\fancyhead[L]{MIT ACM 2018-2019}
+\fancyhead[R]{\thepage/\pageref{LastPage}}
+\fancyfoot[C]{}
+
+\lstdefinestyle{common}{
+    belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    breakatwhitespace=true,
+    postbreak=\mbox{\textcolor{gray}{$\hookrightarrow$}\space},
+    showstringspaces=false,
+    basicstyle=\scriptsize\ttfamily,
+    tabsize=2,
+}
+
+\definecolor{eclipsegreen}{HTML}{008000}
+\definecolor{eclipseblue}{HTML}{0000FF}
+\definecolor{eclipsegray}{HTML}{808080}
+\definecolor{eclipseoperator}{HTML}{8000FF}
+\lstdefinestyle{commoncode}{
+    style=common,
+    keywordstyle=\bfseries\color{eclipseblue},
+    commentstyle=\itshape\color{eclipsegreen},
+    %identifierstyle=\color{blue},
+    stringstyle=\color{eclipsegray},
+}
+\lstdefinestyle{cpp}{
+    style=commoncode,
+    language=C++,
+    classoffset=1, % starting new class
+    %otherkeywords={>,<,.,;,-,!,=,~},
+    morekeywords={>,<,.,;,-,!,=,~},
+    keywordstyle=\color{eclipseoperator},
+}
+\lstdefinestyle{java}{
+    style=commoncode,
+    language=Java,
+}
+\lstdefinestyle{py}{
+    style=commoncode,
+    language=Python,
+}
+\lstdefinestyle{txt}{
+    style=common,
+}
+
+\lstset{
+    breaklines=true
+}
+
+\newcommand{\inputfile}[2]{
+    Hash: \texttt{\input{|"contents/hash.sh < contents/#1"}}
+    \lstinputlisting[style=#2]{contents/#1}
+}
+
+\begin{document}
+\begin{multicols*}{3}
+    \tableofcontents
+
+    %\clearpage
+
+    \section{Non-code things}
+    \subsection{Hash}
+        \inputfile{hash.sh}{txt}
+    \subsection{Makefile}
+        \inputfile{Makefile}{txt}
+    \subsection{vimrc}
+        \inputfile{vimrc}{txt}
+    \subsection{nanorc}
+        \inputfile{nanorc}{txt}
+
+    \section{Geometry}
+        \subsection{Point}
+
+        \subsection{Geometric primitives}
+            \inputfile{../kactl/geometry/Point.h}{cpp}
+            \inputfile{../kactl/geometry/lineDistance.h}{cpp}
+            \inputfile{../kactl/geometry/SegmentDistance.h}{cpp}
+            \inputfile{../kactl/geometry/SegmentIntersection.h}{cpp}
+            \inputfile{../kactl/geometry/SegmentIntersectionQ.h}{cpp}
+            \inputfile{../kactl/geometry/lineIntersection.h}{cpp}
+            \inputfile{../kactl/geometry/sideOf.h}{cpp}
+            \inputfile{../kactl/geometry/onSegment.h}{cpp}
+            \inputfile{../kactl/geometry/linearTransformation.h}{cpp}
+            \inputfile{../kactl/geometry/Angle.h}{cpp}
+
+        \subsection{Circles}   
+            \inputfile{../kactl/geometry/CircleIntersection.h}{cpp}
+            \inputfile{../kactl/geometry/circleTangents.h}{cpp}
+            \inputfile{../kactl/geometry/circumcircle.h}{cpp}
+            \inputfile{../kactl/geometry/MinimumEnclosingCircle.h}{cpp}
+
+        \subsection{Polygons}
+            \inputfile{../kactl/geometry/insidePolygon.h}{cpp}
+            \inputfile{../kactl/geometry/PolygonArea.h}{cpp}
+            \inputfile{../kactl/geometry/PolygonCenter.h}{cpp}
+            \inputfile{../kactl/geometry/PolygonCut.h}{cpp}
+            \inputfile{../kactl/geometry/ConvexHull.h}{cpp}
+            \inputfile{../kactl/geometry/PolygonDiameter.h}{cpp}
+            \inputfile{../kactl/geometry/PointInsideHull.h}{cpp}
+            \inputfile{../kactl/geometry/LineHullIntersection.h}{cpp}
+
+        \subsection{Misc. Point Set Problems}
+            \inputfile{../kactl/geometry/closestPair.h}{cpp}
+            \inputfile{../kactl/geometry/kdTree.h}{cpp}
+            \inputfile{../kactl/geometry/DelaunayTriangulation.h}{cpp}
+            \inputfile{../kactl/geometry/FastDelaunay.h}{cpp}
+
+        \subsection{3D}
+            \inputfile{../kactl/geometry/PolyhedronVolume.h}{cpp}
+            \inputfile{../kactl/geometry/Point3D.h}{cpp}
+            \inputfile{../kactl/geometry/3dHull.h}{cpp}
+            \inputfile{../kactl/geometry/sphericalDistance.h}{cpp}
+
+	
+	\section{Data Structure}
+	\inputfile{data_structure_LCT.cpp}{cpp}
+	
+	\section{String}
+	\inputfile{string_SAM.cpp}{cpp}
+	
+	\section{Math}
+	\inputfile{math_simplex.cpp}{cpp}
+	
+	\section{Graph}
+	\inputfile{graph_clique.cpp}{cpp}
+	\inputfile{directed_MST.cpp}{cpp}
+	\inputfile{graph_dominator_tree.cpp}{cpp}
+    \section{Java/Python}
+    \subsection{Java IO}
+    \subsection{Java BigInteger}
+    \subsection{Python IO}
+
+\end{multicols*}
+\end{document}

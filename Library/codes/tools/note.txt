@@ -1,0 +1,21 @@
+	\item \textbf{Tutte Matrix}. For a simple undirected graph $G$, Let $M$ be a matrix with entries $A_{i, j} = 0$ if $(i, j) \notin E$ and $A_{i, j} = -A_{j, i} = X$ if $(i, j) \in E$. $X$ could be any random value. If the determinants are non-zero, then a perfect matching exists, while other direction might not hold for very small probability.
+	\item \textbf{Cayley's Formula}. Given a degree sequence $d_1, d_2 \cdots, d_n$ for each labeled vertices, there exists $\frac{(n-2)!}{(d_1 - 1)!(d_2 - 1)! \cdots (d_n - 1)!}$ spanning trees. Summing this for every possible degree sequence gives $n^{n-2}$. 
+	\item \textbf{Kirchhoff's Theorem}. For a multigraph $G$ with no loops, define Laplacian matrix as $L = D - A$. $D$ is a diagonal matrix with $D_{i, i} = deg(i)$, and $A$ is an adjacency matrix. If you remove any row and column of $L$, the determinant gives a number of spanning trees.
+    \item \textbf{Pick's Theorem}. $A=i+\frac{b}{2}-1$, where: $P$ is a simple polygon whose vertices are grid points, $A$ is area of $P$, $i$ is \# of grid points in the interior of $P$, and $b$ is \# of grid points on the boundary of $P$. \\
+    If $h$ is \# of holes of $P$ ($h+1$ simple closed curves in total), $A=i+\frac{b}{2}+h-1$.
+
+    \item \textbf{Xudyh Sieve}.
+    $F(n)=\sum_{d\vert n}f(d)$ \\
+    $S(n)=\sum_{i\leq n}f(i)=\sum_{i\leq n}F(i)-\sum_{d=2}^n S\left(\left\lfloor \frac{n}{d}\right\rfloor\right)$ \\
+    \text{Preprocess $S(1)$ to $S(M)$\hspace{0.5cm}(Set $M=n^{\frac{2}{3}}$ for complexity)} \\
+    $S(n)=\sum f(i) = \sum_{i\leq n}\left[F(i)-\sum_{j|i,j\neq i}f(j)\right]=\sum F(i) - \sum_{i/j=d=2}^n\sum_{dj\leq n}f(j)$ \\
+    $S(n)=\sum if(i) = \sum_{i\leq n}i\left[F(i)-\sum_{j|i,j\neq i}f(j)\right]=\sum iF(i) - \sum_{i/j=d=2}^n\sum_{dj\leq n}djf(j)$ \\
+    $\sum_{d\vert n}\varphi (d)=n\hspace{0.5cm}\sum_{d\vert n}\mu (d)=\text{if } (n > 1) \text{ then } 0 \text{ else } 1\hspace{0.5cm}\sum_{d\vert n}(\mu (\frac{n}{d})\sum_{e\vert d}f(e))=f(n)$ \\
+
+	\item CHT. DnC optimization. Mo's \sout{algorithm} trick (on tree). IOI 2016 Aliens trick. IOI 2009 Regions trick.
+	\item Knuth's $O(n^2)$ Optimal BST : minimize $D_{i, j} = Min_{i \leq k < j}(D_{i, k} + D_{k+1, j}) + C_{i, j}$. Quadrangle Inequality : $C_{a, c} + C_{b, d} \leq C_{a, d} + C_{b, c}$, $C_{b, c} \leq C_{a, d}$. Now monotonicity holds.
+	\item Sqrt batch processing - Save queries in buffer, and update in every sqrt steps (cf : IOI 2011 Elephant. hyea calls it "ainta technique")
+	\item Dynamic insertion in static set (Make $O(\log n)$ copy. Merge like binomial heap.)
+	\item Offline insertion / deletion in insert-only set (Pair insertion-deletion operation, and regard it as range query)
+	\item Atcoder Median Pyramid : Reduce the input to binary, and solve the easier problem.
+	\item LP Duality. max $c^Tx$ sjt to $Ax \leq b$. Dual problem is min $b^Tx$ sjt to $A^Tx \geq c$. By strong duality, min max value coincides.

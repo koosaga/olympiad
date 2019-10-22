@@ -1,4 +1,3 @@
-const int MAXN = 100;
 struct edg{ int pos, cap, rev, cost; };
 vector<edg> gph[MAXN];
 void clear(){ for(int i=0; i<MAXN; i++) gph[i].clear(); }

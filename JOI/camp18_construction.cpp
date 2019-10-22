@@ -6,29 +6,32 @@ typedef pair<int, int> pi;
 
 vector<int> gph[MAXN];
 int n, s[MAXN], e[MAXN], a[MAXN];
-int par[17][MAXN], dep[MAXN], din[MAXN], dout[MAXN], piv;
+int dep[MAXN], din[MAXN], dout[MAXN], piv;
+int ddin[MAXN], ddout[MAXN], pivv;
+pi spt[18][2 * MAXN];
+int lg[2 * MAXN];
 
 int lca(int s, int e){
-	auto in = [&](int s, int e){
-		return din[s] <= din[e] && dout[e] <= dout[s];
-	};
-	if(in(s, e)) return s;
-	for(int i=16; i>=0; i--){
-		if(par[i][s] && !in(par[i][s], e)) s = par[i][s];
-	}
-	return par[0][s];
+	if(ddin[s] > ddin[e]) swap(s, e);
+	if(ddout[e] <= ddout[s]) return s;
+	int st = ddout[s], ed = ddin[e];
+	int l = lg[ed - st + 1];
+	return min(spt[l][st], spt[l][ed - (1<<l) + 1]).second;
 }
 
 void dfs(int x, int p){
 	din[x] = ++piv;
+	ddin[x] = ++pivv;
+	spt[0][pivv] = pi(dep[x] - 1, p);
 	for(auto &i : gph[x]){
 		if(i != p){
 			dep[i] = dep[x] + 1;
-			par[0][i] = x;
 			dfs(i, x);
 		}
 	}
 	dout[x] = piv;
+	ddout[x] = ++pivv;
+	spt[0][pivv] = pi(dep[x] - 1, p);
 }
 
 struct segtree{
@@ -133,6 +136,10 @@ struct bit{
 }bit;
 
 int main(){
+	for(int i=1; i<2*MAXN; i++){
+		lg[i] = lg[i-1];
+		while((2 << lg[i]) <= i) lg[i]++;
+	}
 	vector<int> v;
 	scanf("%d",&n);
 	for(int i=1; i<=n; i++){
@@ -150,9 +157,12 @@ int main(){
 	segtree seg;
 	seg.init();
 	dfs(1, -1);
-	for(int i=1; i<17; i++){
-		for(int j=1; j<=n; j++){
-			par[i][j] = par[i-1][par[i-1][j]];
+	for(int i=1; i<18; i++){
+		for(int j=1; j<=2*n; j++){
+			spt[i][j] = spt[i-1][j];
+			if(j + (1<<(i-1)) <= 2 * n){
+				spt[i][j] = min(spt[i][j], spt[i-1][j + (1<<(i-1))]);
+			}
 		}
 	}
 	e[1] = 1;
@@ -187,4 +197,5 @@ int main(){
 		seg.upd(din[e[i]], i);
 	}
 }
+
 

@@ -20,32 +20,45 @@ using namespace std;
 typedef long long lint;
 typedef long double llf;
 typedef pair<int, int> pi;
+const int offset = 505;
  
-int dp[505][505][505];
-bool vis[505][505][505];
+#define whatthe(i,j,k) (255000 * i + 505 * j + k)
+ 
+int dp[offset * offset * offset];
+bool can[505][505];
 int n, c[505], a[505], v[505];
  
-bool can(int q, int p){
-    if(q > n) return 0;
-    if(p == 0) return 1;
-    return a[q] == a[p] || c[q] == c[p];
-}
- 
-lint f(int s1, int s2, int pop, int peak){
-    if(s2 + 1 == pop && vis[s1][s2][peak]) return dp[s1][s2][peak];
-    else if(peak + 1 == pop && vis[s2][s1][peak]) return dp[s2][s1][peak];
-    lint ret = 0;
-    if(can(s1, peak)) ret = max(ret, v[s1] + f(s2, pop, pop+1, s1));
-    if(can(pop, peak)) ret = max(ret, v[pop] + f(s1, s2, pop+1, pop));
-    if(s2 + 1 == pop) dp[s1][s2][peak] = ret, vis[s1][s2][peak] = 1;
-    if(peak + 1 == pop) dp[s2][s1][peak] = ret, vis[s2][s1][peak] = 1;
-    return ret;
+inline void f(int s1, int s2, int peak){
+	int ret = 0;
+	bool sw = 0;
+	int pop = (s1 > s2 ? peak : s2) + 1;
+	if(s1 > s2) swap(s1, s2), sw = 1;
+	if(can[s1][peak]){
+		int t = dp[whatthe(s2, pop, s1)];
+		if(t == -1) f(s2, pop, s1), t = dp[whatthe(s2, pop, s1)];
+		ret = max(ret, v[s1] + t);
+	}
+	if(can[pop][peak]){
+		int t = dp[whatthe(s2, s1, pop)];
+		if(t == -1) f(s2, s1, pop), t = dp[whatthe(s2, s1, pop)];
+		ret = max(ret, v[pop] + t);
+	}
+	if(sw) swap(s1, s2);
+	dp[whatthe(s1, s2, peak)] = ret;
 }
  
 int main(){
-    scanf("%d",&n);
-    for(int i=1; i<=n; i++){
-        scanf("%d %d %d",&c[i],&a[i],&v[i]);
-    }
-    printf("%lld\n",f(1, 2, 3, 0));
+	memset(dp,-1,sizeof(dp));
+	scanf("%d",&n);
+	for(int i=1; i<=n; i++){
+		scanf("%d %d %d",&c[i],&a[i],&v[i]);
+	}
+	for(int i=1; i<=n; i++){
+		can[i][0] = 1;
+		for(int j=1; j<=n; j++){
+			can[i][j] = (a[i] == a[j] || c[i] == c[j]);
+		}
+	}
+	f(1, 2, 0);
+	printf("%d\n",dp[whatthe(1, 2, 0)]);
 }

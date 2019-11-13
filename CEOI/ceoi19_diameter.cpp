@@ -30,7 +30,6 @@ struct segtree{
 		}
 	}
 	void add(int s, int e, int ps, int pe, int p, lint v){
-		if(e < ps || pe < s) return;
 		if(s <= ps && pe <= e){
 			tree[p] += v;
 			lazy[p] += v;
@@ -38,8 +37,8 @@ struct segtree{
 		}
 		int pm = (ps+pe)/2;
 		lazydown(p);
-		add(s, e, ps, pm, 2*p, v);
-		add(s, e, pm+1, pe, 2*p+1, v);
+		if(s <= pm) add(s, e, ps, pm, 2*p, v);
+		if(pm + 1 <= e) add(s, e, pm+1, pe, 2*p+1, v);
 		tree[p] = max(tree[2*p], tree[2*p+1]);
 	}
 	lint query(int s, int e, int ps, int pe, int p){
@@ -53,7 +52,7 @@ struct segtree{
 
 struct dcmp{
 	int idx;
-	map<int, int> din, dout;
+	unordered_map<int, int> din, dout;
 	int piv;
 	vector<lint> ds;
 	vector<pi> intv;
@@ -173,14 +172,38 @@ int get_center(int x){
 	return ret.second;
 }
  
+ static char buf[1 << 19]; // size : any number geq than 1024
+static int idx = 0;
+static int bytes = 0;
+static inline int _read() {
+	if (!bytes || idx == bytes) {
+		bytes = (int)fread(buf, sizeof(buf[0]), sizeof(buf), stdin);
+		idx = 0;
+	}
+	return buf[idx++];
+}
+static inline lint _readInt() {
+	lint x = 0, s = 1;
+	int c = _read();
+	while (c <= 32) c = _read();
+	if (c == '-') s = -1, c = _read();
+	while (c > 32) x = 10 * x + (c - '0'), c = _read();
+	if (s < 0) x = -x;
+	return x;
+}
+
+
 int main(){
 	lint w;
-	scanf("%d %d %lld",&n,&q,&w);
+	n = _readInt();
+	q = _readInt();
+	w = _readInt();
 	vector<int> S(n - 1), E(n - 1); 
 	vector<lint> X(n - 1);
 	for(int i=0; i<n-1; i++){
-		int s, e; lint x;
-		scanf("%d %d %lld",&s,&e,&x);
+		int s = _readInt();
+		int e = _readInt();
+		lint x = _readInt();
 		gph[s].push_back({e, x, i});
 		gph[e].push_back({s, x, i});
 		tie(S[i], E[i], X[i]) = make_tuple(s, e, x);
@@ -200,7 +223,8 @@ int main(){
 	}
 	lint last = 0;
 	while(q--){
-		lint d, e; scanf("%lld %lld",&d,&e);
+		lint d = _readInt();
+		lint e = _readInt();
 		d = (d + last) % (n - 1);
 		e = (e + last) % w;
 		update(d, S[d], E[d], e - X[d]);
@@ -209,4 +233,5 @@ int main(){
 		printf("%lld\n", last);
 	}
 }
+
 

@@ -1,10 +1,4 @@
-#include <bits/stdc++.h>
-#define sz(v) ((int)(v).size())
-using namespace std;
-typedef long long lint;
-typedef pair<int, int> pi;
-
-typedef long long ll;
+using ll = long long;
 
 bool ge(const ll& a, const ll& b) { return a >= b; }
 bool le(const ll& a, const ll& b) { return a <= b; }
@@ -88,10 +82,10 @@ void splice(QuadEdge* a, QuadEdge* b) {
 void delete_edge(QuadEdge* e) {
 	splice(e, e->oprev());
 	splice(e->rev(), e->rev()->oprev());
-	delete e->rot;
 	delete e->rev()->rot;
-	delete e;
 	delete e->rev();
+	delete e->rot;
+	delete e;
 }
 
 QuadEdge* connect(QuadEdge* a, QuadEdge* b) {
@@ -116,31 +110,27 @@ T det3(T a1, T a2, T a3, T b1, T b2, T b3, T c1, T c2, T c3) {
 }
 
 bool in_circle(pt a, pt b, pt c, pt d) {
-// If there is __int128, calculate directly.
-// Otherwise, calculate angles.
-#if defined(__LP64__) || defined(_WIN64)
-	__int128 det = -det3<__int128>(b.x, b.y, b.sqrLength(), c.x, c.y,
-								   c.sqrLength(), d.x, d.y, d.sqrLength());
-	det += det3<__int128>(a.x, a.y, a.sqrLength(), c.x, c.y, c.sqrLength(), d.x,
-						  d.y, d.sqrLength());
-	det -= det3<__int128>(a.x, a.y, a.sqrLength(), b.x, b.y, b.sqrLength(), d.x,
-						  d.y, d.sqrLength());
-	det += det3<__int128>(a.x, a.y, a.sqrLength(), b.x, b.y, b.sqrLength(), c.x,
-						  c.y, c.sqrLength());
-	return det > 0;
-#else
-	auto ang = [](pt l, pt mid, pt r) {
-		ll x = mid.dot(l, r);
-		ll y = mid.cross(l, r);
-		long double res = atan2((long double)x, (long double)y);
-		return res;
-	};
-	long double kek = ang(a, b, c) + ang(c, d, a) - ang(b, c, d) - ang(d, a, b);
-	if (kek > 1e-8)
-		return true;
-	else
-		return false;
-#endif
+	long double det = -det3<long double>(b.x, b.y, b.sqrLength(), c.x, c.y,
+			c.sqrLength(), d.x, d.y, d.sqrLength());
+	det += det3<long double>(a.x, a.y, a.sqrLength(), c.x, c.y, c.sqrLength(), d.x,
+			d.y, d.sqrLength());
+	det -= det3<long double>(a.x, a.y, a.sqrLength(), b.x, b.y, b.sqrLength(), d.x,
+			d.y, d.sqrLength());
+	det += det3<long double>(a.x, a.y, a.sqrLength(), b.x, b.y, b.sqrLength(), c.x,
+			c.y, c.sqrLength());
+	if(fabs(det) > 1e18) return det > 0;
+	else{
+
+		ll det = -det3<ll>(b.x, b.y, b.sqrLength(), c.x, c.y,
+				c.sqrLength(), d.x, d.y, d.sqrLength());
+		det += det3<ll>(a.x, a.y, a.sqrLength(), c.x, c.y, c.sqrLength(), d.x,
+				d.y, d.sqrLength());
+		det -= det3<ll>(a.x, a.y, a.sqrLength(), b.x, b.y, b.sqrLength(), d.x,
+				d.y, d.sqrLength());
+		det += det3<ll>(a.x, a.y, a.sqrLength(), b.x, b.y, b.sqrLength(), c.x,
+				c.y, c.sqrLength());
+		return (det > 0);
+	}
 }
 
 pair<QuadEdge*, QuadEdge*> build_tr(int l, int r, vector<pt>& p) {
@@ -242,34 +232,4 @@ vector<tuple<pt, pt, pt>> delaunay(vector<pt> p) {
 		ans.push_back(make_tuple(p[i], p[i + 1], p[i + 2]));
 	}
 	return ans;
-}
-
-double eps = 1e-9;
-using Punkty = complex<double>;
-
-double mCC(Punkty a, Punkty b, Punkty c){
-	b -= a; c -= a;
-	double d = 2*(conj(b)*c).imag(); if(abs(d)<eps) assert(0);
-	Punkty ans = (c*norm(b) - b*norm(c)) * Punkty(0, -1) / d;
-	return abs(ans);
-}
-
-int main(){
-	int n;
-	scanf("%d",&n);
-	vector<pt> v;
-	for(int i=0; i<n; i++){
-		lint x, y;
-		scanf("%lld %lld",&x,&y);
-		v.emplace_back(x, y);
-	}
-	auto ans = delaunay(v);
-	double ret = 0;
-	for(auto [p, q, r] : ans){
-		Punkty x(p.x, p.y);
-		Punkty y(q.x, q.y);
-		Punkty z(r.x, r.y);
-		ret = max(ret, mCC(x, y, z));
-	}
-	printf("%.10f\n", ret);
 }

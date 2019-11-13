@@ -1,11 +1,11 @@
 #include <bits/stdc++.h>
-#define sz(v) ((int)(v).size())
 using namespace std;
-typedef long long lint;
-typedef pair<int, int> pi;
-const int MAXN = 2005;
+using lint = long long;
+using pi = pair<int, int>;
+#define sz(v) ((int)(v).size())
 
-typedef long long ll;
+const int MAXN = 100005;
+using ll = long long;
 
 bool ge(const ll& a, const ll& b) { return a >= b; }
 bool le(const ll& a, const ll& b) { return a <= b; }
@@ -36,9 +36,6 @@ struct pt {
 	}
 	ll sqrLength() const {
 		return this->dot(*this);
-	}
-	complex<double> toPoint() const{
-		return complex<double>(x, y);
 	}
 	bool operator==(const pt& p) const {
 		return eq(x, p.x) && eq(y, p.y);
@@ -93,10 +90,10 @@ void splice(QuadEdge* a, QuadEdge* b) {
 void delete_edge(QuadEdge* e) {
 	splice(e, e->oprev());
 	splice(e->rev(), e->rev()->oprev());
-	delete e->rot;
 	delete e->rev()->rot;
-	delete e;
 	delete e->rev();
+	delete e->rot;
+	delete e;
 }
 
 QuadEdge* connect(QuadEdge* a, QuadEdge* b) {
@@ -117,35 +114,31 @@ bool right_of(pt p, QuadEdge* e) {
 template <class T>
 T det3(T a1, T a2, T a3, T b1, T b2, T b3, T c1, T c2, T c3) {
 	return a1 * (b2 * c3 - c2 * b3) - a2 * (b1 * c3 - c1 * b3) +
-		   a3 * (b1 * c2 - c1 * b2);
+		a3 * (b1 * c2 - c1 * b2);
 }
 
 bool in_circle(pt a, pt b, pt c, pt d) {
-// If there is __int128, calculate directly.
-// Otherwise, calculate angles.
-#if defined(__LP64__) || defined(_WIN64)
-	__int128 det = -det3<__int128>(b.x, b.y, b.sqrLength(), c.x, c.y,
-								   c.sqrLength(), d.x, d.y, d.sqrLength());
-	det += det3<__int128>(a.x, a.y, a.sqrLength(), c.x, c.y, c.sqrLength(), d.x,
-						  d.y, d.sqrLength());
-	det -= det3<__int128>(a.x, a.y, a.sqrLength(), b.x, b.y, b.sqrLength(), d.x,
-						  d.y, d.sqrLength());
-	det += det3<__int128>(a.x, a.y, a.sqrLength(), b.x, b.y, b.sqrLength(), c.x,
-						  c.y, c.sqrLength());
-	return det > 0;
-#else
-	auto ang = [](pt l, pt mid, pt r) {
-		ll x = mid.dot(l, r);
-		ll y = mid.cross(l, r);
-		long double res = atan2((long double)x, (long double)y);
-		return res;
-	};
-	long double kek = ang(a, b, c) + ang(c, d, a) - ang(b, c, d) - ang(d, a, b);
-	if (kek > 1e-8)
-		return true;
-	else
-		return false;
-#endif
+	long double det = -det3<long double>(b.x, b.y, b.sqrLength(), c.x, c.y,
+			c.sqrLength(), d.x, d.y, d.sqrLength());
+	det += det3<long double>(a.x, a.y, a.sqrLength(), c.x, c.y, c.sqrLength(), d.x,
+			d.y, d.sqrLength());
+	det -= det3<long double>(a.x, a.y, a.sqrLength(), b.x, b.y, b.sqrLength(), d.x,
+			d.y, d.sqrLength());
+	det += det3<long double>(a.x, a.y, a.sqrLength(), b.x, b.y, b.sqrLength(), c.x,
+			c.y, c.sqrLength());
+	if(fabs(det) > 1e18) return det > 0;
+	else{
+
+		ll det = -det3<ll>(b.x, b.y, b.sqrLength(), c.x, c.y,
+				c.sqrLength(), d.x, d.y, d.sqrLength());
+		det += det3<ll>(a.x, a.y, a.sqrLength(), c.x, c.y, c.sqrLength(), d.x,
+				d.y, d.sqrLength());
+		det -= det3<ll>(a.x, a.y, a.sqrLength(), b.x, b.y, b.sqrLength(), d.x,
+				d.y, d.sqrLength());
+		det += det3<ll>(a.x, a.y, a.sqrLength(), b.x, b.y, b.sqrLength(), c.x,
+				c.y, c.sqrLength());
+		return (det > 0);
+	}
 }
 
 pair<QuadEdge*, QuadEdge*> build_tr(int l, int r, vector<pt>& p) {
@@ -190,7 +183,7 @@ pair<QuadEdge*, QuadEdge*> build_tr(int l, int r, vector<pt>& p) {
 		QuadEdge* lcand = basel->rev()->onext;
 		if (valid(lcand)) {
 			while (in_circle(basel->dest(), basel->origin, lcand->dest(),
-							 lcand->onext->dest())) {
+						lcand->onext->dest())) {
 				QuadEdge* t = lcand->onext;
 				delete_edge(lcand);
 				lcand = t;
@@ -199,7 +192,7 @@ pair<QuadEdge*, QuadEdge*> build_tr(int l, int r, vector<pt>& p) {
 		QuadEdge* rcand = basel->oprev();
 		if (valid(rcand)) {
 			while (in_circle(basel->dest(), basel->origin, rcand->dest(),
-							 rcand->oprev()->dest())) {
+						rcand->oprev()->dest())) {
 				QuadEdge* t = rcand->oprev();
 				delete_edge(rcand);
 				rcand = t;
@@ -208,8 +201,8 @@ pair<QuadEdge*, QuadEdge*> build_tr(int l, int r, vector<pt>& p) {
 		if (!valid(lcand) && !valid(rcand))
 			break;
 		if (!valid(lcand) ||
-			(valid(rcand) && in_circle(lcand->dest(), lcand->origin,
-									   rcand->origin, rcand->dest())))
+				(valid(rcand) && in_circle(lcand->dest(), lcand->origin,
+										   rcand->origin, rcand->dest())))
 			basel = connect(rcand, basel->rev());
 		else
 			basel = connect(basel->rev(), lcand->rev());
@@ -219,8 +212,8 @@ pair<QuadEdge*, QuadEdge*> build_tr(int l, int r, vector<pt>& p) {
 
 vector<tuple<pt, pt, pt>> delaunay(vector<pt> p) {
 	sort(p.begin(), p.end(), [](const pt& a, const pt& b) {
-		return lt(a.x, b.x) || (eq(a.x, b.x) && lt(a.y, b.y));
-	});
+			return lt(a.x, b.x) || (eq(a.x, b.x) && lt(a.y, b.y));
+			});
 	auto res = build_tr(0, (int)p.size() - 1, p);
 	QuadEdge* e = res.first;
 	vector<QuadEdge*> edges = {e};
@@ -376,7 +369,7 @@ int main(){
 		gph[i].resize(unique(gph[i].begin(), gph[i].end()) - gph[i].begin());
 		vector<HPI::line> v;
 		for(auto &j : gph[i]){
-		//	printf("%d -> %d\n", i, j);
+			//	printf("%d -> %d\n", i, j);
 			HPI::line l;
 			l.a = (poly[j] - poly[i]).real();
 			l.b = (poly[j] - poly[i]).imag();
@@ -390,7 +383,7 @@ int main(){
 		v.push_back({1, 0, 100000});
 		vector<HPI::pi> ans;
 		assert(HPI::solve(v, ans));
-//		printf("voronoi vertices for %d\n", i);
+		//		printf("voronoi vertices for %d\n", i);
 		for(int j=0; j<sz(ans); j++){
 			auto l = Point(ans[j].first, ans[j].second);
 			auto r = Point(ans[(j+1)%sz(ans)].first, ans[(j+1)%sz(ans)].second);
@@ -401,16 +394,17 @@ int main(){
 					auto p = make_line(l, r);
 					auto q = make_line(x, y);
 					auto v = HPI::cross(p, q);
-			//		printf("%.10Lf %.10Lf\n", v.first, v.second);
+					//		printf("%.10Lf %.10Lf\n", v.first, v.second);
 					ret = max(ret, abs(Point(v.first, v.second) - poly[i]));
 				}
 			}
 		}
 		/*
-		printf("%.10f\n", ret);
-		for(auto [x, y] : ans){
-			printf("%.10Lf %.10Lf\n", x, y);
-		}*/
+		   printf("%.10f\n", ret);
+		   for(auto [x, y] : ans){
+		   printf("%.10Lf %.10Lf\n", x, y);
+		   }*/
 	}
 	printf("%.10f\n", ret);
 }
+

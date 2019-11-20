@@ -1,3 +1,8 @@
+// by zigui
+// C : counter_clockwise(C[0] == C[N]), N >= 2
+// return highest point in C <- P(clockwise) or -1 if strictly in convex
+// recommend : strongly convex, C[i] != P
+
 int convex_tangent(vector<pi> &C, pi P, int up = 1){
 	auto sign = [&](lint c){ return c > 0 ? up : c == 0 ? 0 : -up; };
 	auto local = [&](pi P, pi a, pi b, pi c) {

@@ -26,7 +26,7 @@ int main(){
 		puts("Yes");
 		return 0;
 	}
-	for(int i=0; i<60; i++){
+	for(int i=0; i<30; i++){
 		for(int j=0; j<n; j++){
 			if(need[j] & 1){
 				f[j] += (1ll << i);

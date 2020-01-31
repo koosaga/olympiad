@@ -23,11 +23,12 @@ typedef long double llf;
 typedef pair<lint, int> pi;
 
 int n, p[1000005], d[1000005];
-lint ps[2000005], ds[2000005];
-bool dap1[1000005], dap2[1000005];
+lint ps[1000005], ds[1000005];
+bitset<1000005> dap1, dap2;
 
-void solve(bool *p){
+void solve(bitset<1000005> &p){
 	deque<pi> dq;
+	lint q = ps[n] - ds[n];
 	for(int i=1; i<=n; i++){
 		while(!dq.empty() && dq.back().first >= ps[i-1] - ds[i-1]){
 			dq.pop_back();
@@ -35,28 +36,44 @@ void solve(bool *p){
 		dq.push_back(pi(ps[i-1] - ds[i-1], i));
 	}
 	for(int i=1; i<=n; i++){
-		while(!dq.empty() && dq.back().first >= ps[i+n-1] - ds[i+n-1]){
+		while(!dq.empty() && dq.back().first >= q + ps[i-1] - ds[i-1]){
 			dq.pop_back();
 		}
-		dq.push_back(pi(ps[i+n-1] - ds[i+n-1], i+n));
+		dq.push_back(pi(q + ps[i-1] - ds[i-1], i+n));
 		if(!dq.empty() && dq.front().first < ps[i-1] - ds[i-1]) p[i] = 0;
 		else p[i] = 1;
 		if(!dq.empty() && dq.front().second == i) dq.pop_front();
 	}
 }
+static char buf[1 << 19]; // size : any number geq than 1024
+static int idx = 0;
+static int bytes = 0;
+static inline int _read() {
+	if (!bytes || idx == bytes) {
+		bytes = (int)fread(buf, sizeof(buf[0]), sizeof(buf), stdin);
+		idx = 0;
+	}
+	return buf[idx++];
+}
+static inline int _readInt() {
+	int x = 0, s = 1;
+	int c = _read();
+	while (c <= 32) c = _read();
+	if (c == '-') s = -1, c = _read();
+	while (c > 32) x = 10 * x + (c - '0'), c = _read();
+	if (s < 0) x = -x;
+	return x;
+}
 
 int main(){
-	scanf("%d",&n);
+	n = _readInt();
 	for(int i=1; i<=n; i++){
-		scanf("%d %d",&p[i], &d[i]);
+		p[i] = _readInt();
+		d[i] = _readInt();
 	}
 	for(int i=1; i<=n; i++){
 		ps[i] = ps[i-1] + p[i];
 		ds[i] = ds[i-1] + d[i];
-	}
-	for(int i=n+1; i<=2*n; i++){
-		ps[i] = ps[n] + ps[i-n];
-		ds[i] = ds[n] + ds[i-n];
 	}
 	solve(dap1);
 	reverse(p+1, p+n+1);
@@ -65,10 +82,6 @@ int main(){
 	for(int i=1; i<=n; i++){
 		ps[i] = ps[i-1] + p[i];
 		ds[i] = ds[i-1] + d[i];
-	}
-	for(int i=n+1; i<=2*n; i++){
-		ps[i] = ps[n] + ps[i-n];
-		ds[i] = ds[n] + ds[i-n];
 	}
 	solve(dap2);
 	for(int i=1; i<=n; i++){

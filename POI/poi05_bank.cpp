@@ -38,12 +38,14 @@ int main(){
 				if(str[j] == k + '0') nxt[j][k] = j;
 			}
 		}
+		int pp[4];
 		for(int i=0; i<10000; i++){
-			char str[5];
-			sprintf(str, "%04d", i);
+			for(int j=3, v = i; j>=0; j--){
+				pp[j] = v % 10; v /= 10;
+			}
 			int p = 0;
 			for(int j=0; j<4; j++){
-				p = nxt[p][str[j] - '0'];
+				p = nxt[p][pp[j]];
 			}
 			if(p < m) cnt[i]++;
 		}

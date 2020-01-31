@@ -1,7 +1,4 @@
-#include <cstdio>
-#include <utility>
-#include <vector>
-#include <algorithm>
+#include <bits/stdc++.h>
 using namespace std;
 typedef pair<int,int> pi;
  
@@ -12,9 +9,9 @@ int a[100005], b[100005], c[100005], d[100005];
 int dp[100005], cnt[100005];
  
 struct seg{int a,b,p,i;}st[200005];
-bool cmp(seg a, seg b){return a.a < b.a;}
+bool cmp(seg a, seg b){return make_tuple(a.a, a.b, a.p) < make_tuple(b.a, b.b, b.p); }
 struct seg2{int dp,a,b,p,i;}st2[200005];
-bool cmp2(seg2 a, seg2 b){return a.a < b.a;}
+bool cmp2(seg2 a, seg2 b){return make_tuple(a.a, a.b, a.p) < make_tuple(b.a, b.b, b.p); }
  
 struct rmq{
     int lim, tree[530000];
@@ -23,7 +20,7 @@ struct rmq{
     }
     void ins(int s, int v){
         s += lim;
-        tree[s] = v;
+        tree[s] = max(tree[s], v);
         while(s>1){
             s >>= 1;
             tree[s] = max(tree[2*s],tree[2*s+1]);

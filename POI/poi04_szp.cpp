@@ -1,89 +1,128 @@
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
 using namespace std;
-typedef long long lint;
-typedef pair<int, int> pi;
- 
-int n, a[1000005];
-vector<int> gph[1000005];
- 
-int dp[1000005][2], indeg[1000005];
+using lint = long long;
+using pi = pair<int, int>;
+const int MAXN = 1000005;
+
+int n, a[MAXN], dp[MAXN][2];
+int lis[MAXN], piv;
+
+pi gph[MAXN]; int X;
 int chkv, chks;
  
-int f(int x, int d){
-	if(~dp[x][d]) return dp[x][d];
-	int ret = d;
-	int up = -1e8;
-	for(auto &i : gph[x]){
-		if(d == 0){
-			ret += max(f(i, 0), f(i, 1));
-		}
-		else{
-			ret += max(f(i, 0), f(i, 1));
-			up = max(up, f(i, 0) - max(f(i, 0), f(i, 1)));
-		}
-	}
-	if(x == chkv && chks == 0){
-		up = max(up, 0);
-	}
-	if(d == 1) ret += up;
-	if(ret < -1e8) ret = -1e8;
-	return dp[x][d] = ret;
-}
- 
-vector<int> lis;
- 
-void dfs(int x){
-	lis.push_back(x);
-	for(auto &i : gph[x]){
-		dfs(i);
-	}
-}
- 
 int solve(int x){
-	gph[a[x]].erase(find(gph[a[x]].begin(), gph[a[x]].end(), x));
-	chkv = a[x];
-	int ret = -1e9;
-	lis.clear();
-	dfs(x);
-	for(chks = 0; chks <= 1; chks++){
-		ret = max(ret, f(x, chks));
-		for(auto &i : lis){
-			dp[i][0] = dp[i][1] = -1;
+	chkv = -a[x];
+	piv = 0;
+	lis[piv++] = x;
+	for(int i=0; i<piv; i++){
+		int x = lis[i];	
+		auto l = lower_bound(gph, gph + X, pi(x, -1)) - gph;
+		while(l < X && gph[l].first == x) lis[piv++] = gph[l++].second;
+	}
+	reverse(lis, lis + piv);
+	int ret = -1e8;
+	for(int chks = 0; chks < 2; chks++){
+		for(int xx = 0; xx < piv; xx++){
+			int x = lis[xx];
+			for(int d = 0; d < 2; d++){
+				dp[x][d] = d;
+				int up = -1e8;
+				auto l = lower_bound(gph, gph + X, pi(x, -1)) - gph;
+				while(l < X && gph[l].first == x){
+					int i = gph[l++].second;
+					if(d == 0){
+						dp[x][d] += max(dp[i][0], dp[i][1]);
+					}
+					else{
+						dp[x][d] += max(dp[i][0], dp[i][1]);
+						up = max(up, dp[i][0] - max(dp[i][0], dp[i][1]));
+					}
+				}
+				if(x == chkv && chks == 0){
+					up = max(up, 0);
+				}
+				if(d == 1) dp[x][d] += up;
+				if(dp[x][d] < -1e8) dp[x][d] = -1e8;
+			}
 		}
+		ret = max(ret, dp[x][chks]);
 	}
-	for(int i=x; indeg[i]; i=a[i]){
-		indeg[i] = 0;
-	}
+	for(int i=0; i<piv; i++) dp[lis[i]][0] = dp[lis[i]][1] = 0;
 	return ret;
 }
  
-int main(){
-	memset(dp, -1, sizeof(dp));
-	scanf("%d",&n);
-	for(int i=1; i<=n; i++){
-		scanf("%d",&a[i]);
-		indeg[a[i]]++;
-		gph[a[i]].push_back(i);
+ static char buf[1 << 11]; // size : any number geq than 1024
+static int idx = 0;
+static int bytes = 0;
+static inline int _read() {
+	if (!bytes || idx == bytes) {
+		bytes = (int)fread(buf, sizeof(buf[0]), sizeof(buf), stdin);
+		idx = 0;
 	}
-	queue<int> que;
+	return buf[idx++];
+}
+static inline int _readInt() {
+	int x = 0, s = 1;
+	int c = _read();
+	while (c <= 32) c = _read();
+	if (c == '-') s = -1, c = _read();
+	while (c > 32) x = 10 * x + (c - '0'), c = _read();
+	if (s < 0) x = -x;
+	return x;
+}
+
+
+int main(){
+	n = _readInt();
 	for(int i=1; i<=n; i++){
-		if(!indeg[i]){
-			que.push(i);
+		a[i] = _readInt();
+		dp[a[i]][0]++;
+	}
+	for(int i=1; i<=n; i++){
+		if(!dp[i][0]){
+			lis[piv++] = i;
 		}
 	}
-	while(!que.empty()){
-		int x = que.front();
-		que.pop();
-		indeg[a[x]]--;
-		if(indeg[a[x]] == 0){
-			que.push(a[x]);
+	for(int i=0; i<piv; i++){
+		int x = lis[i];
+		dp[a[x]][0]--;
+		if(dp[a[x]][0] == 0){
+			lis[piv++] = a[x];
+		}
+	}
+	for(int i=1; i<=n; i++){
+		if(dp[i][0]){
+			for(int j=i; dp[j][0]; j = a[j]) dp[j][0] = 0;
+			a[i] *= -1;
+		}
+	}
+	piv = 0;
+	for(int i=1; i<=n; i++){
+		if(a[i] > 0){
+			dp[a[i]][0]++;
+			gph[X++] = pi(a[i], i);
+		}
+	}
+	sort(gph, gph + X);
+	for(int i=1; i<=n; i++){
+		if(!dp[i][0]){
+			lis[piv++] = i;
+		}
+	}
+	for(int i=0; i<piv; i++){
+		int x = lis[i];
+		if(a[x] < 0) continue;
+		dp[a[x]][0]--;
+		if(dp[a[x]][0] == 0){
+			lis[piv++] = a[x];
 		}
 	}
 	int ret = 0;
+	piv = 0;
 	for(int i=1; i<=n; i++){
-		if(indeg[i]){
-			ret += solve(i);
-		}
+		if(a[i] < 0) ret += solve(i);
 	}
 	cout << ret << endl;
 }

@@ -1,110 +1,104 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <limits.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
-#include <functional>
-#include <numeric>
-#include <algorithm>
-#include <stack>
-#include <queue>
-#include <deque>
-#include <vector>
-#include <string>
-#include <bitset>
-#include <map>
-#include <set>
+#include<bits/stdc++.h>
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
 using namespace std;
-typedef long long lint;
-typedef long double llf;
-typedef pair<int, int> pi;
+using lint = long long;
+using pi = pair<int, int>;
+const int MAXN = 100005;
 
 int n;
 
-set<int> s;
-vector<int> gph[100005];
-vector<int> rev[100005];
+vector<int> gph[MAXN];
+vector<int> rev[MAXN];
 
-int comp[100005], csz[100005], piv;
-lint indeg[100005], outdeg[100005];
+int comp[MAXN], csz[MAXN], piv;
+lint indeg[MAXN], outdeg[MAXN];
 vector<int> dfn;
+int pa[MAXN], chk[MAXN];
+
+int find(int x){
+	if(pa[x] != x) return pa[x] = find(pa[x]);
+	if(chk[x]) return pa[x] = find(pa[x + 1]);
+	return x;
+}
 
 void dfs(int x){
-	auto traverse = [&](int st, int ed){
-		while(1){
-			auto t = s.lower_bound(st);
-			if(t == s.end() || *t > ed) break;
-			int pos = *t;
-			s.erase(pos);
+	int pos = 1;
+	while(true){
+		pos = find(pos);
+		if(pos == n + 1) break;
+		if(binary_search(all(gph[x]), pos)) pos++;
+		else{
+			chk[pos] = 1;
 			dfs(pos);
 		}
-	};
-	if(gph[x].size() == 0){
-		traverse(1, n);
-		return;
 	}
-	traverse(1, gph[x][0] - 1);
-	for(int i=1; i<gph[x].size(); i++){
-		traverse(gph[x][i-1] + 1, gph[x][i] - 1);
-	}
-	traverse(gph[x].back() + 1, n);		
 	dfn.push_back(x);
 }
 
 void rdfs(int x, int p){
 	comp[x] = p;
 	csz[p]++;
-	auto traverse = [&](int st, int ed){
-		while(1){
-			auto t = s.lower_bound(st);
-			if(t == s.end() || *t > ed) break;
-			int pos = *t;
-			s.erase(pos);
+	int pos = 1;
+	while(true){
+		pos = find(pos);
+		if(pos == n + 1) break;
+		if(binary_search(all(rev[x]), pos)) pos++;
+		else{
+			chk[pos] = 1;
 			rdfs(pos, p);
 		}
-	};
-	if(rev[x].size() == 0){
-		traverse(1, n);
-		return;
 	}
-	traverse(1, rev[x][0] - 1);
-	for(int i=1; i<rev[x].size(); i++){
-		traverse(rev[x][i-1] + 1, rev[x][i] - 1);
-	}
-	traverse(rev[x].back() + 1, n);		
 }
 
+static char buf[1 << 19]; // size : any number geq than 1024
+static int idx = 0;
+static int bytes = 0;
+static inline int _read() {
+	if (!bytes || idx == bytes) {
+		bytes = (int)fread(buf, sizeof(buf[0]), sizeof(buf), stdin);
+		idx = 0;
+	}
+	return buf[idx++];
+}
+static inline int _readInt() {
+	int x = 0, s = 1;
+	int c = _read();
+	while (c <= 32) c = _read();
+	if (c == '-') s = -1, c = _read();
+	while (c > 32) x = 10 * x + (c - '0'), c = _read();
+	if (s < 0) x = -x;
+	return x;
+}
+
+
 int main(){
-	cin >> n;
+	n = _readInt();
 	for(int i=1; i<=n; i++){
-		int x;
-		scanf("%d",&x);
+		int x = _readInt();
 		while(x--){
-			int p;
-			scanf("%d",&p);
+			int p = _readInt();
 			gph[p].push_back(i);
 			rev[i].push_back(p);
 		}
 	}
+	iota(pa, pa + n + 2, 0);
 	for(int i=1; i<=n; i++){
-		s.insert(i);
 		sort(gph[i].begin(), gph[i].end());
-		sort(rev[i].begin(), rev[i].end());
+	//	sort(rev[i].begin(), rev[i].end());
 	}
 	for(int i=1; i<=n; i++){
-		if(s.find(i) != s.end()){
-			s.erase(i);
+		if(!chk[i]){
+			chk[i] = 1;
 			dfs(i);
 		}
 	}
 	reverse(dfn.begin(), dfn.end());
-	for(int i=1; i<=n; i++) s.insert(i);
+	iota(pa, pa + n + 2, 0);
+	fill(chk, chk + n + 2, 0);
 	for(int i=0; i<dfn.size(); i++){
-		if(s.find(dfn[i]) != s.end()){
-			s.erase(dfn[i]);
+		if(!chk[dfn[i]]){
+			chk[dfn[i]] = 1;
 			rdfs(dfn[i], ++piv);
 		}
 	}
@@ -132,3 +126,4 @@ int main(){
 		}
 	}
 }
+

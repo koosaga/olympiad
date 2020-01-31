@@ -1,80 +1,99 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <limits.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
-#include <functional>
-#include <numeric>
-#include <algorithm>
-#include <stack>
-#include <queue>
-#include <deque>
-#include <vector>
-#include <string>
-#include <bitset>
-#include <map>
-#include <set>
+#include<bits/stdc++.h>
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
 using namespace std;
-typedef long long lint;
-typedef long double llf;
-typedef pair<int, int> pi;
+using lint = long long;
+using pi = pair<int, int>;
+const int MAXN = 1000005;
 
-vector<int> gph[1000005];
-int sz[1000005], dep[1000005];
+int frnt[MAXN];
+int val[MAXN * 2], nxt[MAXN * 2], lsz;
+
+void add_edge(int s, int e){
+	lsz++;
+	val[lsz] = e;
+	nxt[lsz] = frnt[s];
+	frnt[s] = lsz;
+}
+
+int dep[MAXN];
 int n, e, w;
 int cur, pos;
+int sz[MAXN];
 
+pi que[MAXN];
 int dfs(int x, int p){
-	int ret = (x >= n - w + 1);
-	for(auto &i : gph[x]){
-		if(i == p) continue;
-		dep[i] = dep[x] + 1;
-		ret += dfs(i, x);
+	int piv = 0;
+	que[piv++] = pi(x, p);
+	for(int itr = 0; itr < piv; itr++){
+		int x = que[itr].first;
+		int p = que[itr].second;
+		for(int ii = frnt[x]; ii; ii = nxt[ii]){
+			int i = val[ii];
+			if(i == p) continue;
+			dep[i] = dep[x] + 1;
+			que[piv++] = pi(i, x);
+		}
 	}
-	if(ret == w && cur < dep[x]){
-		cur = dep[x];
-		pos = x;
+	reverse(que, que + piv);
+	for(int itr = 0; itr < piv; itr++){
+		int x = que[itr].first;
+		int p = que[itr].second;
+		sz[x] = (x >= n - w + 1);
+		for(int ii = frnt[x]; ii; ii = nxt[ii]){
+			int i = val[ii];
+			if(i == p) continue;
+			sz[x] += sz[i];
+		}
+		if(sz[x] == w && cur < dep[x]){
+			cur = dep[x];
+			pos = x;
+		}
 	}
-	return sz[x] = ret;
+	return 69;
 }
-
-int dep2[1000005];
 
 void dfs2(int x, int p){
-	for(auto &i : gph[x]){
-		if(i == p) continue;
-		dep2[i] = dep2[x] + 1;
-		dfs2(i, x);
+	int piv = 0;
+	que[piv++] = pi(x, p);
+	for(int itr = 0; itr < piv; itr++){
+		int x = que[itr].first;
+		int p = que[itr].second;
+		for(int ii = frnt[x]; ii; ii = nxt[ii]){
+			int i = val[ii];
+			if(i == p) continue;
+			dep[i] = dep[x] + 1;
+			que[piv++] = pi(i, x);
+		}
 	}
 }
 
-vector<int> vl, vr;
+int vl[MAXN], vr[MAXN];
 
 int main(){
 	cin >> n >> e >> w;
 	for(int i=0; i<n-1; i++){
 		int s, e;
 		scanf("%d %d",&s,&e);
-		gph[s].push_back(e);
-		gph[e].push_back(s);
+		add_edge(s, e);
+		add_edge(e, s);
 	}
 	dfs(1, 0);
+	dep[pos] = 0;
 	dfs2(pos, 0);
 	for(int i=n-w+1; i<=n; i++){
-		vl.push_back(dep2[i]);
+		vl[n - i] = dep[i];
 	}
+	sort(vl, vl + w);
 	int q;
 	scanf("%d",&q);
 	for(int i=0; i<q; i++){
 		int x;
 		scanf("%d",&x);
-		vr.push_back(dep2[x]);
+		vr[i] = dep[x];
 	}
-	sort(vl.begin(), vl.end());
-	sort(vr.begin(), vr.end());
+	sort(vl, vl + w);
+	sort(vr, vr + q);
 	int low = -1;
 	for(int i=0; i<q; i++){
 		if(low < vl[i]){
@@ -101,3 +120,5 @@ int main(){
 	}
 	cout << ret;
 }
+
+

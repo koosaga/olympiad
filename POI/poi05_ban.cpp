@@ -26,6 +26,8 @@ int n, k, b[205], c[205];
 int dp[205][20005], tra[205][20005];
 int cnt[205];
 
+deque<pi> dq[20005];
+
 int main(){
 	cin >> n;
 	for(int i=1; i<=n; i++) cin >> b[i];
@@ -34,7 +36,7 @@ int main(){
 	memset(dp, 0x3f, sizeof(dp));
 	dp[0][0] = 0;
 	for(int i=1; i<=n; i++){
-		deque<pi> dq[20005];
+		for(int i=0; i<20005; i++) dq[i].clear();
 		for(int j=0; j<=k; j++){
 			if(!dq[j % b[i]].empty() && dq[j % b[i]][0].second + c[i] * b[i] < j){
 				dq[j % b[i]].pop_front();

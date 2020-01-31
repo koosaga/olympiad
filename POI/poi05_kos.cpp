@@ -23,13 +23,15 @@ typedef long double llf;
 typedef pair<int, int> pi;
 
 const int MAXN = 20005;
+int n, m, s[10005], e[10005];
+int k;
 
 struct maxflow{
 	struct edg{int pos, cap, rev;};
 	vector<edg> gph[MAXN];
 
 	void clear(){
-		for(int i=0; i<MAXN; i++){
+		for(int i=0; i<k; i++){
 			gph[i].clear();
 		}
 	}
@@ -42,8 +44,8 @@ struct maxflow{
 	int dis[MAXN], pnt[MAXN];
 	
 	bool bfs(int src, int sink){
-		memset(dis, 0, sizeof(dis));
-		memset(pnt, 0, sizeof(pnt));
+		memset(dis, 0, sizeof(int) * k);
+		memset(pnt, 0, sizeof(int) * k);
 		queue<int> que;
 		que.push(src);
 		dis[src] = 1;
@@ -87,8 +89,6 @@ struct maxflow{
 	}
 }maxflow;
  
-int n, m, s[10005], e[10005];
-
 int trial(int x){
 	maxflow.clear();
 	for(int i=0; i<m; i++){
@@ -102,6 +102,7 @@ int trial(int x){
 
 int main(){
 	scanf("%d %d",&n,&m);
+	k = n + m + 3;
 	for(int i=0; i<m; i++) scanf("%d %d",&s[i],&e[i]);
 	int s = 0, e = m;
 	while(s != e){

@@ -37,7 +37,7 @@ int track(int x, int y, int e){ // use this routine to find LCS as string
 int solve(string a, string b){
 	n = a.size(), m = b.size();
 	s1 = "#" + a + a;
-	s1 = '#' + b;
+	s2 = '#' + b;
 	for(int i=0; i<=2*n; i++){
 		for(int j=0; j<=m; j++){
 			if(j == 0){

@@ -1,91 +1,110 @@
 #include <bits/stdc++.h>
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
 using namespace std;
-typedef long long lint;
-typedef pair<int, int> pi;
+using pi = pair<int, int>;
+using lint = long long;
+const int MAXN = 200005;
 
-struct node{
-	int s, e, aux, dis;
-};
+struct kek{
+	int foo, bar, baz, idx;
+	bool operator==(const kek &k)const{
+		return make_tuple(foo, bar, baz) == make_tuple(k.foo, k.bar, k.baz);
+	}
+}tp[MAXN], aux[MAXN];
 
+int a[MAXN];
+int sfx[MAXN];
 int n, m;
-bool vis[404][404][27];
-int dis[404][404][27];
-int par[404][404][27];
-char chr[404][404];
-pi par2[404][404];
+int cnt[MAXN];
 
-vector<int> gph[405][27], rev[405][27];
+void sort_it(){
+	for(int i=1; i<=n+m; i++) tp[i].idx = i;
 
-void solve(int s, int e){
-	if(vis[s][e][0] == 0){
-		puts("-1");
-		return;
+	int msz = max(n + m + 3, 105);
+	memset(cnt, 0, sizeof(cnt));
+	for(int i=1; i<=n+m; i++) cnt[tp[i].baz + 1]++;
+	for(int i=1; i<=msz; i++) cnt[i] += cnt[i-1];
+	for(int i=n+m; i; i--) aux[--cnt[tp[i].baz + 1]] = tp[i];
+	for(int i=1; i<=n+m; i++) tp[i] = aux[i-1];
+
+	memset(cnt, 0, sizeof(cnt));
+	for(int i=1; i<=n+m; i++) cnt[tp[i].bar + 1]++;
+	for(int i=1; i<=msz; i++) cnt[i] += cnt[i-1];
+	for(int i=n+m; i; i--) aux[--cnt[tp[i].bar + 1]] = tp[i];
+	for(int i=1; i<=n+m; i++) tp[i] = aux[i-1];
+
+	memset(cnt, 0, sizeof(cnt));
+	for(int i=1; i<=n+m; i++) cnt[tp[i].foo + 1]++;
+	for(int i=1; i<=msz; i++) cnt[i] += cnt[i-1];
+	for(int i=n+m; i; i--) aux[--cnt[tp[i].foo + 1]] = tp[i];
+	for(int i=1; i<=n+m; i++) tp[i] = aux[i-1];
+
+	for(int i=1; i<=n+m; ){
+		int j = i;
+		while(j <= n+m && tp[i] == tp[j]) j++;
+		for(int k=i; k<j; k++){
+			sfx[tp[k].idx] = i;
+		}
+		i = j;
 	}
-	printf("%d ", dis[s][e][0]);
-	string l;
-	while(dis[s][e][0] > 1){
-		// step 1
-		l.push_back(par2[s][e].second - 1 + 'a');
-		s = par2[s][e].first;
-		e = par[s][e][l.back() + 1 - 'a'];
-	}
-	printf("%s", l.c_str());
-	if(s != e) putchar(chr[s][e]);
-	reverse(l.begin(), l.end());
-	puts(l.c_str());
 }
-
-queue<node> que;
 
 int main(){
-	scanf("%d %d",&n,&m);
-	for(int i=1; i<=n; i++){
-		que.push({i, i, 0, 0});
-		vis[i][i][0] = 1;
-	}
-	for(int i=0; i<m; i++){
-		int s, e;
-		char t[3];
-		scanf("%d %d %s",&s,&e,t);
-		gph[s][*t - 'a' + 1].push_back(e);
-		rev[e][*t - 'a' + 1].push_back(s);
-		chr[s][e] = *t;
-		if(!vis[s][e][0]) que.push({s, e, 0, 1});
-		dis[s][e][0] = 1;
-		vis[s][e][0] = 1;
-	}
-	while(!que.empty()){
-		auto x = que.front();
-		que.pop();
-		if(x.aux == 0){
-			for(int i=1; i<=26; i++){
-				for(auto &j : gph[x.e][i]){
-					if(!vis[x.s][j][i]){
-						vis[x.s][j][i] = 1;
-						dis[x.s][j][i] = x.dis + 1;
-						par[x.s][j][i] = x.e;
-						que.push({x.s, j, i, x.dis + 1});
-					}
-				}
-			}
+	int tc; scanf("%d",&tc);
+	for(int i=0; i<tc; i++){
+		scanf("%d %d",&n,&m);
+		bitset<105> cnt;
+		memset(sfx, -1, sizeof(sfx));
+		for(int i=1; i<=n+m; i++){
+			scanf("%d",&a[i]);
+			cnt[a[i]] = 1;
 		}
-		else{	
-			for(auto &j : rev[x.s][x.aux]){
-				if(!vis[j][x.e][0]){
-					vis[j][x.e][0] = 1;
-					dis[j][x.e][0] = x.dis + 1;
-					par2[j][x.e] = pi(x.s, x.aux);
-					que.push({j, x.e, 0, x.dis + 1});
-				}
-			}
+		m += 1;
+		a[n+m] = 101;
+		rotate(a + n + 1, a + n + m, a + n + m + 1);
+		int tt = cnt.count();
+		for(int i=1; i<=n+m; i++){
+			sfx[i] = a[i];
 		}
-	}
-	int q, st;
-	cin >> q >> st;
-	for(int i=1; i<q; i++){
-		int nxt;
-		cin >> nxt;
-		solve(st, nxt);
-		st = nxt;
+		for(int i=2; i<=tt; i++){
+			int k = 0, occ = 0;
+			int cnt[105] = {};
+			memset(cnt, 0, sizeof(cnt));
+			k = n + m + 1; occ = 0;
+			vector<int> fuck(n + m + 1);
+			for(int j=n+m; j; j--){
+				cnt[a[j]]++;
+				if(cnt[a[j]] == 1) occ++;
+				while(occ > i){
+					k--;
+					cnt[a[k]]--;
+					if(cnt[a[k]] == 0) occ--;
+				}
+				if(occ == i) tp[j].foo = sfx[j], fuck[j] = k - 1;
+				else tp[j] = {-1, -1, -1};
+			}
+			memset(cnt, 0, sizeof(cnt));
+			int p = 0, q = 0;
+			occ = 0;
+			for(int j=1; j<=n+m && fuck[j]; j++){
+				while(q < fuck[j]){
+					q++;
+					if(cnt[a[q]] == 0) occ++;
+					cnt[a[q]]++;
+				}
+				while(occ >= i){
+					p++;
+					cnt[a[p]]--;
+					if(cnt[a[p]] == 0) occ--;
+				}
+				tp[j].bar = sfx[p + 1];
+				tp[j].baz = a[p];
+			}
+			sort_it();
+			if(sfx[1] != sfx[n + 2]) break;
+		}
+		printf("%d\n", sfx[1] >= 0 &&  sfx[1] == sfx[n + 2]);
 	}
 }
+

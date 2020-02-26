@@ -1,51 +1,47 @@
 
-const int MAXN = 150000;
 struct strongly_connected{
-	vector<int> gph[MAXN];
-	vector<int> rev[MAXN];
-	vector<int> dfn;
-	int comp[MAXN], piv;
-	bool vis[MAXN];
-
-	void clear(){
-		for(int i=0; i<MAXN; i++){
-			gph[i].clear();
-			rev[i].clear();
-		}
+	vector<vector<int>> gph;
+	 
+	void init(int n){
+		gph.resize(n);
 	}
-
+ 
 	void add_edge(int s, int e){
 		gph[s].push_back(e);
-		rev[e].push_back(s);
 	}
-
-	void dfs(int x){
-		vis[x] = 1;
-		for(auto &i : gph[x]){
-			if(!vis[i]) dfs(i);
+ 
+	vector<int> val, comp, z, cont;
+	int Time, ncomps;
+	template<class G, class F> int dfs(int j, G& g, F f) {
+		int low = val[j] = ++Time, x; z.push_back(j);
+		for(auto e : g[j]) if (comp[e] < 0)
+			low = min(low, val[e] ?: dfs(e,g,f));
+ 
+		if (low == val[j]) {
+			do {
+				x = z.back(); z.pop_back();
+				comp[x] = ncomps;
+				cont.push_back(x);
+			} while (x != j);
+			f(cont); cont.clear();
+			ncomps++;
 		}
-		dfn.push_back(x);
+		return val[j] = low;
 	}
-
-	void rdfs(int x, int p){
-		comp[x] = p;
-		for(auto &i : rev[x]){
-			if(!comp[i]) rdfs(i, p);
-		}
+	template<class G, class F> void scc(G& g, F f) {
+		int n = sz(g);
+		val.assign(n, 0); comp.assign(n, -1);
+		Time = ncomps = 0;
+		for(int i=0; i<n; i++) if (comp[i] < 0) dfs(i, g, f);
 	}
-
+ 
+	int piv;
 	void get_scc(int n){
-		dfn.clear();
-		memset(comp, 0, sizeof(comp));
-		memset(vis, 0, sizeof(vis));
-		piv = 0;
+		scc(gph, [&](vector<int> &v){});
 		for(int i=0; i<n; i++){
-			if(!vis[i]) dfs(i);
+			comp[i] = ncomps - comp[i];
 		}
-		reverse(dfn.begin(), dfn.end());
-		for(auto &i : dfn){
-			if(!comp[i]) rdfs(i, ++piv);
-		}
+		piv = ncomps; 
 	}
 }scc;
 

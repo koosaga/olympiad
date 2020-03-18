@@ -1,50 +1,36 @@
-#include <cstdio>
-#include <vector>
-#include <map>
-#include <algorithm>
+#include <bits/stdc++.h>
 using namespace std;
 typedef pair<int,int> pi;
- 
-map<int,int> mp, dx;
- 
+
+map<int,int> mp;
+vector<pi> dx;
+
 int n;
 pi a[100005];
- 
+
 int main(){
     scanf("%d",&n);
-    int pmin = 1e9, pmax = 0;
     for(int i=0; i<n; i++){
         scanf("%d %d",&a[i].first,&a[i].second);
-        pmin = min(pmin,a[i].second);
-        pmax = max(pmax,a[i].second);
     }
     sort(a,a+n);
     for(int i=n-1; i>=0; i--){
         auto t = mp.upper_bound(a[i].second);
-        if(t != mp.end()){
-            if(t->first - a[i].second <= a[i].first){
-                dx[a[i].second]++;
-                dx[t->first]--;
-            }
+        if(t != mp.end() && t->first - a[i].second <= a[i].first){
+            dx.emplace_back(a[i].second, +1);
+            dx.emplace_back(t->first, -1);
         }
-        if(t != mp.begin()){
-            t--;
-            if(a[i].second- t->first <= a[i].first){
-                dx[t->first]++;
-                dx[a[i].second]--;
-            }
+        if(t != mp.begin() && a[i].second - prev(t)->first <= a[i].first){
+            dx.emplace_back(a[i].second, -1);
+            dx.emplace_back(prev(t)->first, +1);
         }
         mp[a[i].second] = a[i].first;
     }
+    sort(dx.begin(), dx.end());
     int cur = 0, ret = 0;
-    auto nxt = ++dx.begin();
-    for (auto &i : dx){
-        cur += i.second;
-        if(cur){
-            ret += nxt->first - i.first;
-        }
-        nxt++;
-        if(nxt == mp.end()) break;
+    for(int i=0; i+1<dx.size(); i++){
+        cur += dx[i].second;
+        if(cur) ret += dx[i+1].first-dx[i].first;
     }
     printf("%d",ret);
 }

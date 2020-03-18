@@ -3,6 +3,7 @@ struct strongly_connected{
 	vector<vector<int>> gph;
 	 
 	void init(int n){
+		gph.clear();
 		gph.resize(n);
 	}
  
@@ -48,7 +49,7 @@ struct strongly_connected{
 struct twosat{
 	strongly_connected scc;
 	int n;
-	void init(int _n){ scc.clear(); n = _n; }
+	void init(int _n){ scc.init(2 * _n); n = _n; }
 	int NOT(int x){ return x >= n ? (x - n) : (x + n); }
 	void add_edge(int x, int y){
 		if((x >> 31) & 1) x = (~x) + n;

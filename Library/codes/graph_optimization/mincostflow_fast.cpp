@@ -64,7 +64,7 @@ int dfs(int pos, int sink, int flow){
 	}
 	return 0;
 }
-int match(int src, int sink, int sz){
+int match(int src, int sink, int sz = MAXN){
 	prep(src, sink);
 	for(int i=0; i<sz; i++) dist[i] += phi[sink] - phi[src];
 	int ret = 0;

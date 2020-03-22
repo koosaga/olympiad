@@ -195,6 +195,11 @@ struct poly {
 	poly(vector<T> t) : a(t){ normalize(); }
 
 	int deg() const{ return sz(a) - 1; } // -1 if empty
+
+	T operator [](int idx) const {
+		return idx >= (int)a.size() || idx < 0 ? T(0) : a[idx];
+	}
+
 	poly reversed() const{
 		vector<T> b = a;
 		reverse(all(b));
@@ -241,9 +246,9 @@ struct poly {
 	}
 	poly operator*=(const poly &p){
 		// change multiplication method if needed
-		*this = poly(fft::multiply_ntt(a, p.a));
+		*this = poly(fft::multiply_mod(a, p.a));
 		normalize();
-		return *this; 
+		return *this;
 	}
 	poly inv(int n){
 		poly q(T(1) / a[0]);
@@ -278,4 +283,3 @@ struct poly {
 	poly operator/(const poly &p)const{ return poly(*this) /= p; }
 	poly operator%(const poly &p)const{ return poly(*this) %= p; }
 };
-

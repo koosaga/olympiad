@@ -2,6 +2,7 @@
 #define sz(v) ((int)(v).size())
 #define all(v) (v).begin(), (v).end()
 using namespace std;
+const int MAXN = 1000005;
 
 vector<int> get_fail(string str){
 	int n = str.size();
@@ -17,25 +18,64 @@ vector<int> get_fail(string str){
 
 int n;
 string s;
+char t[MAXN];
 
-int solve(int l, int r){
-	auto fail = get_fail(s.substr(l, r - l));
-	for(int i=r-l; ; i=fail[i]) if(i + i <= r - l) return i; 
+int aux[2 * MAXN - 1];
+int ret[2 * MAXN - 1];
+void solve(int n, char *str, int *ret){
+	// *ret : number of nonobvious palindromic character pair
+	for(int i=0; i<n; i++){
+		aux[2*i] = str[i];
+		if(i != n-1) aux[2*i+1] = -1;
+	}
+	int p = 0, c = 0;
+	for(int i=0; i<2*n-1; i++){
+		int cur = 0;
+		if(i <= p) cur = min(ret[2 * c - i], p - i);
+		while(i - cur - 1 >= 0 && i + cur + 1 < 2*n-1 && aux[i-cur-1] == aux[i+cur+1]){
+			cur++;
+		}
+		ret[i] = cur;
+		if(i + ret[i] > p){
+			p = i + ret[i];
+			c = i;
+		}
+	}
 }
+
+bool ok(int x, int y){
+	assert(x%2 != y%2);
+	return ret[x+y] >= y-x;
+}
+
+int chk[MAXN];
 
 int main(){
     ios_base::sync_with_stdio(false); cin.tie(NULL);
     cin >> n >> s;
+    for(int i=0; i<n/2; i++){
+    	t[2*i] = s[n-i-1];
+		t[2*i+1] = s[i];
+	}
+	int m = (n/2)*2;
+	reverse(t, t + m);
+	solve(m, t, ret);
 	vector<int> fail = get_fail(s);
-	vector<int> v;
 	for(int i=fail[n]; i; i=fail[i]){
-		if(i <= n / 2) v.push_back(i);
+		if(i <= n / 2){
+			chk[m - 2 * i] = 1;
+		}
 	}
+	int p = 0;
 	int ret = 0;
-	for(int i=0; i<sz(v); i++){
-		if(0 < i && i < sz(v)-1 && v[i-1] + v[i+1] == 2 * v[i]) continue;
-		ret = max(ret, v[i] + solve(v[i], n - v[i]));
+	if(chk[0]) ret = m;
+	for(int i=1; i<=m; i++){
+		if(p && ok(p - 1, i - 1)) p--;
+		else p++;
+		while(!ok(p, i - 1)) p+=2;
+		if(chk[i]) ret = max(ret, m - p);
 	}
-	cout << ret << endl;
+	assert(ret%2==0);
+	cout << ret/2 << endl;
 }
 

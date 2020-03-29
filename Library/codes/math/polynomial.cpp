@@ -195,6 +195,7 @@ struct poly {
 	poly(vector<T> t) : a(t){ normalize(); }
 
 	int deg() const{ return sz(a) - 1; } // -1 if empty
+	mint lead() const{ return sz(a) ? a.back() : mint(0); }
 
 	T operator [](int idx) const {
 		return idx >= (int)a.size() || idx < 0 ? T(0) : a[idx];
@@ -219,11 +220,7 @@ struct poly {
 		return *this;
 	}
 	poly operator /= (const T &x) {
-		for(auto &it: a) {
-			it /= x;
-		}
-		normalize();
-		return *this;
+		return *this *= (T(1)/ T(x));
 	}
 	poly operator * (const T &x) const {return poly(*this) *= x;}
 	poly operator / (const T &x) const {return poly(*this) /= x;}
@@ -246,23 +243,40 @@ struct poly {
 	}
 	poly operator*=(const poly &p){
 		// change multiplication method if needed
-		*this = poly(fft::multiply_mod(a, p.a));
+		*this = poly(fft::multiply_ntt(a, p.a));
 		normalize();
 		return *this;
 	}
 	poly inv(int n){
 		poly q(T(1) / a[0]);
 		for(int i=1; i<n; i<<=1){
-			q *= poly(2) - q * trim(i * 2);
-			q = q.trim(i * 2);
+			poly p = poly(2) - q * trim(i * 2);
+			q = (p * q).trim(i * 2);
 		}
 		return q.trim(n);
 	}
+	pair<poly, poly> divmod_slow(const poly &b) const { // when divisor or quotient is small
+		vector<T> A(a);
+		vector<T> res;
+		while(A.size() >= b.a.size()) {
+			res.push_back(A.back() / b.a.back());
+			if(res.back() != T(0)) {
+				for(size_t i = 0; i < b.a.size(); i++) {
+					A[A.size() - i - 1] -= res.back() * b.a[b.a.size() - i - 1];
+				}
+			}
+			A.pop_back();
+		}
+		reverse(all(res));
+		return {res, A};
+	}
+
 	poly operator/=(const poly &b){
 		if(deg() < b.deg()) return *this = poly();
+		if(min(deg(), b.deg()) < 256) return *this = divmod_slow(b).first;
 		int k = deg() - b.deg() + 1;
 		poly ra = reversed().trim(k);
-		poly rb = b.reversed().trim(k).inv(k);
+		poly rb = b.reversed().trim(k).inv();
 		*this = (ra * rb).trim(k);
 		while(sz(a) < k) a.push_back(T(0));
 		reverse(all(a));
@@ -271,6 +285,7 @@ struct poly {
 	}
 	poly operator%=(const poly &b){
 		if(deg() < b.deg()) return *this;
+		if(min(deg(), b.deg()) < 256) return *this = divmod_slow(b).second;
 		poly foo = poly(a); foo /= b; foo *= b;
 		*this = poly(*this) -= foo;
 		normalize();
@@ -282,4 +297,54 @@ struct poly {
 	poly operator*(const poly &p)const{ return poly(*this) *= p; }
 	poly operator/(const poly &p)const{ return poly(*this) /= p; }
 	poly operator%(const poly &p)const{ return poly(*this) %= p; }
+
+	poly deriv() { // calculate derivative
+		vector<T> res;
+		for(int i = 1; i <= deg(); i++) {
+			res.push_back(T(i) * a[i]);
+		}
+		return res;
+	}
+	poly integr() { // calculate integral with C = 0
+		vector<T> res = {0};
+		for(int i = 0; i <= deg(); i++) {
+			res.push_back(a[i] / T(i + 1));
+		}
+		return res;
+	}
+	poly ln(int n){
+		// NOT TESTED
+		assert(sz(a) > 0 && a[0] == 1);
+		return (deriv() * inv(n)).integ().trim(n);
+	}
+	poly exp(int n){
+		// NOT TESTED
+		assert(sz(a) > 0 && a[0] == 1);
+		poly q(1);
+		for(int i=1; i<n; i<<=1){
+			poly p = poly(1) + trim(2 * i) - q.ln(2 * i);
+			q = (q * p).trim(2 * i);
+		}
+		return q.trim(n);
+	}
+	poly power(poly x, int y, int n){
+		// NOT TESTED
+		poly ret(1), piv = x.trim(n);
+		while(y){
+			if(y & 1) ret = (ret * piv).trim(n);
+			piv = (piv * piv).trim(n);
+		}
+		return ret;
+	}
+	poly root(int n, int k = 2){
+		// NOT TESTED in K > 2
+		assert(sz(a) > 0 && a[0] == T(1) && k >= 2);
+		poly q(1);
+		for(int i=1; i<n; i<<=1){
+			if(k == 2) q += trim(2 * i) * q.inv(2 * i);
+			else q = q * T(k - 1) + trim(2 * i) * power(q.inv(2 * i), k - 1, 2 * i);
+			q = q.trim(2 * i) / T(k);
+		}
+		return q.trim(n);
+	}
 };

@@ -10,6 +10,7 @@ T gcd(const T &a, const T &b) {
 	return b == T(0) ? a : gcd(b, a % b);
 }
 
+
 struct mint {
 	int val;
 	mint() { val = 0; }
@@ -178,6 +179,18 @@ namespace fft{
 		}
 		return ret;
 	}
+	template<typename T>
+	vector<T> multiply_naive(vector<T> v, const vector<T> &w){
+		if(sz(v) == 0 || sz(w) == 0) return vector<T>();
+		vector<T> ret(sz(v) + sz(w) - 1);
+		for(int i=0; i<sz(v); i++){
+			for(int j=0; j<sz(w); j++){
+				ret[i + j] += v[i] * w[j];
+			}
+		}
+		return ret;
+	}
+
 }
 
 template<typename T>

@@ -1,59 +1,101 @@
 struct node{
-	node *l, *r, *p; 
-	node(){ l = r = p = NULL; }
-}*root;
-void push(node *x){
-	// if there's lazy stuff
-}
-void pull(node *x){
-	x->sub = 1;
-//	x->dat = node_data(x->val);
-	if(x->l){
-		x->sub += x->l->sub;
-//		x->dat = x->l->dat + x->dat;
+	node *l, *r, *p;
+	int x, y, subSize;
+	char mask;
+	node(){ 
+		l = r = p = NULL; 
+		x = y = subSize = 0;
+		mask = 0;
 	}
-	if(x->r){
-		x->sub += x->r->sub;
-//		x->dat = x->dat + x->r->dat;
+	void push(){
+
 	}
-}
-void rotate(node *x){
-	if(!x->p) return;
-	push(x->p);  // if there's lazy stuff
-	push(x);
-	node *p = x->p;
-	bool is_left = (p->l == x);
-	node *b = (is_left ? x->r : x->l);
-	x->p = p->p;
-	if(x->p && x->p->l == p) x->p->l = x;
-	if(x->p && x->p->r == p) x->p->r = x;
-	if(is_left){
-		if(b) b->p = p;
-		p->l = b;
-		p->p = x;
-		x->r = p;
-	}
-	else{
-		if(b) b->p = p;
-		p->r = b;
-		p->p = x;
-		x->l = p;
-	}
-	pull(p); // if there's something to pull up
-	pull(x);
-	if(!x->p) root = x;
-}
-void splay(node *x){
-	while(x->p){
-		node *p = x->p;
-		node *g = p->p;
-		if(g){
-			if((p->l == x) ^ (g->l == p)) rotate(x);
-			else rotate(p);
+	void pull(){
+		subSize = 1;
+		mask &= 3;
+		mask |= (mask << 2);
+		if(l){
+			subSize += l->subSize;
+			mask |= (l->mask & 12);
 		}
-		rotate(x);
+		if(r){
+			subSize += r->subSize;
+			mask |= (r->mask & 12);
+		}
 	}
-}
+	void setLeft(node *p){
+		l = p;
+		p->p = this;
+		pull();
+	}
+	void setRight(node *p){
+		r = p;
+		p->p = this;
+		pull();
+	}
+	void rotate(){
+		node *x = this;
+		if(!x->p) return;
+		x->p->push();
+		x->push();
+		node *p = x->p;
+		bool is_left = (p->l == x);
+		node *b = (is_left ? x->r : x->l);
+		x->p = p->p;
+		if(x->p && x->p->l == p) x->p->l = x;
+		if(x->p && x->p->r == p) x->p->r = x;
+		if(is_left){
+			if(b) b->p = p;
+			p->l = b;
+			p->p = x;
+			x->r = p;
+		}
+		else{
+			if(b) b->p = p;
+			p->r = b;
+			p->p = x;
+			x->l = p;
+		}
+		p->pull();
+		x->pull();
+	}
+	void splay(){
+		node *x = this;
+		while(x->p){
+			node *p = x->p;
+			node *g = p->p;
+			if(g){
+				if((p->l == x) ^ (g->l == p)) x->rotate();
+				else p->rotate();
+			}
+			x->rotate();
+		}
+	}
+	node* prev(){
+		splay();
+		if(!l) return NULL;
+		auto prv = l;
+		while(prv->r) prv = prv->r;
+		prv->splay();
+		return prv;
+	}
+	node* next(){
+		splay();
+		if(!r) return NULL;
+		auto nxt = r;
+		while(nxt->l) nxt = nxt->l;
+		nxt->splay();
+		return nxt;
+	}
+	void inorder(){
+		if(l) l->inorder();
+		if(l) assert(l->p == this);
+		printf("[(%d, %d)]", x, y);
+		if(r) r->inorder();
+		if(r) assert(r->p == this);
+	}
+};
+
 
 void kth(int k){ 
 	k--; // 1-based

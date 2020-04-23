@@ -214,6 +214,10 @@ struct poly {
 		return idx >= (int)a.size() || idx < 0 ? T(0) : a[idx];
 	}
 
+	T& coef(size_t idx) { // mutable reference at coefficient
+		return a[idx];
+	}
+
 	poly reversed() const{
 		vector<T> b = a;
 		reverse(all(b));
@@ -256,7 +260,7 @@ struct poly {
 	}
 	poly operator*=(const poly &p){
 		// change multiplication method if needed
-		*this = poly(fft::multiply_ntt(a, p.a));
+		*this = poly(fft::multiply_naive(a, p.a));
 		normalize();
 		return *this;
 	}
@@ -289,7 +293,7 @@ struct poly {
 		if(min(deg(), b.deg()) < 256) return *this = divmod_slow(b).first;
 		int k = deg() - b.deg() + 1;
 		poly ra = reversed().trim(k);
-		poly rb = b.reversed().trim(k).inv();
+		poly rb = b.reversed().trim(k).inv(k);
 		*this = (ra * rb).trim(k);
 		while(sz(a) < k) a.push_back(T(0));
 		reverse(all(a));
@@ -361,3 +365,19 @@ struct poly {
 		return q.trim(n);
 	}
 };
+using pol = poly<mint>;
+
+mint resultant(pol &a, pol &b){
+	if(a.deg() == -1 || b.deg() == -1) return 0;
+	if(a.deg() == 0 || b.deg() == 0){
+		return ipow(a.lead(), b.deg()) * ipow(b.lead(), a.deg());
+	}
+	if(b.deg() > a.deg()){
+		mint flag = (a.deg() % 2 && b.deg() % 2) ? -1 : 1;
+		return resultant(b, a) * flag;
+	}
+	poly nxt = a % b;
+	return ipow(b.lead(), a.deg() - nxt.deg()) * resultant(nxt, b);
+}
+
+

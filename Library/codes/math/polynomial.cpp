@@ -208,7 +208,7 @@ struct poly {
 	poly(vector<T> t) : a(t){ normalize(); }
 
 	int deg() const{ return sz(a) - 1; } // -1 if empty
-	mint lead() const{ return sz(a) ? a.back() : mint(0); }
+	T lead() const{ return sz(a) ? a.back() : T(0); }
 
 	T operator [](int idx) const {
 		return idx >= (int)a.size() || idx < 0 ? T(0) : a[idx];
@@ -259,7 +259,7 @@ struct poly {
 		return *this;
 	}
 	poly operator*=(const poly &p){
-		// change multiplication method if needed
+		change multiplication method if needed
 		*this = poly(fft::multiply_naive(a, p.a));
 		normalize();
 		return *this;

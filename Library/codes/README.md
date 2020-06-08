@@ -6,6 +6,7 @@
 
 * **Please learn how to solve anything on chordal graph** (Ptz 2018 Winter. Kid's Nightmare, Ptz 2019 Summer. Apollonian Network)
 * PQ tree, 3-connectivity (Details written in my notion)
+  * Planarity check
 * Online Incremental SCC https://arxiv.org/abs/0803.0792 (Details written in my notion)
 * Dynamic 2-connectivity, 3-connectivity https://arxiv.org/abs/1708.03812 (Details written in my notion)
 * Online Dynamic MST http://phdopen.mimuw.edu.pl/lato16/italiano-slides/1-connectivity.pdf
@@ -18,22 +19,26 @@
 
 ### Data structures
 
-* Top trees?
-* Link cut memphis (?????)
-* Segment tree beats?
+* Get a working splay tree implementation
+* Treaps? Persistent treaps? 2-3 trees? (check ROI 2019 P8)
+* Top trees? Link cut memphis (?????)
 * Solve POI 2006 Tetris 3D faster than $O(n^{1 + \epsilon})$
 * Solve WF 2017 Scenery in $O(n\log n)$
-* Solve Optimal BST in $O(n\log n)$
 
 ### Etc
 
 * SMAWK
-* $log, exp$ on polynomials efficiently
 * Lyndon decomposition
+* Characteristic polynomial of matrix in $O(n^3)$
 
 ### Maybe
 
-* Matrix chain product in $O(n \log n)$ 
+* Matrix chain product in $O(n \log n)$ or $O(n\log^2 n)$ 
+
 * General (weighted) matching in $O(VE^{1/2})$
+
 * Preflow-push algorithms? 
-* Suffix trees 
+
+* Suffix trees, suffix automaton
+
+  

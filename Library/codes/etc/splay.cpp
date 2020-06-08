@@ -1,36 +1,42 @@
 struct node{
 	node *l, *r, *p;
-	int x, y, subSize;
-	char mask;
+	int x, le, ri, sub, sub_bad;
 	node(){ 
-		l = r = p = NULL; 
-		x = y = subSize = 0;
-		mask = 0;
+	}
+	node(int val){
+		l = r = p = NULL;
+		x = le = ri = val;
+		sub = 1;
+		sub_bad = 0;
 	}
 	void push(){
 
 	}
 	void pull(){
-		subSize = 1;
-		mask &= 3;
-		mask |= (mask << 2);
+		le = ri = x;
+		sub = 1;
+		sub_bad = 0;
 		if(l){
-			subSize += l->subSize;
-			mask |= (l->mask & 12);
+			le = l->le;
+			sub += l->sub;
+			sub_bad += l->sub_bad;
+			if(l->ri <= x) sub_bad += 1;
 		}
 		if(r){
-			subSize += r->subSize;
-			mask |= (r->mask & 12);
+			ri = r->ri;
+			sub += r->sub;
+			sub_bad += r->sub_bad;
+			if(x <= r->le) sub_bad += 1;
 		}
 	}
 	void setLeft(node *p){
 		l = p;
-		p->p = this;
+		if(p) p->p = this;
 		pull();
 	}
 	void setRight(node *p){
 		r = p;
-		p->p = this;
+		if(p) p->p = this;
 		pull();
 	}
 	void rotate(){
@@ -90,29 +96,30 @@ struct node{
 	void inorder(){
 		if(l) l->inorder();
 		if(l) assert(l->p == this);
-		printf("[(%d, %d)]", x, y);
+		printf("%d ", x);
 		if(r) r->inorder();
 		if(r) assert(r->p == this);
 	}
-};
-
-
-void kth(int k){ 
-	k--; // 1-based
-	node *x = root;
-	while(true){
-		push(x);
-		while(x->l && x->l->sub > k){
-			x = x->l;
-			push(x);
+	node* kth(int k){ // returns new root: please assign to original root
+		k--; // 1-based
+		splay();
+		assert(this->sub > k);
+		node *p = this;
+		while(true){
+			p->push();
+			while(p->l && p->l->sub > k){
+				p = p->l;
+				p->push();
+			}
+			if(p->l) k -= p->l->sub;
+			if(k == 0) break;
+			k--;
+			p = p->r;
 		}
-		if(x->l) k -= x->l->sub;
-		if(k == 0) break;
-		k--;
-		x = x->r;
+		p->splay();
+		return p;
 	}
-	splay(x);
-}
+};
 
 node* split(int l, int r){ // if you modify sth : please climb up the tree to pull
 	if(r == root->sub){

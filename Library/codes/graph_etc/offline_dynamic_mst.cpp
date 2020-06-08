@@ -1,3 +1,35 @@
+struct disj{
+	int pa[MAXN], rk[MAXN];
+	void init(int n){
+		iota(pa, pa + n + 1, 0);
+		memset(rk, 0, sizeof(rk));
+	}
+	int find(int x){
+		return pa[x] == x ? x : find(pa[x]);
+	}
+	bool uni(int p, int q, vector<pi> &snapshot){
+		p = find(p);
+		q = find(q);
+		if(p == q) return 0;
+		if(rk[p] < rk[q]) swap(p, q);
+		snapshot.push_back({q, pa[q]});
+		pa[q] = p;
+		if(rk[p] == rk[q]){
+			snapshot.push_back({p, -1});
+			rk[p]++;
+		}
+		return 1;
+	}
+	void revert(vector<pi> &snapshot){
+		reverse(snapshot.begin(), snapshot.end());
+		for(auto &x : snapshot){
+			if(x.second < 0) rk[x.first]--;
+			else pa[x.first] = x.second;
+		}
+		snapshot.clear();
+	}
+}disj;
+
 int n, m, q;
 int st[MAXN], ed[MAXN], cost[MAXN], chk[MAXN];
 pi qr[MAXN];

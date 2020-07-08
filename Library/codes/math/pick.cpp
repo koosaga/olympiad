@@ -1,6 +1,6 @@
 // number of (x, y) : (0 <= x < n && 0 < y <= k/d x + b/d)
 // argument should be positive
-ll count_solve(ll n, ll k, ll b, ll d) {
+lint count_solve(lint n, lint k, lint b, lint d) {
 	if (k == 0) {
 		return (b / d) * n;
 	}

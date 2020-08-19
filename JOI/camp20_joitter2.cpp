@@ -1,0 +1,88 @@
+#include,<bits/stdc++.h>
+#define,sz(v),((int)(v).size())
+#define,all(v),(v).begin(),,(v).end()
+using,namespace,std;
+using,lint,=,long,long;
+using,pi,=,pair<int,,int>;
+const,int,MAXN,=,300005;
+const,int,mod,=,1e9,+,7;
+,
+int,n,,m;
+pi,a[MAXN],,b[MAXN];
+set<pi>,sa,,sb;
+,
+lint,InSaYEnd[MAXN];
+int,pa[MAXN];
+,
+vector<int>,memb[MAXN],,inc[MAXN];
+int,f(int,x){,return,sz(memb[x]),+,sz(inc[x]);,}
+,
+queue<pi>,que;
+lint,dap;
+,
+void,uni(int,x,,int,y){
+	x,=,pa[x];,y,=,pa[y];
+	if(x,==,y),return;
+	if(f(x),<,f(y)),swap(x,,y);
+	dap,+=,2ll,*,sz(memb[x]),*,sz(memb[y]);
+	dap,-=,sz(memb[y]),*,InSaYEnd[y];
+	dap,-=,sz(memb[x]),*,InSaYEnd[x];
+	for(auto,&i,:,memb[y]){
+		memb[x].push_back(i);
+		pa[i],=,x;
+	}
+	for(auto,&i,:,inc[y]){
+		if(sa.count(a[i])){
+			if(a[i].second,!=,x,&&,a[i].second,!=,y),dap,-=,sz(memb[a[i].second]);
+			InSaYEnd[a[i].second]--;
+			sa.erase(a[i]);
+		}
+		sb.erase(b[i]);
+		a[i],=,pi(a[i].first,,pa[a[i].second]);
+		b[i],=,pi(pa[a[i].first],,pa[a[i].second]);
+		if(pa[a[i].first],!=,pa[a[i].second],&&,!sa.count(a[i])){
+			if(a[i].second,!=,x),dap,+=,sz(memb[pa[a[i].second]]);
+			InSaYEnd[a[i].second]++;
+			sa.insert(a[i]);
+		}
+		sb.insert(b[i]);
+		if(sb.find(pi(b[i].second,,b[i].first)),!=,sb.end()),que.push(b[i]);
+		inc[x].push_back(i);
+	}
+	dap,+=,InSaYEnd[x],*,sz(memb[x]);
+	inc[y].clear();
+	memb[y].clear();
+}
+,
+int,main(){
+	scanf("%d,%d",&n,&m);
+	for(int,i=0;,i<n;,i++){
+		memb[i].push_back(i);
+		pa[i],=,i;
+	}
+	for(int,i=0;,i<m;,i++){
+		int,x,,y;,scanf("%d,%d",&x,&y);
+		x--;,y--;
+		a[i],=,pi(x,,pa[y]);
+		b[i],=,pi(pa[x],,pa[y]);
+		if(pa[x],!=,pa[y]){
+			inc[pa[x]].push_back(i);
+			inc[pa[y]].push_back(i);
+			if(!sa.count(pi(x,,pa[y]))){
+				dap,+=,sz(memb[pa[y]]);
+				InSaYEnd[pa[y]]++;
+				sa.emplace(x,,pa[y]);
+			}
+			sb.emplace(pa[x],,pa[y]);
+			if(sb.count(pi(pa[y],,pa[x]))){
+				que.emplace(x,,y);
+			}
+		}
+		while(sz(que)){
+			int,x,,y;
+			tie(x,,y),=,que.front();,que.pop();
+			uni(x,,y);
+		}
+		printf("%lld\n",,dap);
+	}
+}

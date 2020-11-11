@@ -1,6 +1,5 @@
 #include "scales.h"
-#include <vector>
-#include <algorithm>
+#include <bits/stdc++.h>
 using namespace std;
  
 int perm[720][6];

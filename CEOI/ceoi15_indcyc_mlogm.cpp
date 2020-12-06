@@ -5,6 +5,7 @@ using lint = long long;
 using pi = pair<int, int>;
 
 // the algorithm may be wrong. if you have any ideas for proving / disproving this, please contact me.
+// kinda(?) verified on https://judge.yosupo.jp/problem/chordal_graph_recognition
 
 vector<int> gph[MAXN];
 int n, m, cnt[MAXN], idx[MAXN];
@@ -80,7 +81,7 @@ int main(){
 				}
 			}
 		}
-	}
+	}	
 	puts("no");
 }
 

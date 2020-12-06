@@ -1,3 +1,5 @@
+// TODO: rewrite and refactor to lint
+
 int n, inv;
 vector<int> basis[505];
 lint gyesu = 1;

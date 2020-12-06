@@ -375,17 +375,3 @@ struct poly {
         return q.trim(n);
     }
 };
-using pol = poly<mint>;
-
-mint resultant(pol &a, pol &b){
-    if(a.deg() == -1 || b.deg() == -1) return 0;
-    if(a.deg() == 0 || b.deg() == 0){
-        return ipow(a.lead(), b.deg()) * ipow(b.lead(), a.deg());
-    }
-    if(b.deg() > a.deg()){
-        mint flag = (a.deg() % 2 && b.deg() % 2) ? -1 : 1;
-        return resultant(b, a) * flag;
-    }
-    poly nxt = a % b;
-    return ipow(b.lead(), a.deg() - nxt.deg()) * resultant(nxt, b);
-}

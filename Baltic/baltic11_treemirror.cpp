@@ -75,6 +75,7 @@ bool get_root(){
 	bfs(dist1, nonleaf);
 	int bv1 = v1, bv2 = v2;
 	vector<int> trace1, trace2;
+	if(dist1[v1] > 1e7 || dist1[v2] > 1e7) return 0;
 	while(v1 != nonleaf){
 		trace1.push_back(v1);
 		v1 = par[v1];

@@ -11,7 +11,6 @@
 * Dynamic 2-connectivity, 3-connectivity https://arxiv.org/abs/1708.03812 (Details written in my notion)
 * Online Dynamic MST http://phdopen.mimuw.edu.pl/lato16/italiano-slides/1-connectivity.pdf
 * MCMF in $O(n \log n)$ time for series-parallel graphs
-* Directed MST in $O(m\log^2 m)$ 
 * Bipartite graph edge coloring in $O(m \log ^2 m)$ (VK Cup 2012 Privatization. CF #591 F. And 3 more)
 * Matroid partitioning https://www.cc.gatech.edu/~rpeng/CS7510_F19/Sep24TreePacking.pdf
 * k shortest path algorithm

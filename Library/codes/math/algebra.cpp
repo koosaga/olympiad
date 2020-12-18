@@ -259,7 +259,7 @@ struct poly {
         return *this;
     }
     poly operator*=(const poly &p){
-        *this = poly(fft::multiply_ntt(a, p.a));
+        *this = poly(fft::asdf(a, p.a));
         normalize();
         return *this;
     }

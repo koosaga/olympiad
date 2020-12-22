@@ -5,17 +5,23 @@ struct StupidGCCCantEvenCompileThisSimpleCode{
 	pair<int, int> array[1000000];
 }; // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68203
 
-// how to use rand (in 2019)
+//####################################
+//        random 
+//####################################
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 int randint(int lb, int ub){ return uniform_int_distribution<int>(lb, ub)(rng); }
 
-// comparator overload
+//####################################
+//        comparator overload
+//####################################
 auto cmp = [](seg a, seg b){ return a.func() < b.func(); };
 set<seg, decltype(cmp)> s(cmp);
 map<seg, int, decltype(cmp)> mp(cmp);
 priority_queue<seg, vector<seg>, decltype(cmp)> pq(cmp); // max heap
 
-// hash func overload
+//####################################
+//        hash function overload
+//####################################
 struct point{
     int x, y;
     bool operator==(const point &p)const{ return x == p.x && y == p.y; }
@@ -39,3 +45,23 @@ struct chash {
         return splitmix64(x + FIXED_RANDOM);
     }
 };
+
+//####################################
+//        counting iterator
+//####################################
+
+template<typename T>
+struct counting_iterator: public iterator<random_access_iterator_tag, bool>{
+    T value = 0;
+    counting_iterator(const T &value): value(value){}
+    counting_iterator(const counting_iterator &it): value(it.value){}
+    counting_iterator(){}
+    typename iterator_traits<counting_iterator>::difference_type operator-(const counting_iterator &it) const{ return value - it.value; }
+    counting_iterator &operator++(){ return *this += 1; }
+    counting_iterator &operator--(){ return *this += -1; }
+    counting_iterator &operator+=(typename iterator_traits<counting_iterator>::difference_type n){ value += n; return *this; }
+    bool operator!=(const counting_iterator &it) const{ return value != it.value; }
+    T &operator*(){ return value; }
+};
+template<typename T>
+using cnt_it = counting_iterator<T>;

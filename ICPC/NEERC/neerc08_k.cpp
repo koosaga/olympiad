@@ -7,10 +7,10 @@ using pi = pair<lint, lint>;
 
 vector<string> vect;
 string s;
-int lcp[MAXN][MAXN];
-int lcp2[MAXN][MAXN];
-int len[MAXN][MAXN];
-int good[MAXN][MAXN];
+short lcp[MAXN][MAXN];
+short lcp2[MAXN][MAXN];
+short len[MAXN][MAXN];
+short good[MAXN][MAXN];
 int sfx[MAXN];
 
 int trie[MAXN][26], piv, term[MAXN];
@@ -88,8 +88,6 @@ void do_dynamic(){
 }
 
 int main(){
-	freopen("kina.in", "r", stdin);
-	freopen("kina.out", "w", stdout);
 	string stk;
 	{
 		while(true){

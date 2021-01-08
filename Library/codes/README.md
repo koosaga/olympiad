@@ -13,8 +13,6 @@
 * MCMF in $O(n \log n)$ time for series-parallel graphs
 * Bipartite graph edge coloring in $O(m \log ^2 m)$ (VK Cup 2012 Privatization. CF #591 F. And 3 more)
 * Matroid partitioning https://www.cc.gatech.edu/~rpeng/CS7510_F19/Sep24TreePacking.pdf
-* k shortest path algorithm
-* k smallest spanning tree algorithm
 
 ### Data structures
 
@@ -33,11 +31,8 @@
 ### Maybe
 
 * Matrix chain product in $O(n \log n)$ or $O(n\log^2 n)$ 
-
 * General (weighted) matching in $O(VE^{1/2})$
-
 * Preflow-push algorithms? 
-
 * Suffix trees, suffix automaton
 
   

@@ -26,7 +26,6 @@
 
 * SMAWK
 * Lyndon decomposition
-* Characteristic polynomial of matrix in $O(n^3)$
 
 ### Maybe
 

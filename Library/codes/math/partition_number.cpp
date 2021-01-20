@@ -1,3 +1,4 @@
+// answer is P[n + 1]
 vector<pair<int, int>> gp;
 lint P[MAXN+1] = {};
 gp.emplace_back(0, 0);

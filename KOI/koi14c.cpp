@@ -45,5 +45,12 @@ int main(){
         hull1.insert(i,-dp);
         hull2.insert(a[i+1],-dp -(a[i+1]-n-1)*(i-1));
     }
-    printf("%lld",dp);
+    if(x > 0){
+        lint pabalma = n + 1 - a[1];
+        for(int i = 1; i <= x; i++){
+            pabalma += (n + 1- a[i]);
+        }
+        dp = min(dp, pabalma);
+    }
+    printf("%lld\n",dp);
 }

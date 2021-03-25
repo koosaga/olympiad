@@ -25,8 +25,9 @@
 
 * SMAWK
 * Lyndon decomposition
+* Push relabel flow
+* Strongly polynomial mincostflow
 
 ### Maybe
 
-* Preflow-push algorithms? 
 * Suffix trees, suffix automaton

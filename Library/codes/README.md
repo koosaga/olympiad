@@ -9,7 +9,6 @@
   * Planarity check
 * Online Incremental SCC https://arxiv.org/abs/0803.0792 (Details written in my notion)
 * Dynamic 2-connectivity, 3-connectivity https://arxiv.org/abs/1708.03812 (Details written in my notion)
-* MCMF in $O(n \log n)$ time for series-parallel graphs
 * Bipartite graph edge coloring in $O(m \log ^2 m)$ (VK Cup 2012 Privatization. CF #591 F. And 3 more)
 * Matroid partitioning https://www.cc.gatech.edu/~rpeng/CS7510_F19/Sep24TreePacking.pdf
 

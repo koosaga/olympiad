@@ -25,9 +25,9 @@ int main(){
 	for(int i=-n+1; i<=n-1; i++){
 		if(i == 0) continue;
 		int dx[MAXN] = {};
-		for(int j=0; j<n; j++){
+		for(int j=max(0, -i); j<n && j+i<n; j++){
 			int x = j, y = j + i;
-			if(min(x, y) < 0 || max(x, y) >= n || a[x] == a[y]) continue;
+            if(a[x] == a[y]) continue;
 			int st = max({-i, 0, j-l+1});
 			int ed = min({n-l, n-l-i, j});
 			if(st <= ed){

@@ -38,8 +38,8 @@ int ret, retp, nxt[205];
 
 bool dfs(int s, int e, int x){
 	if(s == e) return 1;
-	set<pi>::iterator it = s.begin();
-	while(it != s.end()){
+	set<pi>::iterator it = graph[s].begin();
+	while(it != graph[s].end()){
 		pi i = *it++;
 		if(i.second != x && dfs(i.second, e, s)){
 			nxt[s] = i.second;

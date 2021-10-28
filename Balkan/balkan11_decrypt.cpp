@@ -1,12 +1,9 @@
-#include "decrypt.h"
-#include <stdio.h>
-#include <cstring>
-#include <vector>
-#include <cstdlib>
-#include <map>
-#include <algorithm>
+#include <bits/stdc++.h>
 using namespace std;
 typedef pair<int,int> pi;
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 
 vector<pi> s[256];
 vector<int> v[7];
@@ -17,6 +14,10 @@ bool vis[256];
 int ITER;
 int mp[256 * 7];
 
+int get(int x){
+	cout << x << endl;
+	int y; cin >> y; return y;
+}
 int mapfind(int x){
 	int t = x * 7 + ITER % 7;
 	return t;
@@ -34,6 +35,9 @@ bool bad(){
 		for(int j=0; j<7; j++){
 			for(int k=0; k<7; k++){
 				if(adj[j][i] == -1 || adj[i][k] == -1) continue;
+				if(adj[j][k] != -1){
+					assert(adj[j][k] == (adj[j][i] ^ adj[i][k]));
+				}
 				adj[j][k] = adj[j][i] ^ adj[i][k];
 			}
 		}
@@ -42,19 +46,20 @@ bool bad(){
 	return (R[0] < 0 || R[1] < 0 || R[2] < 0);
 }
 
-void crackDevice () {
-	srand(1234);
-	for(int i=0; i<7; i++){
-		for(int j=0; j<256; j++){
-			v[i].push_back(j);
-		}
-		random_shuffle(v[i].begin(), v[i].end());
-	}
+int main(){
+	memset(vis, 0, sizeof(vis));
 	memset(adj,-1,sizeof(adj));
 	memset(mp,-1,sizeof(mp));
 	for(int i=0; i<7; i++) adj[i][i] = 0;
+	for(int i=0; i<7; i++){
+		v[i].resize(256);
+		iota(all(v[i]), 0);
+		shuffle(all(v[i]), rng);
+	}
+	for(int i = 0; i< 256; i++) s[i].clear();
 	while(bad()){
 		int t = ITER % 7;
+		if(sz(v[t]) == 0) assert(0);
 		int x = v[t].back(); v[t].pop_back();
 		int y = newget(x);
 		for(auto &j : s[y]){
@@ -64,10 +69,6 @@ void crackDevice () {
 	}
 	for(int i=3; i<320; i++){
 		R[i] = R[i-2] ^ R[i-3];
-	}
-	puts("SOLUTION");
-	for(int i=0; i<3; i++){
-		printf("%d\n",R[i]);
 	}
 	for(int i=0; i<256; i++){
 		int bad = 0;
@@ -88,8 +89,12 @@ void crackDevice () {
 			}
 		}
 	}
-	for(int i=0; i<256; i++){
-		printf("%d\n", M[i]);
+	cout << "SOLUTION" << endl;
+	for(int i=0; i<3; i++){
+		cout << R[i] << endl;
 	}
-	while(ITER > 320);
+	for(int i=0; i<256; i++){
+		cout << M[i] << endl;
+	}
 }
+

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Uikit -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="lib/uikit.min.css" />
+    <script src="lib/uikit.min.js"></script>
+    <script src="lib/uikit-icons.min.js"></script>
+    <!-- Katex -->
+    <link rel="stylesheet" href="lib/katex.min.css" />
+    <script defer src="lib/katex.min.js"></script>
+    <script defer src="lib/auto-render.min.js"></script>
+    <!-- Ace editor-->
+    <script src="lib/ace.js"></script>
+
+    <style>
+        h2 {
+            border-bottom:1px solid #CCC;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(
+                document.body, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "$", right: "$", display: false }],
+                ignoredTags: [],
+            })
+            for (e of document.getElementsByClassName("sample-code")) {
+                var editor = ace.edit(e);
+                editor.setOption("maxLines", "Infinity");
+                editor.setReadOnly(true);
+                editor.getSession().setMode("ace/mode/c_cpp");                
+            }
+        });
+    </script>
+</head>

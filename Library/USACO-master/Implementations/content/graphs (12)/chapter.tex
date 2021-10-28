@@ -1,0 +1,79 @@
+\chapter{Graphs}
+
+\textbf{Erdos-Gallai:} $d_1\geq\cdots\geq d_n$ can be degree sequence of simple graph on $n$ vertices iff their sum is even and $\sum_{i=1}^{k}d_{i}\leq k(k-1)+\sum _{i=k+1}^{n}\min(d_{i},k), \forall 1\le k\le n.$
+
+\section{Cycles}
+	\kactlimport{Basics/DirectedCycle.h}
+	\kactlimport{Basics/NegativeCycle (7.3).h}
+
+\section{DSU}
+	\kactlimport{DSU/DSU (7.6).h}
+
+\section{Trees}
+	\kactlimport{Trees (10)/LCAjump (10.2).h}
+	\kactlimport{Trees (10)/LCArmq (10.2).h}
+	\kactlimport{Trees (10)/HLD (10.3).h}
+	\kactlimport{Trees (10)/Centroid (10.3).h}
+
+	\subsection{SqrtDecompton}
+
+		HLD generally suffices. If not, here are some common strategies:
+		
+		\begin{itemize}
+			\item Rebuild the tree after every $\sqrt N$ queries. % https://codeforces.com/contest/1254/submission/65439802
+			\item Consider vertices with $>$ or $<\sqrt N$ degree separately. % https://codeforces.com/contest/1254/submission/65437007
+			\item For subtree updates, note that there are $O(\sqrt N)$ distinct sizes among child subtrees of any node.
+		\end{itemize}
+
+		\textbf{Block Tree:} Use a DFS to split edges into contiguous groups of size $\sqrt N$ to $2\sqrt N.$
+
+		\textbf{Mo's Algorithm for Tree Paths:} Maintain an array of vertices where each one appears twice, once when a DFS enters the vertex (\texttt{st}) and one when the DFS exists (\texttt{en}). For a tree path $u\leftrightarrow v$ such that \texttt{st[u]<st[v]},
+
+		\begin{itemize}
+		\item If $u$ is an ancestor of $v,$ query \texttt{[st[u],st[v]]}.
+		\item Otherwise, query $\texttt{[en[u],st[v]]}$ and consider $LCA(u,v)$ separately.
+		\end{itemize}
+
+		Solutions with worse complexities can be faster if you optimize the operations that are performed most frequently. Use arrays instead of vectors whenever possible. Iterating over an array in order is faster than iterating through the same array in some other order (ex. one given by a random permutation) or DFSing on a tree of the same size. Also, the difference between $\sqrt N$ and the optimal block (or buffer) size can be quite large. Try up to 5x smaller or larger (at least).
+
+		% ex. GP of Nanjing 2020 K
+
+\section{DFS Algorithms}
+
+	% \kactlimport{DFS/SCC (12.1).h}
+	\kactlimport{DFS/EulerPath (12.2).h}
+	\kactlimport{DFS/SCCT.h}
+	\kactlimport{DFS/TwoSAT (12.1).h}
+	\kactlimport{DFS/BCC (12.4).h}
+	\kactlimport{DFS/MaximalCliques.h}
+
+\section{Flows}
+
+	\textbf{Konig's Theorem:} In a bipartite graph, max matching = min vertex cover.
+
+	\textbf{Dilworth's Theorem:} For any partially ordered set, the sizes of the max antichain and of the min chain decomposition are equal. Equivalent to Konig's theorem on the bipartite graph $(U,V,E)$ where $U=V=S$ and $(u,v)$ is an edge when $u<v$. Those vertices outside the min vertex cover in both $U$ and $V$ form a max antichain.
+
+	% Wikipedia, https://codeforces.com/gym/102428/problem/A, https://maps20.kattis.com/problems/maps20.thewrathofkahn
+
+	\kactlimport{Flows (12.3)/Dinic.h}
+	\kactlimport{Flows (12.3)/GomoryHu.h}
+	\kactlimport{Flows (12.3)/MCMF.h}
+
+	% \kactlimport{Flows (12.3)/GlobalMinCut.h}
+
+\section{Matching}
+
+	% \kactlimport{Matching/DFSmatch.h}
+	\kactlimport{Matching/Hungarian.h}
+	\kactlimport{Matching/UnweightedMatch.h}
+	\kactlimport{Matching/WeightedMatch.h}
+	\kactlimport{Matching/MaxMatchLexMin.h}
+	% \kactlimport{Matching/UnweightedMatch2.h}
+
+\section{Advanced}
+
+	% \kactlimport{Advanced/MaxClique.h}
+	\kactlimport{Advanced/DominatorTree.h}
+	\kactlimport{Advanced/EdgeColor.h}
+	\kactlimport{Advanced/DirectedMST.h}
+	\kactlimport{Advanced/LCT.h}

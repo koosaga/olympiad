@@ -1,0 +1,60 @@
+\documentclass[letterpaper, 10pt, notitlepage]{report}
+\usepackage{kactlpkg}
+\kactlcontentdir{content}
+
+\university{MIT}{Massachusetts Institute of Technology}{mit}
+\team{MIT \$(\^{}w\^{})\$}{Benjamin Qi, Spencer Compton, Zhezheng Luo}
+% \contest{ACM-ICPC World Finals 2017}{May 24, 2017}
+\contest{adapted from KACTL and MIT NULL}{\today}
+\enablecolors
+
+\begin{document}
+	\maketeampage
+	% Small KACTL header on the first page:
+	% \maketitle{``One Last Time'' Edition}{\today}
+	\begin{multicols*}{3}
+	% \pagestyle{fancy}
+	\thispagestyle{fancy}
+	% Table of contents, without subsections:
+	\setcounter{tocdepth}{0}
+	\tableofcontents\thispagestyle{fancy}
+	% https://tex.stackexchange.com/questions/42912/how-to-get-header-and-footer-over-toc-lof-and-nomeclature
+
+	\kactlchapter{contest}
+	\kactlchapter{math}
+	\kactlchapter{data-structures}
+	\kactlchapter{number-theory (11.1)}
+	\kactlchapter{combinatorial (11.2)}
+	\kactlchapter{numerical}
+	\kactlchapter{graphs (12)}
+	\kactlchapter{geometry (13)}
+	\kactlchapter{strings (14)}
+	\kactlchapter{various}
+	\end{multicols*}
+
+	\begin{comment}
+	\begin{multicols*}{3}
+	\kactlchapter{appendix}
+	\end{multicols*}
+	\end{comment}
+\end{document}
+
+% terminal commands:
+
+% rename cpp -> h: 
+	% find . -name "*.cpp" -exec bash -c 'mv "$1" "${1%.cpp}".h' - '{}' \;
+% replace spaces with tabs
+	% find . -name '*.h' ! -type d -exec bash -c 'unexpand -t 4 "$0" > /tmp/e && mv /tmp/e "$0"' {} \;
+% replace addEdge with ae
+	% find . -name "*.h" -print0 | xargs -0 sed -i '' -e 's/addEdge(/ae(/g'
+% find F0Rd
+	% grep -r 'F0Rd' .
+% find ' + ' in .h
+	% find . -name '*.h' -print0 | xargs -0 grep -i ' + '
+% test compile all in section
+	% find 'content/geometry (13)' -name '*.h' -exec sh test-compiles.sh "{}" \;
+% view files marked --assume-unchanged
+	% https://stackoverflow.com/questions/2363197/can-i-get-a-list-of-files-marked-assume-unchanged
+% lines of length > 70, no comments or *
+	% find . -name '*.h' -print0 | xargs -0 grep '.\{70\}' | grep -v  '[ (tab char)]*\*' | grep -v # | grep -v '///'
+	% https://stackoverflow.com/questions/10038188/searching-tabs-with-grep

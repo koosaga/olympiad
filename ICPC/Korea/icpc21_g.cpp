@@ -5,7 +5,7 @@ typedef long double llf;
 typedef pair<int, int> pi;
  
 vector<int> gph[100005];
-int n, m;
+int n;
 int cnt;
 
 int trial(int x, int par, int l){
@@ -29,10 +29,9 @@ int trial(int x, int par, int l){
 int main(){
 	int l;
 	cin >> n >> l;
-	l *= 2;
 	for(int i=0; i<n-1; i++){
 		int s, e, x;
-		scanf("%d %d %d",&s,&e,&x);
+		scanf("%d %d",&s,&e);
 		gph[s].push_back(e);
 		gph[e].push_back(s);
 	}

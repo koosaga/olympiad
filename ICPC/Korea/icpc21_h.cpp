@@ -37,10 +37,7 @@ lint solve(vector<lint> a, int d, int w){
 	lint minv = min(0ll, a[0]);
 	lint maxv = max(1ll * R, a[sz(a) - 1]);
 	if(w == 1 && cnt_low && cnt_high){
-		if(cnt_med == 0){
-			return 2 * (maxv - minv) + R - L;
-		}
-		return 1e18;
+		return 2 * (maxv - minv) + R - L;
 	}
 	lint ret = (maxv - minv) + (0 - minv) + (maxv - R);
 	vector<lint> v;
@@ -137,3 +134,4 @@ int main(){
 		cout << ret << endl;
 	}
 }
+

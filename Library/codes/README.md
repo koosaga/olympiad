@@ -25,8 +25,5 @@
 * SMAWK
 * Lyndon decomposition
 * Push relabel flow
-* Strongly polynomial mincostflow
-
-### Maybe
-
-* Suffix trees, suffix automaton
+* Strongly polynomial mincostflow (cost scaling)
+* Almost everything https://old.yosupo.jp/

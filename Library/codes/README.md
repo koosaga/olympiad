@@ -5,8 +5,7 @@
 ### Graph
 
 * **Please learn how to solve anything on chordal graph** (Ptz 2018 Winter. Kid's Nightmare, Ptz 2019 Summer. Apollonian Network)
-* PQ tree, 3-connectivity (Details written in my notion)
-  * Planarity check
+* PQ tree
 * Online Incremental SCC https://arxiv.org/abs/0803.0792 (Details written in my notion)
 * Dynamic 2-connectivity, 3-connectivity https://arxiv.org/abs/1708.03812 (Details written in my notion)
 * Bipartite graph edge coloring in $O(m \log ^2 m)$ (VK Cup 2012 Privatization. CF #591 F. And 3 more)

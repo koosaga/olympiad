@@ -3,8 +3,8 @@ using namespace std;
 using lint = long long;
 using pi = pair<int, int>;
 const int mod = 1e9 + 7;
-const int MAXN = 200005;
-
+const int MAXN = 1000005;
+ 
 struct mtrx{
 	int a[2][2];
 	mtrx operator*(const mtrx &m)const{
@@ -21,7 +21,7 @@ struct mtrx{
 		return ret;
 	}
 }E, pwr[MAXN];
-
+ 
 mtrx num(int n){
 	mtrx m;
 	m.a[1][0] = m.a[1][1] = (n % 2 == 0);
@@ -29,9 +29,9 @@ mtrx num(int n){
 	m.a[0][1] = (n - 1) / 2;
 	return m;
 }
-
+ 
 set<pi> s;
-
+ 
 struct seg{
 	vector<mtrx> tree;
 	int lim;
@@ -52,16 +52,16 @@ struct seg{
 		return tree[1];
 	}
 }seg;
-
+ 
 struct seq{
 	int type; 
 	int pos;
 	mtrx m;
 };
-
+ 
 vector<seq> instr;
 vector<int> vect;
-
+ 
 void batch(){
 	sort(vect.begin(), vect.end());
 	vect.resize(unique(vect.begin(), vect.end()) - vect.begin());
@@ -76,20 +76,20 @@ void batch(){
 		}
 	}
 }
-
-int query(){
+ 
+void query(){
 	instr.push_back({2, -1, E});
 }
-
+ 
 void add_query(int pos, mtrx m){
 	vect.push_back(pos);
 	instr.push_back({1, pos, m});
 }
-
+ 
 void rem_query(int pos){
 	instr.push_back({1, pos, E});
 }
-
+ 
 void add(int x){ 
 	if(x == 0) x = 1;
 	if(x == -1) return;
@@ -109,6 +109,7 @@ void add(int x){
 	auto rem = [](pi x){
 		if(x.first != x.second) rem_query(x.first);
 		auto itr = s.lower_bound(x);
+        assert(itr != s.end());
 		int pos = 0;
 		if(itr != s.begin()) pos = prev(itr)->second;
 		if(next(itr) != s.end()) rem_query(x.second);
@@ -166,8 +167,9 @@ void add(int x){
 				else if(l != s.end() && l->first == x + 2){
 					auto it = *nxt;
 					it.second = l->second;
+                    auto Q = *nxt;
 					rem(*l);
-					rem(*nxt);
+					rem(Q);
 					ins(it);
 				}
 				else{
@@ -195,7 +197,7 @@ void add(int x){
 		}
 	}
 }
-
+ 
 int main(){
 	E.a[0][0] = E.a[1][1] = 1;
 	pwr[0] = E;
@@ -210,4 +212,3 @@ int main(){
 	}
 	batch();
 }
-

@@ -102,7 +102,7 @@ int main(){
 			int v; cin >> v;
 			mint ans = 1;
 			for(int i = 0; i <= 40; i++) ans *= dp[v][i], v = par[v];
-			cout << ans << endl;
+			cout << ans << "\n";
 		}
 	}
 }

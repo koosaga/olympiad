@@ -3,23 +3,23 @@ template<class flow_t> struct HLPP {
         int to, inv;
         flow_t rem, cap;
     };
-
+ 
     vector<basic_string<Edge>> G;
     vector<flow_t> excess;
     vector<int> hei, arc, prv, nxt, act, bot;
     queue<int> Q;
     int n, high, cut, work;
-
+ 
     // Initialize for n vertices
     HLPP(int k) : G(k) {}
-    
+ 
     int addEdge(int u, int v,
                 flow_t cap, flow_t rcap = 0) {
         G[u].push_back({ v, sz(G[v]), cap, cap });
         G[v].push_back({ u, sz(G[u])-1, rcap, rcap });
         return sz(G[u])-1;
     }
-
+ 
     void raise(int v, int h) {
         prv[nxt[prv[v]] = nxt[v]] = prv[v];
         hei[v] = h;
@@ -31,7 +31,7 @@ template<class flow_t> struct HLPP {
         nxt[v] = nxt[prv[v] = h += n];
         prv[nxt[nxt[h] = v]] = v;
     }
-
+ 
     void global(int s, int t) {
         hei.assign(n, n*2);
         act.assign(n*2, -1);
@@ -49,7 +49,7 @@ template<class flow_t> struct HLPP {
                 }
             }
     }
-
+ 
     void push(int v, Edge& e, bool z) {
         auto f = min(excess[v], e.rem);
         if (f > 0) {
@@ -61,10 +61,10 @@ template<class flow_t> struct HLPP {
             excess[v] -= f; excess[e.to] += f;
         }
     }
-
+ 
     void discharge(int v) {
         int h = n*2, k = hei[v];
-
+ 
         for(int j = 0; j < sz(G[v]); j++){
             auto& e = G[v][arc[v]];
             if (e.rem) {
@@ -75,7 +75,7 @@ template<class flow_t> struct HLPP {
             }
             if (++arc[v] >= sz(G[v])) arc[v] = 0;
         }
-
+ 
         if (k < n && nxt[k+n] == prv[k+n]) {
             for(int j = k; j < cut; j++){
             while (nxt[j+n] < n)
@@ -84,7 +84,7 @@ template<class flow_t> struct HLPP {
             cut = k;
         } else raise(v, h), work++;
     }
-
+ 
     // Compute maximum flow from src to dst
     flow_t flow(int src, int dst) {
         excess.assign(n = sz(G), 0);
@@ -95,9 +95,9 @@ template<class flow_t> struct HLPP {
         for(auto &e : G[src]){
             excess[src] = e.rem, push(src, e, 0);
         }
-
+ 
         global(src, dst);
-
+ 
         for (; high; high--)
             while (act[high] != -1) {
                 int v = act[high];
@@ -107,36 +107,41 @@ template<class flow_t> struct HLPP {
                     if (work > 4*n) global(src, dst);
                 }
             }
-
+ 
         return excess[dst];
     }
-
+ 
     // Get flow through e-th edge of vertex v
     flow_t getFlow(int v, int e) {
         return G[v][e].cap - G[v][e].rem;
     }
-
+ 
     // Get if v belongs to cut component with src
     bool cutSide(int v) { return hei[v] >= n; }
 };
-
+ 
 template <class T> struct Circulation {
     const T INF = numeric_limits<T>::max() / 2;
     T lowerBoundSum = 0;
     HLPP<T> mf;
-
+ 
     // Initialize for n vertices
     Circulation(int k) : mf(k + 2) {}
     void addEdge(int s, int e, T l, T r){
-        lowerBoundSum += l;
         mf.addEdge(s + 2, e + 2, r - l);
         if(l > 0){
             mf.addEdge(0, e + 2, l);
             mf.addEdge(s + 2, 1, l);
+            lowerBoundSum += l;
+        }
+        else{
+            mf.addEdge(0, s + 2, -l);
+            mf.addEdge(e + 2, 1, -l);
+            lowerBoundSum += -l;
         }
     }
     bool solve(int s, int e){
-        mf.addEdge(e+2, s+2, INF); // to reduce as maxflow with lower bounds, in circulation problem skip this line
+ //       mf.addEdge(e+2, s+2, INF); // to reduce as maxflow with lower bounds, in circulation problem skip this line
         return lowerBoundSum == mf.flow(0, 1);
         // to get maximum LR flow, run maxflow from s+2 to e+2 again
     }

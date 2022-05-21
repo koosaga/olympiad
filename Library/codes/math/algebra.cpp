@@ -5,11 +5,6 @@ using namespace std;
 using lint = long long;
 const int mod = 998244353; //1e9 + 7;//998244353;
 
-template<typename T>
-T gcd(const T &a, const T &b) {
-    return b == T(0) ? a : gcd(b, a % b);
-}
-
 struct mint {
     int val;
     mint() { val = 0; }

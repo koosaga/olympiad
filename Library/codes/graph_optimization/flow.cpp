@@ -4,7 +4,7 @@ template<class flow_t> struct HLPP {
 		flow_t rem, cap;
 	};
  
-	vector<basic_string<Edge>> G;
+	vector<vector<Edge>> G; // Don't use basic_string here, it will fuck up your entire life
 	vector<flow_t> excess;
 	vector<int> hei, arc, prv, nxt, act, bot;
 	queue<int> Q;

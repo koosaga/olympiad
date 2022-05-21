@@ -1,7 +1,10 @@
-//https://judge.yosupo.jp/submission/23481
-// p need to be prime. 
-// find solution to x^k == a mod p
-
+#include <bits/stdc++.h>
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+using namespace std;
+typedef long long lint;
+typedef pair<lint, lint> pi;
+const int MAXN = 30005;
 lint mod;
 
 struct mint {
@@ -210,6 +213,8 @@ namespace kth_root_mod {
         return z;
     }
 
+    // p need to be prime. 
+    // find solution to x^k == a mod p
     lint kth_root(lint a, lint k, lint p) {
         mod = p;
         a %= p;
@@ -226,4 +231,95 @@ namespace kth_root_mod {
             a = pe_root(a, pp.first, pp.second, p);
         return a;
     }
+}
+
+
+int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	lint a, b, c, n;
+	cin >> a >> b >> c >> n;
+	vector<lint> f(n), g(2*n + 1);
+	for(lint i = 0; i < n; i++){
+		f[i] = a*i*i+b*i+c;
+	}
+	for(lint i = 0; i <= 2 * n; i++){
+		g[i] = a * i + b;
+	}
+	vector<int> che(900000);
+	for(int i = 2; i < sz(che); i++){
+		if(che[i]) continue;
+		for(int j = 2*i; j < sz(che); j+=i){
+			che[j] = 1;
+		}
+	}
+	vector<pi> sols;
+	for(int i = 2; i < sz(che); i++){
+		if(che[i]) continue;
+		if(gcd(i, 2 * a) != 1){
+			int cnt = 0;
+			for(int j = 0; j < n; j++){
+				while(f[j] % i == 0){
+					f[j] /= i;
+					cnt++;
+				}
+			}
+			if(cnt > 1) sols.emplace_back(i, cnt - cnt % 2);
+			for(int j = 0; j < 2*n+1; j++){
+				while(g[j] % i == 0){
+					g[j] /= i;
+				}
+			}
+		}
+	}
+	auto try_prime = [&](lint p){
+		lint sq = kth_root_mod::kth_root((1ll * b * b - 4ll * a *  c) % p + p, 2, p);
+		if(sq == -1) return;
+		lint x = (lint)((mint(-b) - mint(sq)) / mint(2 * a));
+		lint y = (lint)((mint(-b) + mint(sq)) / mint(2 * a));
+		int cnt = 0;
+		for(lint i = x; i < sz(f); i += p){
+			while(f[i] % p == 0){
+				f[i] /= p;
+				cnt++;
+			}
+		}
+		for(lint i = y; i < sz(f); i += p){
+			while(f[i] % p == 0){
+				f[i] /= p;
+				cnt++;
+			}
+		}
+		if(cnt > 1){
+			sols.emplace_back(p, cnt - cnt % 2);
+		}
+	};
+	for(int p = 2; p < sz(che); p++){
+		if(che[p]) continue;
+		if(gcd(p, 2 * a) == 1){
+			try_prime(p);
+			lint s = (lint)(mint(-b) / mint(a));
+			for(int j = s; j < sz(g); j += p){
+				while(g[j] % p == 0){
+					g[j] /= p;
+				}
+			}
+		}
+	}
+	for(int i = 0; i < sz(f); i++){
+		int sqr = (int)round(sqrt(f[i]));
+		if(1ll * sqr * sqr == f[i]){
+			sols.emplace_back(sqr, 2);
+			f[i] = 1;
+		}
+	}
+	for(auto &p : g){
+		if(p == 1) continue;
+		try_prime(p);
+	}
+	mod = 1e9 + 7;
+	mint ret = 1;
+	for(auto &[x, y] : sols) ret *= ipow(mint(x), y);
+	cout << ret << "\n";
 }

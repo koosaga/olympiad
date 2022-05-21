@@ -1,14 +1,16 @@
-namespace miller_rabin{
-    lint mul(lint x, lint y, lint mod){ return (__int128) x * y % mod; }
-	lint ipow(lint x, lint y, lint p){
-		lint ret = 1, piv = x % p;
-		while(y){
-			if(y&1) ret = mul(ret, piv, p);
-			piv = mul(piv, piv, p);
-			y >>= 1;
-		}
-		return ret;
+lint mul(lint x, lint y, lint mod){ return (__int128) x * y % mod; }
+
+lint ipow(lint x, lint y, lint p){
+	lint ret = 1, piv = x % p;
+	while(y){
+		if(y&1) ret = mul(ret, piv, p);
+		piv = mul(piv, piv, p);
+		y >>= 1;
 	}
+	return ret;
+}
+
+namespace factors{
 	bool miller_rabin(lint x, lint a){
 		if(x % a == 0) return 0;
 		lint d = x - 1;
@@ -27,11 +29,8 @@ namespace miller_rabin{
 		if(x <= 40) return 0;
 		return 1;
 	}
-}
-
-namespace pollard_rho{
 	lint f(lint x, lint n, lint c){
-		return (c + miller_rabin::mul(x, x, n)) % n;
+		return (c + mul(x, x, n)) % n;
 	}
 	void rec(lint n, vector<lint> &v){
 		if(n == 1) return;
@@ -40,7 +39,7 @@ namespace pollard_rho{
 			rec(n/2, v);
 			return;
 		}
-		if(miller_rabin::isprime(n)){
+		if(isprime(n)){
 			v.push_back(n);
 			return;
 		}
@@ -64,5 +63,13 @@ namespace pollard_rho{
 		rec(n, ret);
 		sort(ret.begin(), ret.end());
 		return ret;
+	}
+	lint euler_phi(lint n){
+		auto pf = factorize(n);
+		pf.resize(unique(all(pf)) - pf.begin());
+		for(auto &p : pf){
+			n -= n / p;
+		}
+		return n;
 	}
 };

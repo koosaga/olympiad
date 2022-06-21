@@ -1,4 +1,4 @@
-vector<int> duval(vector<int> s){
+vector<int> duval(vector<int> &s){
     int n = sz(s);
     vector<int> v;
     for(int i = 0; i < n; ){

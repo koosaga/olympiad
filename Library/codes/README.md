@@ -8,7 +8,6 @@
 * PQ tree
 * Online Incremental SCC https://arxiv.org/abs/0803.0792 (Details written in my notion)
 * Dynamic 2-connectivity, 3-connectivity https://arxiv.org/abs/1708.03812 (Details written in my notion)
-* Bipartite graph edge coloring in $O(m \log ^2 m)$ (VK Cup 2012 Privatization. CF #591 F. And 3 more)
 * Matroid partitioning https://www.cc.gatech.edu/~rpeng/CS7510_F19/Sep24TreePacking.pdf
 
 ### Data structures
@@ -17,12 +16,8 @@
 * Treaps? Persistent treaps? 2-3 trees? (check ROI 2019 P8)
 * Top trees (?????)
 * Solve POI 2006 Tetris 3D faster than $O(n^{1 + \epsilon})$
-* Solve WF 2017 Scenery in $O(n\log n)$
 
 ### Etc
 
 * SMAWK
-* Lyndon decomposition
-* Push relabel flow
-* Strongly polynomial mincostflow (cost scaling)
 * Almost everything https://old.yosupo.jp/

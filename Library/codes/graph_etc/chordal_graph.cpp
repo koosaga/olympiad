@@ -1,24 +1,13 @@
-#include <bits/stdc++.h>
-using namespace std;
-const int MAXN = 100005;
-using lint = long long;
-using pi = pair<int, int>;
-
-
-// assume connected simple graph
-vector<int> gph[MAXN];
-int n, m, cnt[MAXN], idx[MAXN];
-
-int main(){
-	scanf("%d %d",&n,&m);
-	for(int i=0; i<m; i++){
-		int s, e; scanf("%d %d",&s,&e);
-		gph[s].push_back(e);
-		gph[e].push_back(s);
-	}
-	for(int i=1; i<=n; i++) sort(gph[i].begin(), gph[i].end());
+// given simple, nonempty graph
+// in O(m log n), returns permutation of vertices (positive) or empty vector (negative) such that
+// for p[i], all j > i such that p[j] is adjacent to p[i], constitutes cliques.
+// for each undir edge (s, e), both s \in gph[e], e \in gph[s] should hold
+vector<int> getPEO(vector<vector<int>> gph){
+	int n = sz(gph);
+	vector<int> cnt(n), idx(n);
+	for(int i=0; i<n; i++) sort(gph[i].begin(), gph[i].end());
 	priority_queue<pi> pq;
-	for(int i=1; i<=n; i++) pq.emplace(cnt[i], i);
+	for(int i=0; i<n; i++) pq.emplace(cnt[i], i);
 	vector<int> ord;
 	while(!pq.empty()){
 		int x = pq.top().second, y = pq.top().first;
@@ -44,12 +33,10 @@ int main(){
 			minBef = ord[minBef];
 			for(auto &j : gph[i]){
 				if(idx[j] > idx[minBef] && !binary_search(gph[minBef].begin(), gph[minBef].end(), j)){
-					puts("0");
-					return 0;
+					return vector<int>();
 				}
 			}
 		}
 	}
-	puts("1");
-	for(auto &i : ord) printf("%d ", i);
+	return ord;
 }

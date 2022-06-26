@@ -5,6 +5,7 @@ using pi = pair<int, int>;
 #define sz(v) ((int)(v).size())
 #define all(v) (v).begin(), (v).end()
 
+// Check camp17_railway_trip_alternative.cpp for application
 struct treeDecomp{
 	bool valid;
 	vector<int> par;

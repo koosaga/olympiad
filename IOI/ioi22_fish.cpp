@@ -6,14 +6,14 @@ using pi = pair<int, int>;
 #define sz(v) ((int)(v).size())
 #define all(v) (v).begin(), (v).end()
 const int MAXT = 270000;
-
+ 
 struct fish{
 	int pos, cost, idx;
 	bool operator<(const fish &f)const{
 		return pos < f.pos;
 	};
 };
-
+ 
 struct seg{
 	lint tree[MAXT];
 	int lim;
@@ -40,7 +40,7 @@ struct seg{
 		return ret;
 	}
 }seg1, seg2;
-
+ 
 long long max_weights(int N, int M, std::vector<int> X, std::vector<int> Y,
                       std::vector<int> W) {
     vector<vector<fish>> V(N);
@@ -78,7 +78,7 @@ long long max_weights(int N, int M, std::vector<int> X, std::vector<int> Y,
 			Top[i] += sum;
 			Top[i] = max(Top[i], seg1.query(0, N - 1));
 		}
-		DP[i] = max(DP[i], Top[i - 1]);
+		if(i) DP[i] = max(DP[i], Top[i - 1]);
 	}
 	return DP[N - 1];
 }

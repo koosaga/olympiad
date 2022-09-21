@@ -55,54 +55,6 @@ pol interpolate_x0toxn(vector<mint> y){
     return res;
 }
 
-pol hessenberg(vector<vector<mint>> a){
-    int n = sz(a);
-    for(int i = 0; i+1 < n; i++){
-        int j = i+1;
-        while(j < n && a[j][i] == mint(0)) j++;
-        if(j == n) continue;
-        for(int k = 0; k < n; k++){
-            swap(a[i+1][k], a[j][k]);
-        }
-        for(int k = 0; k < n; k++){
-            swap(a[k][j], a[k][i+1]);
-        }
-        assert(a[i+1][i] != mint(0));
-        for(int k = i+2; k < n; k++){
-            mint gyesu = a[k][i] / a[i+1][i];
-            for(int l = 0; l < n; l++){
-                a[k][l] -= gyesu * a[i+1][l];
-            }
-            for(int l = 0; l < n; l++){
-                a[l][i+1] += a[l][k] * gyesu;
-            }
-        }
-    }
-    vector<mint> interps(n + 1);
-    for(int i = 0; i <= n; i++){
-        auto b = a;
-        mint gyesu = mint(1);
-        for(int j = 1; j < n; j++){
-            if(b[j-1][j-1] == mint(0)){
-                gyesu *= -1;
-                for(int k = 0; k < n; k++) swap(b[j-1][k], b[j][k]);
-                continue;
-            }
-            mint inv = b[j][j-1] / b[j-1][j-1];
-            for(int k = j-1; k < n; k++){
-                b[j][k] -= inv * b[j-1][k];
-            }
-        }
-        for(int j=0; j<n; j++) gyesu *= b[j][j];
-        interps[i] = gyesu;
-        for(int j = 0; j < n; j++){
-            a[j][j] -= mint(1);
-        }
-    }
-    return interpolate_x0toxn(interps);
-}
-
-using pol = poly<mint>;
 vector<mint> chirpz_even(pol p, mint x, int n){
 	if(p.deg() == -1){
 		return vector<mint>(n, 0);

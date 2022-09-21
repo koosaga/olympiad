@@ -37,7 +37,7 @@ lint above(const P3&a,const P3&b,const P3&c,const P3&p) {
 	return DC(a,b,c,p) > 0;
 } // is p strictly above plane
 
-void prep(vector<P3>& p) { // rearrange points such that
+void prep(vector<P3>& p) {
 	shuffle(all(p), mt19937(0x14004));
 	int dim = 1;
 	for(int i = 1; i < sz(p); i++){

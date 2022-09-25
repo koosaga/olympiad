@@ -1,15 +1,8 @@
-#include <bits/stdc++.h>
-using namespace std;
-const int MAXN = 750005;
-using lint = long long;
-using pi = pair<lint, lint>;
-#define sz(v) ((int)(v).size())
-#define all(v) (v).begin(), (v).end()
-
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 int randint(int lb, int ub){ return uniform_int_distribution<int>(lb, ub)(rng); }
 
 namespace Epp98{
+	using pi = pair<lint, lint>;
 	struct node{
 		node *son[2];
 		pi val;
@@ -57,7 +50,8 @@ namespace Epp98{
 		rev.resize(n);
 		idx = 0;
 	}
-	void add_edge(int s, int e, int x){
+	void add_edge(int s, int e, lint x){
+		assert(x >= 0);
 		gph[s].push_back((edg){e, x, idx});
 		rev[e].push_back((edg){s, x, idx});
 		idx++;

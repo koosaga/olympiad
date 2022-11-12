@@ -12,7 +12,7 @@ lint ipow(lint x, lint y, lint p){
 
 namespace factors{
 	bool miller_rabin(lint x, lint a){
-		if(x % a == 0) return 0;
+		if(x % a == 0) return 1;
 		lint d = x - 1;
 		while(1){
 			lint tmp = ipow(a, d, x);

@@ -364,7 +364,7 @@ struct poly {
         poly q(1);
         for(int i=1; i<n; i<<=1){
             if(k == 2) q += trim(2 * i) * q.inv(2 * i);
-            else q = q * T(k - 1) + trim(2 * i) * power(q.inv(2 * i), k - 1, 2 * i);
+            else q = q * T(k - 1) + trim(2 * i) * q.inv(2 * i).power(k - 1, 2 * i);
             q = q.trim(2 * i) / T(k);
         }
         return q.trim(n);

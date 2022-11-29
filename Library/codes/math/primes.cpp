@@ -1,75 +1,136 @@
-lint mul(lint x, lint y, lint mod){ return (__int128) x * y % mod; }
 
-lint ipow(lint x, lint y, lint p){
+lint mul(lint x, lint y, lint mod) { return (__int128)x * y % mod; }
+
+lint ipow(lint x, lint y, lint p) {
 	lint ret = 1, piv = x % p;
-	while(y){
-		if(y&1) ret = mul(ret, piv, p);
+	while (y) {
+		if (y & 1)
+			ret = mul(ret, piv, p);
 		piv = mul(piv, piv, p);
 		y >>= 1;
 	}
 	return ret;
 }
 
-namespace factors{
-	bool miller_rabin(lint x, lint a){
-		if(x % a == 0) return 1;
-		lint d = x - 1;
-		while(1){
-			lint tmp = ipow(a, d, x);
-			if(d&1) return (tmp != 1 && tmp != x-1);
-			else if(tmp == x-1) return 0;
-			d >>= 1;
-		}
-	}
-	bool isprime(lint x){
-		for(auto &i : {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}){
-			if(x == i) return 1;
-			if(x > 40 && miller_rabin(x, i)) return 0;
-		}
-		if(x <= 40) return 0;
+namespace factors {
+bool miller_rabin(lint x, lint a) {
+	if (x % a == 0)
 		return 1;
+	lint d = x - 1;
+	while (1) {
+		lint tmp = ipow(a, d, x);
+		if (d & 1)
+			return (tmp != 1 && tmp != x - 1);
+		else if (tmp == x - 1)
+			return 0;
+		d >>= 1;
 	}
-	lint f(lint x, lint n, lint c){
-		return (c + mul(x, x, n)) % n;
+}
+bool isprime(lint x) {
+	for (auto &i : {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}) {
+		if (x == i)
+			return 1;
+		if (x > 40 && miller_rabin(x, i))
+			return 0;
 	}
-	void rec(lint n, vector<lint> &v){
-		if(n == 1) return;
-		if(n % 2 == 0){
-			v.push_back(2);
-			rec(n/2, v);
-			return;
+	if (x <= 40)
+		return 0;
+	return 1;
+}
+lint f(lint x, lint n, lint c) { return (c + mul(x, x, n)) % n; }
+void rec(lint n, vector<lint> &v) {
+	if (n == 1)
+		return;
+	if (n % 2 == 0) {
+		v.push_back(2);
+		rec(n / 2, v);
+		return;
+	}
+	if (isprime(n)) {
+		v.push_back(n);
+		return;
+	}
+	lint a, b, c;
+	while (1) {
+		a = rand() % (n - 2) + 2;
+		b = a;
+		c = rand() % 20 + 1;
+		do {
+			a = f(a, n, c);
+			b = f(f(b, n, c), n, c);
+		} while (gcd(abs(a - b), n) == 1);
+		if (a != b)
+			break;
+	}
+	lint x = gcd(abs(a - b), n);
+	rec(x, v);
+	rec(n / x, v);
+}
+vector<lint> factorize(lint n) {
+	vector<lint> ret;
+	rec(n, ret);
+	sort(ret.begin(), ret.end());
+	return ret;
+}
+lint euler_phi(lint n) {
+	auto pf = factorize(n);
+	pf.resize(unique(all(pf)) - pf.begin());
+	for (auto &p : pf) {
+		n -= n / p;
+	}
+	return n;
+}
+
+// Given a prime p, find a primitive root.
+// Time complexity is dominated by factorization of p - 1.
+// Ref: https://judge.yosupo.jp/submission/109014
+unsigned long long primitive_root(unsigned long long p) {
+	using u64 = unsigned long long;
+	using u128 = __uint128_t;
+	if (p == 2)
+		return 1;
+	auto F = factorize(p - 1);
+	u64 r = p;
+	for (int t = 0; t < 6; t++)
+		r *= 2 - r * p;
+	u64 n2 = -(u128)p % p;
+	auto red = [&](u128 t) noexcept -> u64 {
+		t = (t + (u128)((u64)t * -r) * p) >> 64;
+		return (t >= p) ? t - p : t;
+	};
+	auto mult = [&](u64 a, u64 b) noexcept { return red((u128)red((u128)a * b) * n2); };
+	auto powm = [&](u64 a, u64 i) noexcept {
+		u64 b = 1;
+		while (i) {
+			if (i & 1) {
+				b = mult(a, b);
+			}
+			a = mult(a, a);
+			i /= 2;
 		}
-		if(isprime(n)){
-			v.push_back(n);
-			return;
+		return b;
+	};
+	static u64 v = 7001;
+	while (true) {
+		v ^= v << 13;
+		v ^= v >> 7;
+		v ^= v << 17; // Xorshift https://www.jstatsoft.org/article/download/v008i14/916
+		u64 vv = v % p;
+		if (vv == 0)
+			continue;
+		bool ok = true;
+		for (auto f : F) {
+			u64 i = (p - 1) / f;
+			if (powm(vv, i) == 1) {
+				ok = false;
+				break;
+			}
 		}
-		lint a, b, c;
-		while(1){
-			a = rand() % (n-2) + 2;
-			b = a;
-			c = rand() % 20 + 1;
-			do{
-				a = f(a, n, c);
-				b = f(f(b, n, c), n, c);
-			}while(gcd(abs(a-b), n) == 1);
-			if(a != b) break;
-		}
-		lint x = gcd(abs(a-b), n);
-		rec(x, v);
-		rec(n/x, v);
+		if (ok)
+			break;
 	}
-	vector<lint> factorize(lint n){
-		vector<lint> ret;
-		rec(n, ret);
-		sort(ret.begin(), ret.end());
-		return ret;
-	}
-	lint euler_phi(lint n){
-		auto pf = factorize(n);
-		pf.resize(unique(all(pf)) - pf.begin());
-		for(auto &p : pf){
-			n -= n / p;
-		}
-		return n;
-	}
-};
+	return v % p;
+}
+
+}; // namespace factors
+

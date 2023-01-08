@@ -1,3 +1,7 @@
+// use when TLE
+#pragma GCC optimize("O3,unroll-loops")
+#pragma GCC target("avx,avx2,fma")
+
 // vimrc : set nu sc ci si ai sw=4 ts=4 bs=2  mouse=a syntax on
 // options : -fsanitize=address -Wfatal-errors
 

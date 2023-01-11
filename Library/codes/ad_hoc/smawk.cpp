@@ -1,6 +1,7 @@
 // Let a matrix be monotone if Opt(i) <= Opt(i + 1) for all rows i.
 // Given a totally monotone matrix (where every 2x2 submatrix is monotone)
 // find the list of row maxima positions.
+// Source: maroonrk
 
 template <class F, class D = lint> vector<int> smawk(F f, int n, int m) {
 	vector<int> ans(n, -1);

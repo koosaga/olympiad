@@ -753,10 +753,10 @@ template <typename T> struct poly {
 	}
 
 	vector<T> chirpz(T z, int n) const { // P(1), P(z), P(z^2), ..., P(z^(n-1))
-		if (is_zero()) {
+		if (is_zero() || n == 0) {
 			return vector<T>(n);
 		}
-		if (z == T(0)) {
+		if (z == T(0) || n == 1) {
 			vector<T> ans(n, a[0]);
 			for (int i = 1; i <= deg(); i++)
 				ans[0] += a[i];
@@ -926,7 +926,6 @@ template <typename T> struct poly {
 		return build(tree, 1, 0, sz(x), x).deriv().inter(tree, 1, 0, sz(x), 0, sz(y), x, y);
 	}
 };
-
 
 using polyn = poly<mint>;
 int main() {

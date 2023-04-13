@@ -4,7 +4,7 @@ using lint = long long;
 using pi = array<lint, 2>;
 #define sz(a) ((int)(a).size())
 #define all(a) (a).begin(), (a).end()
-const int mod = 998244353; // 1e9 + 7;//998244353;
+int mod;
 
 // I don't remember the credit of modint, but it's not mine.
 // I don't remember the credit of FFT, but it's probably mine.
@@ -223,31 +223,30 @@ template <typename T> vector<T> multiply_naive(vector<T> v, const vector<T> &w) 
 
 } // namespace fft
 
-const int maxn = 1 << 20;
+const int maxn = 8000;
 const int magic = 250; // threshold for sizes to run the naive algo
+bool init1 = false, init2 = false;
 
 template <typename T> T fact(int n) {
 	static T F[maxn];
-	static bool init = false;
-	if (!init) {
+	if (!init1) {
 		F[0] = T(1);
-		for (int i = 1; i < maxn; i++) {
+		for (int i = 1; i < mod; i++) {
 			F[i] = F[i - 1] * T(i);
 		}
-		init = true;
+		init1 = true;
 	}
 	return F[n];
 }
 
 template <typename T> T rfact(int n) {
 	static T F[maxn];
-	static bool init = false;
-	if (!init) {
-		F[maxn - 1] = T(1) / fact<T>(maxn - 1);
-		for (int i = maxn - 2; i >= 0; i--) {
+	if (!init2) {
+		F[mod - 1] = T(1) / fact<T>(mod - 1);
+		for (int i = mod - 2; i >= 0; i--) {
 			F[i] = F[i + 1] * T(i + 1);
 		}
-		init = true;
+		init2 = true;
 	}
 	return F[n];
 }
@@ -312,7 +311,7 @@ template <typename T> struct poly {
 	}
 
 	poly operator*=(const poly &t) {
-		a = fft::multiply_ntt(a, t.a);
+		a = fft::multiply(a, t.a);
 		normalize();
 		return *this;
 	}
@@ -753,15 +752,6 @@ template <typename T> struct poly {
 	}
 
 	vector<T> chirpz(T z, int n) const { // P(1), P(z), P(z^2), ..., P(z^(n-1))
-		if (is_zero()) {
-			return vector<T>(n);
-		}
-		if (z == T(0)) {
-			vector<T> ans(n, a[0]);
-			for (int i = 1; i <= deg(); i++)
-				ans[0] += a[i];
-			return ans;
-		}
 		auto even = chirpz_even(z, (n + 1) / 2);
 		auto odd = mulx(z).chirpz_even(z, n / 2);
 		vector<T> ans(n);
@@ -926,19 +916,87 @@ template <typename T> struct poly {
 		return build(tree, 1, 0, sz(x), x).deriv().inter(tree, 1, 0, sz(x), 0, sz(y), x, y);
 	}
 };
+namespace Euclid {
+lint gcd(lint x, lint y) { return y ? gcd(y, x % y) : x; }
+lint mod(lint a, lint b) { return ((a % b) + b) % b; }
 
+// returns g = gcd(a, b); finds x, y such that g = ax + by
+lint ext_gcd(lint a, lint b, lint &x, lint &y) {
+	lint xx = y = 0;
+	lint yy = x = 1;
+	while (b) {
+		lint q = a / b;
+		lint t = b;
+		b = a % b;
+		a = t;
+		t = xx;
+		xx = x - q * xx;
+		x = t;
+		t = yy;
+		yy = y - q * yy;
+		y = t;
+	}
+	return a;
+}
 
+// computes b such that ab = 1 (mod n), returns -1 on failure
+lint mod_inverse(lint a, lint n) {
+	lint x, y;
+	lint g = ext_gcd(a, n, x, y);
+	if (g > 1)
+		return -1;
+	return mod(x, n);
+}
+
+// Chinese remainder theorem: find z such that
+// z % m1 = r1, z % m2 = r2.  Here, z is unique modulo M = lcm(m1, m2).
+// Return (z, M).  On failure, M = -1.
+pair<lint, lint> CRT(lint m1, lint r1, lint m2, lint r2) {
+	lint s, t;
+	lint g = ext_gcd(m1, m2, s, t);
+	if (r1 % g != r2 % g)
+		return make_pair(0, -1);
+	s = mod(s * r2, m2);
+	t = mod(t * r1, m1);
+	return make_pair(mod(s * (m1 / g) + t * (m2 / g), m1 * (m2 / g)), m1 * (m2 / g));
+}
+} // namespace Euclid
 using polyn = poly<mint>;
+
+int bellMod(lint n, int p) {
+	if (p == 2) {
+		return n % 3 < 2;
+	}
+	mod = p;
+	init1 = init2 = 0;
+	auto first_values = (polyn({mint(0), mint(1)}).exp(p) - polyn({mint(1)})).exp(p);
+	vector<mint> v(p + 1);
+	v[p] = 1;
+	v[0] = v[1] = -1;
+	auto ret = polyn({mint(0), mint(1)}).powmod(n, polyn(v));
+	mint ans = 0;
+	for (int i = 0; i < p; i++) {
+		ans += ret[i] * first_values[i] * fact<mint>(i);
+	}
+	return ans;
+}
+
 int main() {
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
-	int n;
-	cin >> n;
-	vector<mint> x(n), y(n);
-	for (auto &v : x)
-		cin >> v.val;
-	for (auto &v : y)
-		cin >> v.val;
-	polyn::inter(x, y).print(n);
+	lint n, m;
+	cin >> n >> m;
+	pair<lint, lint> p[4];
+	p[0] = make_pair(2, bellMod(n, 2));
+	p[1] = make_pair(13, bellMod(n, 13));
+	p[2] = make_pair(5281, bellMod(n, 5281));
+	p[3] = make_pair(7283, bellMod(n, 7283));
+	for (int i = 1; i < 4; i++) {
+		auto z = Euclid::CRT(p[0].first, p[0].second, p[i].first, p[i].second);
+		p[0] = make_pair(z.second, z.first);
+	}
+	// cout << p[0].first << " " << p[0].second << endl;
+	mod = int(1e9) - 401;
+	cout << ipow(mint(m), p[0].second) << "\n";
 }

@@ -1,4 +1,3 @@
-// TODO: Test this
 // Source: https://github.com/ecnerwala/cp-book/blob/master/src/top_tree.hpp
 
 /**

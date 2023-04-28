@@ -81,14 +81,7 @@ void fft(vector<base> &a, bool inv) {
 	}
 	/*
 	   XOR Convolution : set roots[*] = 1.
-	   OR Convolution : set roots[*] = 1, and do following:
-	   if (!inv) {
-	   a[j + k] = u + v;
-	   a[j + k + i/2] = u;
-	   } else {
-	   a[j + k] = v;
-	   a[j + k + i/2] = u - v;
-	   }
+	   OR Convolution  : It's easy, don't try to use FFT. https://codeforces.com/blog/entry/115438
 	 */
 	for (int i = 2; i <= n; i <<= 1) {
 		int step = n / i;
@@ -102,7 +95,7 @@ void fft(vector<base> &a, bool inv) {
 	}
 	if (inv)
 		for (int i = 0; i < n; i++)
-			a[i] /= n; // skip for OR convolution.
+			a[i] /= n; 
 }
 template <typename T> void ntt(vector<T> &a, bool inv) {
 	const int prr = 3; // primitive root

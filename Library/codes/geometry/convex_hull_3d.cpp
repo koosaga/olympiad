@@ -1,3 +1,8 @@
+// 3D Convex Hull in O(n log n)
+// Very well tested. Good as long as not all points are coplanar
+// In case of collinear faces, returns arbitrary triangulation
+// Credit: Benq
+
 using P3 = array<lint,3>; 
 P3& operator+=(P3& l, const P3& r) { for(int i = 0; i < 3; i++) l[i] += r[i]; 
 	return l; }

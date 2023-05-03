@@ -1,3 +1,7 @@
+// Decremental convex hull in O(n log n)
+// From "Applications of a semi-dynamic convex hull algorithm" by J. Hershberger and S. Suri
+// Credit: dacin21 (https://judge.yosupo.jp/submission/21685)
+
 struct Point {
 	Point& operator+=(Point const&o) {
 		x += o.x;

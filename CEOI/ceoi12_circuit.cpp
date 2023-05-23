@@ -1,158 +1,315 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <limits.h>
-#include <stack>
-#include <queue>
-#include <map>
-#include <set>
-#include <algorithm>
-#include <string>
-#include <functional>
-#include <vector>
-#include <numeric>
-#include <deque>
-#include <bitset>
-#include <iostream>
+// use when TLE
+#pragma GCC optimize("O3,unroll-loops")
+#pragma GCC target("avx,avx2,fma")
+#include <bits/stdc++.h>
 using namespace std;
-typedef long long lint;
-typedef long double llf;
+using lint = long long;
+#define sz(a) ((int)(a).size())
+#define all(a) (a).begin(), (a).end()
 typedef pair<int, int> pi;
-  
-int n;
-pi a[100005];
-vector<pi> v;
-  
-int gcd(int x, int y){
-	return y ? gcd(y, x%y) : x;
-}
-  
-bool ccw(pi a, pi b){
-	return 1ll * b.first * a.second > 1ll * a.first * b.second;
-}
-  
-bool ccw2(pi a, pi b, pi c){
-	return ccw(pi(b.first - a.first, b.second - a.second), pi(c.first - a.first, c.second - a.second));
-}
-  
-bool same(pi a, pi b){
-	return 1ll * b.first * a.second == 1ll * a.first * b.second;
-}
-  
-struct line{
-	int a, b;
-	lint c;
-};
-  
-double crs(line a, line b){
-	return (1.0 * a.b * b.c - 1.0 * a.c * b.b) / (1.0 * a.a * b.b - 1.0 * a.b * b.a);
-}
-  
-pi compare(pi p, pi q, int r1, int r2){
-	if(p.first == -1) return q;
-	if(q.first == -1) return p;
-	r1 = max(r1, 0);
-	r2 = min(r2, (int)v.size() - 1);
-	line p1 = {a[p.second].second - a[p.first].second, a[p.first].first - a[p.second].first, 0ll};
-	p1.c = - 1ll * p1.a * a[p.first].first - 1ll * p1.b * a[p.first].second;
-	line p2 = {a[q.second].second - a[q.first].second, a[q.first].first - a[q.second].first, 0ll};
-	p2.c = - 1ll * p2.a * a[q.first].first - 1ll * p2.b * a[q.first].second;
-	line p3 = {v[r1].second + v[r2].second, -v[r1].first - v[r2].first, 0ll};
-	if(crs(p1, p3) < crs(p2, p3)) return p;
-	return q;
-}
+const int MAXN = 200005;
 
-struct seg{
-	int lim;
-	pi tree[270000];
-	int ps[270000], pe[270000];
-	void init(int n){
-		fill(tree, tree + 270000, pi(-1, -1));
-		for(lim = 1; lim <= n; lim <<= 1);
-		for(int i=0; i<lim; i++){
-			ps[i + lim] = pe[i + lim] = i;
-		}
-		for(int i=lim-1; i; i--){
-			ps[i] = ps[2*i];
-			pe[i] = pe[2*i+1];
-		}
-	}
-	void add(int s, int e, pi v){
-		s += lim;
-		e += lim;
-		while(s < e){
-			if(s%2 == 1){
-				tree[s] = compare(tree[s], v, ps[s], pe[s] + 1);
-				s++;
+namespace fastio {
+static constexpr uint32_t SZ = 1 << 17;
+char ibuf[SZ];
+char obuf[SZ];
+uint32_t pil = 0, pir = 0, por = 0;
+
+struct Pre {
+	char num[40000];
+	constexpr Pre() : num() {
+		for (int i = 0; i < 10000; i++) {
+			int n = i;
+			for (int j = 3; j >= 0; j--) {
+				num[i * 4 + j] = n % 10 + '0';
+				n /= 10;
 			}
-			if(e%2 == 0){
-				tree[e] = compare(tree[e], v, ps[e], pe[e] + 1);
-				e--;
+		}
+	}
+} constexpr pre;
+
+__attribute__((target("avx2"), optimize("O3"))) inline void load() {
+	memcpy(ibuf, ibuf + pil, pir - pil);
+	pir = pir - pil + fread(ibuf + pir - pil, 1, SZ - pir + pil, stdin);
+	pil = 0;
+}
+
+__attribute__((target("avx2"), optimize("O3"))) inline void flush() {
+	fwrite(obuf, 1, por, stdout);
+	por = 0;
+}
+
+inline void rd(char &c) { c = ibuf[pil++]; }
+
+template <typename T> __attribute__((target("avx2"), optimize("O3"))) inline void rd(T &x) {
+	if (pil + 32 > pir)
+		load();
+	char c;
+	do
+		rd(c);
+	while (c < '-');
+	bool minus = 0;
+	if constexpr (is_signed<T>::value) {
+		if (c == '-') {
+			minus = 1;
+			rd(c);
+		}
+	}
+	x = 0;
+	while (c >= '0') {
+		x = x * 10 + (c & 15);
+		rd(c);
+	}
+	if constexpr (is_signed<T>::value) {
+		if (minus)
+			x = -x;
+	}
+}
+
+inline void wt(char c) { obuf[por++] = c; }
+template <typename T> __attribute__((target("avx2"), optimize("O3"))) inline void wt(T x) {
+	if (por + 32 > SZ)
+		flush();
+	if (!x) {
+		wt('0');
+		return;
+	}
+	if constexpr (is_signed<T>::value) {
+		if (x < 0) {
+			wt('-');
+			x = -x;
+		}
+	}
+	if (x >= 10000000000000000) {
+		uint32_t r1 = x % 100000000;
+		uint64_t q1 = x / 100000000;
+		if (x >= 1000000000000000000) {
+			uint32_t n1 = r1 % 10000;
+			uint32_t n2 = r1 / 10000;
+			uint32_t n3 = q1 % 10000;
+			uint32_t r2 = q1 / 10000;
+			uint32_t n4 = r2 % 10000;
+			uint32_t q2 = r2 / 10000;
+			memcpy(obuf + por + 15, pre.num + (n1 << 2), 4);
+			memcpy(obuf + por + 11, pre.num + (n2 << 2), 4);
+			memcpy(obuf + por + 7, pre.num + (n3 << 2), 4);
+			memcpy(obuf + por + 3, pre.num + (n4 << 2), 4);
+			memcpy(obuf + por, pre.num + (q2 << 2) + 1, 3);
+			por += 19;
+		} else if (x >= 100000000000000000) {
+			uint32_t n1 = r1 % 10000;
+			uint32_t n2 = r1 / 10000;
+			uint32_t n3 = q1 % 10000;
+			uint32_t r2 = q1 / 10000;
+			uint32_t n4 = r2 % 10000;
+			uint32_t q2 = r2 / 10000;
+			uint32_t q3 = (q2 * 205) >> 11;
+			uint32_t r3 = q2 - q3 * 10;
+			memcpy(obuf + por + 14, pre.num + (n1 << 2), 4);
+			memcpy(obuf + por + 10, pre.num + (n2 << 2), 4);
+			memcpy(obuf + por + 6, pre.num + (n3 << 2), 4);
+			memcpy(obuf + por + 2, pre.num + (n4 << 2), 4);
+			obuf[por + 1] = '0' + r3;
+			obuf[por + 0] = '0' + q3;
+			por += 18;
+		} else {
+			uint32_t n1 = r1 % 10000;
+			uint32_t n2 = r1 / 10000;
+			uint32_t n3 = static_cast<uint32_t>(q1) % 10000;
+			uint32_t r2 = static_cast<uint32_t>(q1) / 10000;
+			uint32_t n4 = r2 % 10000;
+			uint32_t q2 = r2 / 10000;
+			memcpy(obuf + por + 13, pre.num + (n1 << 2), 4);
+			memcpy(obuf + por + 9, pre.num + (n2 << 2), 4);
+			memcpy(obuf + por + 5, pre.num + (n3 << 2), 4);
+			memcpy(obuf + por + 1, pre.num + (n4 << 2), 4);
+			obuf[por + 0] = '0' + q2;
+			por += 17;
+		}
+	} else {
+		int i = 8;
+		char buf[12];
+		while (x >= 10000) {
+			memcpy(buf + i, pre.num + (x % 10000) * 4, 4);
+			x /= 10000;
+			i -= 4;
+		}
+		if (x < 100) {
+			if (x < 10) {
+				wt(char('0' + x));
+			} else {
+				obuf[por + 0] = '0' + x / 10;
+				obuf[por + 1] = '0' + x % 10;
+				por += 2;
 			}
-			s >>= 1;
-			e >>= 1;
+		} else {
+			if (x < 1000) {
+				memcpy(obuf + por, pre.num + (x << 2) + 1, 3);
+				por += 3;
+			} else {
+				memcpy(obuf + por, pre.num + (x << 2), 4);
+				por += 4;
+			}
 		}
-		if(s == e) tree[s] = compare(tree[s], v, ps[s], pe[s] + 1);
+		memcpy(obuf + por, buf + i + 4, 8 - i);
+		por += 8 - i;
 	}
-	pi query(int p){
-		p += lim;
-		pi ret = tree[p];
-		while(p > 1){
-			p >>= 1;
-			ret = compare(ret, tree[p], ps[p], pe[p] + 1);
-		}
-		return ret;
-	}
-}seg;
+}
 
-pi queries[100005];
+struct Dummy {
+	Dummy() { atexit(flush); }
+} dummy;
 
-int main(){
-	scanf("%d",&n);
-	for(int i=0; i<n; i++){
-		scanf("%d %d",&a[i].first, &a[i].second);
-		int g = gcd(a[i].first, a[i].second);
-		v.push_back(pi(a[i].first / g, a[i].second / g));
+} // namespace fastio
+using fastio::rd;
+using fastio::wt;
+
+struct point {
+	int x, y, idx;
+} a[MAXN];
+
+int n, pos[MAXN];
+lint ccw(const point &a, const point &b) { return 1ll * a.x * b.y - 1ll * b.x * a.y; }
+lint ccw(const point &a, const point &b, const point &c) { return 1ll * (b.x - a.x) * (c.y - a.y) - 1ll * (c.x - a.x) * (b.y - a.y); }
+bool operator<(const point &a, const point &b) { return ccw(a, b) < 0; }
+
+bool cmp(int p, int q) {
+	if (ccw(a[p], a[q]) > 0) {
+		swap(p, q);
+		return ccw(a[p], a[p + 1], a[q]) < 0;
 	}
-	a[n] = a[0];
-	sort(v.begin(), v.end(), ccw);
-	v.resize(unique(v.begin(), v.end()) - v.begin());
-	seg.init(v.size() - 1);
-	for(int i=0; i<n; i++){
-		int s = lower_bound(v.begin(), v.end(), a[i], ccw) - v.begin();
-		int e = lower_bound(v.begin(), v.end(), a[i+1], ccw) - v.begin();
-		if(s == e) continue;
-		pi val(i, (i+1)%n);
-		if(s > e){
-			swap(s, e);
-			swap(val.first, val.second);
+	return ccw(a[p], a[p + 1], a[q]) > 0;
+}
+
+int queries[MAXN];
+
+struct ds {
+	int H[MAXN], sz;
+	int rev[MAXN];
+	void swp(int a, int b) {
+		swap(rev[H[a]], rev[H[b]]);
+		swap(H[a], H[b]);
+	}
+	void insert(int x) {
+		H[++sz] = x;
+		rev[x] = sz;
+		for (int j = sz; j > 1; j >>= 1) {
+			if (!cmp(H[j / 2], H[j])) {
+				swp(j / 2, j);
+			} else
+				break;
 		}
-		seg.add(s, e-1, val);
 	}
-	for(int i=0; i<v.size()-1; i++){
-		queries[i] = query(i);
+	void erase(int x) {
+		for (int i = rev[x]; i > 1; i >>= 1)
+			swp(i / 2, i);
+		swp(1, sz--);
+		for (int i = 1; 2 * i <= sz;) {
+			if (2 * i + 1 <= sz && cmp(H[2 * i + 1], H[2 * i])) {
+				if (!cmp(H[i], H[2 * i + 1]))
+					swp(i, 2 * i + 1), i = 2 * i + 1;
+				else
+					break;
+			} else {
+				if (!cmp(H[i], H[2 * i]))
+					swp(i, 2 * i), i = 2 * i;
+				else
+					break;
+			}
+		}
 	}
-	vector<int> v2;
-	for(int i=0; i<n; i++){
-		int p = lower_bound(v.begin(), v.end(), a[i], ccw) - v.begin();
+	int top() { return H[1]; }
+} DS;
+
+__attribute__((target("avx2"), optimize("O3"))) int main() {
+	rd(n);
+	for (int i = 0; i < n; i++) {
+		rd(a[i].x);
+		rd(a[i].y);
+		a[i].idx = i + 1;
+	}
+	{
+		lint sum = 0;
+		for (int i = 0; i < n; i++) {
+			sum += ccw(a[i], a[(i + 1) % n]);
+		}
+		if (sum < 0)
+			reverse(a, a + n);
+	}
+	int min_pos = min_element(a, a + n) - a;
+	rotate(a, a + min_pos, a + n);
+	int N = n;
+	int c = 0;
+	{
+		vector<point> v;
+		int max_pos = max_element(a, a + n) - a;
+		for (int i = 0; i <= max_pos; i++) {
+			if (sz(v) > 1 && ccw(v[sz(v) - 2], v.back()) > 0 && ccw(v.back(), a[i]) > 0) {
+				v.pop_back();
+			}
+			v.push_back(a[i]);
+		}
+		n = sz(v);
+		for (int i = 0; i < n; i++)
+			a[i] = v[i];
+		for (int i = 0; i < n; i++)
+			v[i].idx = i;
+		sort(v.begin(), v.end());
+		int j = 0;
+		for (int i = 0; i < n;) {
+			while (j < n && ccw(v[i], v[j]) == 0) {
+				pos[v[j++].idx] = c;
+			}
+			c++;
+			i = j;
+		}
+	}
+	vector<vector<int>> in(c), out(c);
+	for (int i = 0; i < n - 1; i++) {
+		if (pos[i] < pos[i + 1]) {
+			in[pos[i]].push_back(i);
+			out[pos[i + 1]].push_back(i);
+		}
+	}
+	for (int i = 0; i < c - 1; i++) {
+		if (!sz(in[i]) && !sz(out[i])) {
+			queries[i] = queries[i - 1];
+			continue;
+		}
+		for (auto &j : in[i]) {
+			DS.insert(j);
+		}
+		for (auto &j : out[i]) {
+			DS.erase(j);
+		}
+		queries[i] = DS.top();
+	}
+	vector<int> chk(N + 1);
+	int cnt = 0;
+	for (int i = 0; i < n; i++) {
+		int p = pos[i];
 		bool bad = 0;
-		if(p != v.size()-1){
-			pi t = queries[p];
-			if(ccw2(a[t.second], a[t.first], a[i])){
+		if (p != c - 1) {
+			int t = queries[p];
+			if (ccw(a[t + 1], a[t], a[i]) < 0) {
 				bad = 1;
 			}
 		}
-		if(p != 0){
-			pi t = queries[p-1];
-			if(ccw2(a[t.second], a[t.first], a[i])){
+		if (!bad && p != 0) {
+			int t = queries[p - 1];
+			if (ccw(a[t + 1], a[t], a[i]) < 0) {
 				bad = 1;
 			}
 		}
-		if(!bad) v2.push_back(i+1);
+		if (!bad)
+			chk[a[i].idx] = 1, cnt++;
 	}
-	printf("%d\n",v2.size());
-	for(auto &i : v2){
-		printf("%d ",i);
+	wt(cnt);
+	wt('\n');
+	for (int i = 0; i < N; i++) {
+		if (chk[i + 1]) {
+			wt(i + 1);
+			wt(' ');
+		}
 	}
 }

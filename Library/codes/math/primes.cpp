@@ -1,4 +1,3 @@
-
 lint mul(lint x, lint y, lint mod) { return (__int128)x * y % mod; }
 
 lint ipow(lint x, lint y, lint p) {
@@ -26,15 +25,21 @@ bool miller_rabin(lint x, lint a) {
 		d >>= 1;
 	}
 }
-bool isprime(lint x) {
-	for (auto &i : {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}) {
-		if (x == i)
+// 100000 primes in 3sec
+bool isprime(lint n) {
+	if (n < 2 || (n % 2 == 0))
+		return (n == 2);
+	vector<lint> seeds;
+	if (n < (1 << 30))
+		seeds = {2, 7, 61};
+	else
+		seeds = {2, 325, 9375, 28178, 450775, 9780504};
+	for (auto &i : seeds) {
+		if (n == i)
 			return 1;
-		if (x > 40 && miller_rabin(x, i))
+		if (miller_rabin(n, i))
 			return 0;
 	}
-	if (x <= 40)
-		return 0;
 	return 1;
 }
 lint f(lint x, lint n, lint c) { return (c + mul(x, x, n)) % n; }
@@ -80,57 +85,3 @@ lint euler_phi(lint n) {
 	}
 	return n;
 }
-
-// Given a prime p, find a primitive root.
-// Time complexity is dominated by factorization of p - 1.
-// Ref: https://judge.yosupo.jp/submission/109014
-unsigned long long primitive_root(unsigned long long p) {
-	using u64 = unsigned long long;
-	using u128 = __uint128_t;
-	if (p == 2)
-		return 1;
-	auto F = factorize(p - 1);
-	u64 r = p;
-	for (int t = 0; t < 6; t++)
-		r *= 2 - r * p;
-	u64 n2 = -(u128)p % p;
-	auto red = [&](u128 t) noexcept -> u64 {
-		t = (t + (u128)((u64)t * -r) * p) >> 64;
-		return (t >= p) ? t - p : t;
-	};
-	auto mult = [&](u64 a, u64 b) noexcept { return red((u128)red((u128)a * b) * n2); };
-	auto powm = [&](u64 a, u64 i) noexcept {
-		u64 b = 1;
-		while (i) {
-			if (i & 1) {
-				b = mult(a, b);
-			}
-			a = mult(a, a);
-			i /= 2;
-		}
-		return b;
-	};
-	static u64 v = 7001;
-	while (true) {
-		v ^= v << 13;
-		v ^= v >> 7;
-		v ^= v << 17; // Xorshift https://www.jstatsoft.org/article/download/v008i14/916
-		u64 vv = v % p;
-		if (vv == 0)
-			continue;
-		bool ok = true;
-		for (auto f : F) {
-			u64 i = (p - 1) / f;
-			if (powm(vv, i) == 1) {
-				ok = false;
-				break;
-			}
-		}
-		if (ok)
-			break;
-	}
-	return v % p;
-}
-
-}; // namespace factors
-

@@ -22,7 +22,7 @@ void Anna(int N, std::vector<char> S) {
 			dp[i] = dp[i - 1] + dp[i - 2];
 		}
 		lint ret = 0;
-		for(int i = 63; i >= 0; i--){
+		for(int i = 62; i >= 0; i--){
 			if((X >> i) & 1) ret += dp[i];
 		}
 		return ret;

@@ -24,7 +24,7 @@ void Bruno(int N, int L, std::vector<int> A) {
 			dp[i] = dp[i - 1] + dp[i - 2];
 		}
 		lint ret = 0;
-		for(int i = 63; i >= 0; i--){
+		for(int i = 62; i >= 0; i--){
 			if(X >= dp[i]){
 				X -= dp[i];
 				ret += (1ll << i);

@@ -40,7 +40,7 @@ struct strongly_connected{
 	void get_scc(int n){
 		scc(gph, [&](vector<int> &v){});
 		for(int i=0; i<n; i++){
-			comp[i] = ncomps - comp[i];
+			comp[i] = ncomps - comp[i] - 1;
 		}
 		piv = ncomps; 
 	}

@@ -1,0 +1,11 @@
+{
+	"workbench.colorTheme": "Visual Studio Light",
+	"terminal.integrated.enableMultiLinePasteWarning": false,
+	"C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: LLVM, UseTab: Always, IndentWidth: 4, TabWidth: 4, ColumnLimit: 1000 }",
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false,
+	"editor.formatOnSave": true,
+	"task.showDecorations": false,
+	"terminal.integrated.showExitAlert": false,
+	"security.workspace.trust.untrustedFiles": "open",
+}

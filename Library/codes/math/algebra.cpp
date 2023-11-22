@@ -305,7 +305,7 @@ template <typename T> struct poly {
 	}
 
 	poly operator*=(const poly &t) {
-		a = fft::multiply_ntt(a, t.a);
+		a = fft::multiply_asdf(a, t.a);
 		normalize();
 		return *this;
 	}

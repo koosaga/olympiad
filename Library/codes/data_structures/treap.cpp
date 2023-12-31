@@ -510,7 +510,7 @@ template <bool HAS_QUERY, bool HAS_UPDATE, bool HAS_FLIP, bool IS_COMMUTATIVE, c
 		}
 		return res;
 	}
-	// Data must be sorted by pred
+	// pred must be T, T, ..., T, F, F, ..., F
 	// O(log(n))
 	int partition_point(int root, auto pred) {
 		int res = 0;

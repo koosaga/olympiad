@@ -1,97 +1,97 @@
-namespace STOrder{
-	int n;
-	vector<pi> gph[MAXN];
-	vector<pi> backedg[MAXN];
-	int par[MAXN], ord[MAXN], stk[MAXN], piv;
+// Given an undirected graph where G + {source, sink} is 2-vertex-connected
+// compute a permutation of vertices where
+// - the first vertex is a source
+// - the last vertex is a sink
+// - each non-source vertex has an adjacent vertex which appears earlier in the permutation
+// - each non-sink vertex has an adjacent vertex which appears later in the permutation
+// ref: https://codeforces.com/contest/1916/submission/239741602
+namespace std {
 
-	void dfs(int x, int p){
-		stk[x] = 1;
-		ord[x] = ++piv;
-		for(auto &i : gph[x]){
-			if(i.first == p) continue;
-			if(!ord[i.second]){
-				par[i.second] = x;
-				dfs(i.second, i.first);
-			}
-			else if(stk[i.second]){
-				backedg[ord[i.second]].emplace_back(x, i.second);
-			}
-		}
-		stk[x] = 0;
-	}
+template <class Fun> class y_combinator_result {
+	Fun fun_;
 
-	void clear(){
-		for(int i=1; i<=n; i++){
-			gph[i].clear();
-			backedg[i].clear();
-			ord[i] = 0;
+  public:
+	template <class T> explicit y_combinator_result(T &&fun) : fun_(std::forward<T>(fun)) {}
+
+	template <class... Args> decltype(auto) operator()(Args &&...args) { return fun_(std::ref(*this), std::forward<Args>(args)...); }
+};
+
+template <class Fun> decltype(auto) y_combinator(Fun &&fun) { return y_combinator_result<std::decay_t<Fun>>(std::forward<Fun>(fun)); }
+
+} // namespace std
+vector<int> storder(vector<vector<int>> adj, int source, int sink) {
+	int N = int(adj.size());
+	assert(N >= 2);
+	assert(source != sink);
+	adj[source].insert(adj[source].begin(), sink);
+	adj[sink].insert(adj[sink].begin(), source);
+	vector<int> depth(N, -1);
+	vector<int> lowval(N);
+	vector<bool> has_sink(N);
+	vector<vector<int>> ch(N);
+	y_combinator([&](auto self, int cur, int prv) -> void {
+		depth[cur] = prv != -1 ? depth[prv] + 1 : 0;
+		lowval[cur] = depth[cur];
+		ch[cur].reserve(adj[cur].size());
+		has_sink[cur] = (cur == sink);
+		for (int nxt : adj[cur]) {
+			if (nxt == prv)
+				continue;
+			if (depth[nxt] == -1) {
+				ch[cur].push_back(nxt);
+				self(nxt, cur);
+				lowval[cur] = min(lowval[cur], lowval[nxt]);
+				if (has_sink[nxt])
+					has_sink[cur] = true;
+				if (lowval[nxt] >= depth[cur] && !has_sink[nxt]) {
+					// WARNING: This component will be directed arbitrarily.
+					// In practice, we'll just make the first child an extra sink
+				}
+			} else if (depth[nxt] < depth[cur]) {
+				lowval[cur] = min(lowval[cur], depth[nxt]);
+			} else {
+				// down edge
+			}
 		}
-		piv = 0;
+	})(source, -1);
+
+	// true is after, false is before
+	vector<bool> edge_dir(N, false);
+	vector<int> lst_nxt(N, -1);
+	bool notbcc = false;
+	auto lst = y_combinator([&](auto self, int cur) -> array<int, 2> {
+		array<int, 2> res{cur, cur};
+		for (int nxt : ch[cur]) {
+			// If we're on the path to the sink, mark it as downwards.
+
+			bool d;
+			if (has_sink[nxt]) {
+				d = true;
+			} else if (lowval[nxt] >= depth[cur]) {
+				notbcc = true;
+				// continue;
+			} else {
+				d = !edge_dir[lowval[nxt]];
+			}
+			edge_dir[depth[cur]] = d;
+
+			auto ch_res = self(nxt);
+
+			// Join res and ch
+			if (!d)
+				swap(res, ch_res);
+			lst_nxt[exchange(res[1], ch_res[1])] = ch_res[0];
+		}
+		return res;
+	})(source);
+	if (notbcc)
+		return {};
+
+	vector<int> res(N);
+	int cur = lst[0];
+	for (int i = 0; i < N; i++) {
+		res[i] = cur;
+		cur = lst_nxt[cur];
 	}
-	vector<int> solve(int _n, int s, int t, vector<pi> E){
-		n = _n;
-		gph[s].emplace_back(sz(E), t);
-		gph[t].emplace_back(sz(E), s);
-		for(int i=0; i<sz(E); i++){
-			gph[E[i].first].emplace_back(i, E[i].second);
-			gph[E[i].second].emplace_back(i, E[i].first);
-		}
-		dfs(s, -1);
-		if(piv != n) return {};
-		vector<vector<int>> ears;
-		vector<int> mark(n + 1);
-		for(int i=1; i<=n; i++){
-			for(auto &j : backedg[i]){
-				vector<int> v = {j.second, j.first};
-				for(int k=j.first; k!=j.second; k=par[k]){
-					if(mark[k]) break;
-					mark[k] = 1;
-					v.push_back(par[k]);
-				}
-				ears.push_back(v);
-			}
-		}
-		if(sz(ears) == 0 || ears[0].front() != ears[0].back()) return {};
-		for(int i=1; i<sz(ears); i++){
-			if(ears[i].front() == ears[i].back()) return {};
-		}
-		for(int i=1; i<=n; i++){
-			if(i != s && !mark[i]) return {};
-		}
-		vector<int> dp(n + 1);
-		vector<pi> intv(n + 1);
-		for(int i=sz(ears)-1; i>=1; i--){
-			for(int j=1; j+1<sz(ears[i]); j++){
-				dp[ears[i][0]] += 1 + dp[ears[i][j]];
-			}
-		}
-		for(int j=0; j+1<sz(ears[0]); j++){
-			intv[ears[0][j]].second = intv[ears[0][j]].first + dp[ears[0][j]] + 1;
-			if(j + 2 < sz(ears[0])) intv[ears[0][j+1]].first = intv[ears[0][j]].second;
-		}
-		for(int i=1; i<sz(ears); i++){
-			if(intv[ears[i][0]] < intv[ears[i].back()]){
-				pi curIntv = intv[ears[i][0]];
-				for(int j=sz(ears[i])-2; j>=1; j--){
-					intv[ears[i][j]] = pi(curIntv.second - dp[ears[i][j]] - 1, curIntv.second);
-					curIntv.second -= dp[ears[i][j]] + 1;
-				}
-				intv[ears[i][0]] = curIntv;
-			}
-			else{
-				pi curIntv = intv[ears[i][0]];
-				for(int j=sz(ears[i])-2; j>=1; j--){
-					intv[ears[i][j]] = pi(curIntv.first, curIntv.first + dp[ears[i][j]] + 1);
-					curIntv.first += dp[ears[i][j]] + 1;
-				}
-				intv[ears[i][0]] = curIntv;
-			}
-		}
-		vector<int> dap(n);
-		for(int i=1; i<=n; i++){
-			assert(intv[i].first + 1 == intv[i].second);
-			dap[intv[i].first] = i;
-		}
-		return dap;
-	}
+	return res;
 }

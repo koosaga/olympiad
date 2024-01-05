@@ -5,7 +5,7 @@ namespace AllDirectionTreeDP {
 // take_vertex: add vertex on top of merged edges
 // up_root: update child DP to consider parent edge values
 // merge: merge two child edges
-// merge need to be commutative, whatever that means
+// it's good if merges are commutative (its not necessary but be careful of specifics)
 
 elem E() { return elem{mint(0), mint(0)}; }
 elem take_vertex(elem DP, int v) { return elem{DP[0] + a[v], DP[1] + mint(1)}; }
@@ -42,7 +42,7 @@ vector<elem> solve(int n, vector<pi> edges) {
 	vector<elem> rev_dp(n, E());
 	reverse(all(ord));
 	for (auto &z : ord) {
-		vector<elem> pref(sz(gph[z]) + 1);
+		vector<elem> pref(sz(gph[z]) + 1, E());
 		vector<elem> suff(sz(gph[z]) + 1, E());
 		if (~pae[z])
 			pref[0] = up_root(rev_dp[z], pae[z]);

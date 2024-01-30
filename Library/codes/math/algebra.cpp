@@ -2,8 +2,8 @@
 using namespace std;
 using lint = long long;
 using pi = array<lint, 2>;
-#define sz(a) ((int)(a).size())
-#define all(a) (a).begin(), (a).end()
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
 const int mod = 998244353; // 1e9 + 7;//993244853;
 
 // I don't remember the credit of modint, but it's not mine.
@@ -95,7 +95,7 @@ void fft(vector<base> &a, bool inv) {
 	}
 	if (inv)
 		for (int i = 0; i < n; i++)
-			a[i] /= n; 
+			a[i] /= n;
 }
 template <typename T> void ntt(vector<T> &a, bool inv) {
 	const int prr = 3; // primitive root
@@ -400,7 +400,6 @@ template <typename T> struct poly {
 		concat(ar, as);
 		return {ar, Tr * transform(ai) * Ts};
 	}
-
 	// return a transform that reduces A / B to gcd(A, B) / 0
 	static pair<vector<poly>, transform> full_gcd(poly A, poly B) {
 		vector<poly> ak;
@@ -427,11 +426,10 @@ template <typename T> struct poly {
 	}
 
 	static poly gcd(poly A, poly B) {
-		if (A.deg() < B.deg()) {
-			return full_gcd(B, A);
+		while (B != T(0)) {
+			tie(A, B) = make_pair(B, A % B);
 		}
-		auto Tr = fraction(A, B);
-		return Tr.d * A - Tr.b * B;
+		return A;
 	}
 
 	// Returns the characteristic polynomial
@@ -839,7 +837,7 @@ template <typename T> struct poly {
 		}
 		return {res[0], res[1]};
 	}
-
+	
 	poly inv(int n) {
 		poly q(a[0].inv());
 		for (int i = 1; i < n; i <<= 1) {
@@ -919,6 +917,7 @@ template <typename T> struct poly {
 		return build(tree, 1, 0, sz(x), x).deriv().inter(tree, 1, 0, sz(x), 0, sz(y), x, y);
 	}
 };
+
 
 using polyn = poly<mint>;
 int main() {

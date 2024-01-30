@@ -1,4 +1,5 @@
-// https://judge.yosupo.jp/submission/185271
+// For the given polynomial, find all a such that P(a) = 0.
+// credit: adamant @ https://judge.yosupo.jp/submission/185271
 using polyn = poly<mint>;
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 

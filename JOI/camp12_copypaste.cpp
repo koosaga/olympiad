@@ -1,3 +1,12 @@
+#include <bits/stdc++.h>
+using namespace std;
+using lint = long long;
+using pi = array<lint, 2>;
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+#define cr(v, n) (v).clear(), (v).resize(n);
+const int MAXN = 200005;
+
 // Treap by Aeren
 // T: data type, U: lazy type.
 // TT: usual addition
@@ -51,30 +60,17 @@ template <bool HAS_QUERY, bool HAS_UPDATE, bool HAS_FLIP, bool IS_COMMUTATIVE, c
 	template <bool UPDATE_STRUCTURE = true> void refresh(int u) {
 		if constexpr (UPDATE_STRUCTURE)
 			internal_size[u] = 1;
-		ifQ subtr_data[u] = T_id;
+
 		if (auto v = left[u]; ~v) {
 			if constexpr (UPDATE_STRUCTURE) {
 				pv[v] = u;
 				internal_size[u] += internal_size[v];
 			}
-			ifQ {
-				auto x = subtr_data[v];
-				ifU if (lazy[u] != U_id) x = UT(lazy[u], x);
-				ifF ifNC if (lazy_flip[u]) x = FlipT(x);
-				subtr_data[u] = x;
-			}
 		}
-		ifQ subtr_data[u] = TT(subtr_data[u], data[u]);
 		if (auto w = right[u]; ~w) {
 			if constexpr (UPDATE_STRUCTURE) {
 				pv[w] = u;
 				internal_size[u] += internal_size[w];
-			}
-			ifQ {
-				auto x = subtr_data[w];
-				ifU if (lazy[u] != U_id) x = UT(lazy[u], x);
-				ifF ifNC if (lazy_flip[u]) x = FlipT(x);
-				subtr_data[u] = TT(subtr_data[u], x);
 			}
 		}
 	}
@@ -386,17 +382,18 @@ template <bool HAS_QUERY, bool HAS_UPDATE, bool HAS_FLIP, bool IS_COMMUTATIVE, c
 		return root;
 	}
 	// O(log(n))
-	int erase_by_order(int root, int pos) {
+	int erase_by_order(int root, int pos, int *ans) {
 		assert(~root);
 		push(root);
 		if (size(left[root]) == pos) {
+			ans[data[root][1]] = data[root][0];
 			dead_node.push_back(root);
 			return append(left[root], right[root]);
 		}
 		if (size(left[root]) < pos)
-			right[root] = erase_by_order(right[root], pos - size(left[root]) - 1);
+			right[root] = erase_by_order(right[root], pos - size(left[root]) - 1, ans);
 		else
-			left[root] = erase_by_order(left[root], pos);
+			left[root] = erase_by_order(left[root], pos, ans);
 		refresh(root);
 		return root;
 	}
@@ -423,19 +420,6 @@ template <bool HAS_QUERY, bool HAS_UPDATE, bool HAS_FLIP, bool IS_COMMUTATIVE, c
 		}
 		refresh(root);
 		return root;
-	}
-	// O(# of elements erased)
-	void erase(int root) {
-		if (!~root)
-			return;
-		dead_node.push_back(root);
-		for (auto beg = (int)dead_node.size() - 1; beg < (int)dead_node.size(); ++beg) {
-			int u = dead_node[beg];
-			if (~left[u])
-				dead_node.push_back(left[u]);
-			if (~right[u])
-				dead_node.push_back(right[u]);
-		}
 	}
 	// Data must be sorted by <
 	// O(min(size(u), size(v)) * log(size ratio))
@@ -476,11 +460,11 @@ template <bool HAS_QUERY, bool HAS_UPDATE, bool HAS_FLIP, bool IS_COMMUTATIVE, c
 	}
 	int build(int n) { return build(vector<T>(n, T_id)); }
 	int build(int n, T init) { return build(vector<T>(n, init)); }
-	template <class V> int build(const vector<V> &a) {
+	int build(const vector<T> &a) {
 		auto recurse = [&](auto self, int l, int r) -> int {
 			if (l == r)
 				return -1;
-			int m = l + (r - l >> 1);
+			int m = l + ((r - l) >> 1);
 			return new_node(a[m], self(self, l, m), self(self, m + 1, r));
 		};
 		return recurse(recurse, 0, (int)a.size());
@@ -564,6 +548,7 @@ template <bool HAS_QUERY, bool HAS_UPDATE, bool HAS_FLIP, bool IS_COMMUTATIVE, c
 	}
 	// O(log(n))
 	T query(int root, int p) {
+		// static_assert(HAS_QUERY);
 		assert(0 <= p && p < size(root));
 		while (true) {
 			push(root);
@@ -578,7 +563,7 @@ template <bool HAS_QUERY, bool HAS_UPDATE, bool HAS_FLIP, bool IS_COMMUTATIVE, c
 		}
 	}
 	T _query(int root, int ql, int qr) {
-		static_assert(HAS_QUERY);
+		// static_assert(HAS_QUERY);
 		if (!~root || qr <= 0 || size(root) <= ql)
 			return T_id;
 		if (ql <= 0 && size(root) <= qr)
@@ -595,7 +580,7 @@ template <bool HAS_QUERY, bool HAS_UPDATE, bool HAS_FLIP, bool IS_COMMUTATIVE, c
 	}
 	// O(log(n))
 	T query(int root, int ql, int qr) {
-		static_assert(HAS_QUERY);
+		// static_assert(HAS_QUERY);
 		assert(0 <= ql && ql <= qr && qr <= size(root));
 		return ql == qr ? T_id : _query(root, ql, qr);
 	}
@@ -693,7 +678,7 @@ template <bool HAS_QUERY, bool HAS_UPDATE, bool HAS_FLIP, bool IS_COMMUTATIVE, c
 	// Returns max r with T
 	// O(log(n))
 	int max_pref(int u, int ql, auto pred) {
-		static_assert(HAS_QUERY);
+		// static_assert(HAS_QUERY);
 		int n = size(u);
 		assert(0 <= ql && ql <= n && pred(T_id));
 		if (ql == n)
@@ -719,7 +704,7 @@ template <bool HAS_QUERY, bool HAS_UPDATE, bool HAS_FLIP, bool IS_COMMUTATIVE, c
 	// Returns min l with T
 	// O(log(n))
 	int max_suff(int u, int qr, auto pred) {
-		static_assert(HAS_QUERY);
+		// static_assert(HAS_QUERY);
 		int n = size(u);
 		assert(0 <= qr && qr <= n && pred(T_id));
 		if (qr == 0)
@@ -746,29 +731,47 @@ template <bool HAS_QUERY, bool HAS_UPDATE, bool HAS_FLIP, bool IS_COMMUTATIVE, c
 #undef ifF
 #undef ifNC
 };
+
 int main() {
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 	cout.tie(0);
-	auto _TT = [&](lint a, lint b) -> lint { return a + b; };
+	auto _TT = [&](pi a, pi b) -> pi { return a; };
 	auto _UU = [&](lint a, lint b) -> lint { return a + b; };
-	auto _UT = [&](lint a, lint b) -> lint { return a + b; };
-	auto _FlipT = [&](lint a) -> lint { return a; };
-	auto treap = treap_base<true, true, true, true, lint, lint, decltype(_TT), decltype(_UU), decltype(_UT), decltype(_FlipT)>(_TT, 0, _UU, 0, _UT, _FlipT);
+	auto _UT = [&](lint a, pi b) -> pi { return pi{a + b[0], b[1]}; };
+	auto _FlipT = [&](pi a) -> pi { return a; };
+	auto treap = treap_base<false, true, false, true, pi, lint, decltype(_TT), decltype(_UU), decltype(_UT), decltype(_FlipT)>(_TT, pi{0, 0}, _UU, 0, _UT, _FlipT);
+
 	int n, q;
-	cin >> n >> q;
-	vector<lint> a(n);
-	for (int i = 0; i < n; i++) {
-		cin >> a[i];
+	string s;
+	cin >> n;
+	cin >> s;
+	cin >> q;
+	vector<array<lint, 3>> c(q);
+	lint ncap = sz(s);
+	for (int i = q - 1; i >= 0; i--) {
+		for (int j = 0; j < 3; j++)
+			cin >> c[i][j];
+		ncap += c[i][1] - c[i][0];
 	}
-	int rt = treap.build(a);
-	while (q--) {
-		int t, l, r;
-		cin >> t >> l >> r;
-		if (t == 0) {
-			treap.flip(rt, l, r);
-		} else {
-			cout << treap.query(rt, l, r) << "\n";
-		}
+	if (n > ncap)
+		n = ncap;
+	vector<pi> ans(n);
+	for (int i = 0; i < n; i++)
+		ans[i] = pi{i, i};
+	int rt = treap.build(ans);
+	for (int j = 0; j < q; j++) {
+		int l = treap.order_of_key(rt, pi{c[j][2], -1});
+		int r = treap.order_of_key(rt, pi{c[j][2] + c[j][1] - c[j][0], -1});
+		auto [r1, r2, r3] = treap.split_to_three(rt, l, r);
+		treap.update(r2, 0, treap.size(r2), -(c[j][2] - c[j][0]));
+		treap.update(r3, 0, treap.size(r3), -(c[j][1] - c[j][0]));
+		rt = treap.unite_by_key(treap.unite_by_key(r1, r2), r3);
 	}
+	string dap(n, '0');
+	treap.traverse(rt, [&](int nd) {
+		auto [k, i] = treap.data[nd];
+		dap[i] = s[k];
+	});
+	cout << dap << "\n";
 }

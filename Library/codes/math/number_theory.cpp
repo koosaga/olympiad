@@ -125,3 +125,44 @@ template <typename T> T linear_mod_min(T n, const T &m, T a, T b, bool is_min = 
 	return is_min ? a - 1 - c : m - 1 - c;
 }
 
+// Consider a sorted list L of fractions p / q where p, q \in [N] and g(p,q) = 1
+// Given a fraction x / y, find a lower/upper bound element in L.
+// Credit: adamant (https://judge.yosupo.jp/submission/198284)
+namespace RationalApprox {
+using ftype = int64_t;
+using point = complex<ftype>;
+#define x real
+#define y imag
+
+ftype cross(point a, point b) { return (conj(a) * b).y(); }
+bool cmp(point a, point b) { return cross(a, b) < 0; }
+
+const int inf = 1e9;
+
+pair<array<ftype, 2>, array<ftype, 2>> solve(int N, int x, int y) {
+	static vector<point> r = {1i, 1};
+	r.resize(2);
+	while (y && max(r.back().x(), r.back().y()) <= N) {
+		ftype t = x / y;
+		r.push_back(*(end(r) - 2) + *(end(r) - 1) * t);
+		tie(x, y) = pair{y, x % y};
+	}
+	if (max(r.back().x(), r.back().y()) <= N) {
+		auto A = r.back();
+		auto B = r.back();
+		return make_pair(array<ftype, 2>{A.x(), A.y()}, array<ftype, 2>{B.x(), B.y()});
+	}
+	auto A = *(end(r) - 2);
+	ftype t = inf;
+	if (A.x()) {
+		t = min(t, (N - (end(r) - 3)->x()) / A.x());
+	}
+	if (A.y()) {
+		t = min(t, (N - (end(r) - 3)->y()) / A.y());
+	}
+	auto B = *(end(r) - 3) + t * A;
+	if (cmp(B, A))
+		swap(B, A);
+	return make_pair(array<ftype, 2>{A.x(), A.y()}, array<ftype, 2>{B.x(), B.y()});
+}
+} // namespace RationalApprox

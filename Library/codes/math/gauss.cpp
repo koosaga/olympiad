@@ -1,5 +1,3 @@
-// NEED TEST NEED TEST NEED TEST
-
 template <typename T> bool IsZero(T x) { return x == mint(0); }
 template <typename T> T Add(T a, T b) { return a + b; }
 template <typename T> T Sub(T a, T b) { return a - b; }
@@ -25,9 +23,9 @@ tuple<vector<vector<T>>, int, T, vector<vector<T>>> Gauss(vector<vector<T>> a, b
 			for (int j = rank + 1; j < n; j++)
 				if (mx < abs(a[j][i]))
 					mx = abs(a[j][i]), idx = j;
+				continue;
 			if (idx == -1 || IsZero(a[idx][i])) {
 				det = 0;
-				continue;
 			}
 			for (int k = 0; k < m; k++) {
 				a[rank][k] = Add(a[rank][k], a[idx][k]);
@@ -57,4 +55,4 @@ tuple<vector<vector<T>>, int, T, vector<vector<T>>> Gauss(vector<vector<T>> a, b
 		rank++; // linear system: warning len(A) != len(A[0])
 	}
 	return {a, rank, det, out}; // linear system: get RREF(A|b)
-} // 0 0 ... 0 b[i]: inconsistent, rank < len(A[0]): multiple
+} // 0 0 ... 0 b[i]: inconsistent, rank < len((A|b)[0]) - 1: multiple

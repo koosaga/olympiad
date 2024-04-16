@@ -4,6 +4,7 @@ using lint = long long;
 using pi = array<lint, 2>;
 #define sz(v) ((int)(v).size())
 #define all(v) (v).begin(), (v).end()
+#define cr(v, n) (v).clear(), (v).resize(n);
 const int mod = 998244353; // 1e9 + 7;//993244853;
 
 // I don't remember the credit of modint, but it's not mine.
@@ -290,14 +291,17 @@ template <typename T> struct poly {
 		return vector<T>(begin(a), begin(a) + min(k, a.size()));
 	}
 
-	poly mul_xk(size_t k) const { // multiply by x^k
+	poly mul_xk(int64_t k) const { // multiply by x^k
+		if (k < 0) {
+			return vector<T>(begin(a) + min(-k, (int64_t)a.size()), end(a));
+		}
 		auto res = a;
 		res.insert(begin(res), k, 0);
 		return res;
 	}
 
-	poly div_xk(size_t k) const { // drop first k coefficients
-		return vector<T>(begin(a) + min(k, a.size()), end(a));
+	poly div_xk(int64_t k) const { // drop first k coefficients
+		return mul_xk(-k);
 	}
 
 	poly substr(size_t l, size_t r) const { // return mod_xk(r).div_xk(l)
@@ -837,7 +841,7 @@ template <typename T> struct poly {
 		}
 		return {res[0], res[1]};
 	}
-	
+
 	poly inv(int n) {
 		poly q(a[0].inv());
 		for (int i = 1; i < n; i <<= 1) {
@@ -846,6 +850,34 @@ template <typename T> struct poly {
 		}
 		return q.mod_xk(n);
 	}
+
+	poly interleave() {
+		auto [p0, p1] = bisect();
+		return p0 * p0 - (p1 * p1).mul_xk(1);
+	}
+	poly negx() const { // A(x) -> A(-x)
+		auto res = *this;
+		for (int i = 1; i <= deg(); i += 2) {
+			res.a[i] = -res[i];
+		}
+		return res;
+	}
+
+	// [x^k]..[x^{k+n-1}] of inv()
+	// supports negative k if k+n >= 0
+	poly inv(int64_t k, size_t n) {
+		if (k <= std::max<int64_t>(n, (int64_t)a.size())) {
+			return inv(k + n).div_xk(k);
+		}
+		if (k % 2) {
+			return inv(k - 1, n + 1).div_xk(1);
+		}
+
+		auto qq = interleave().inv(k / 2 - deg() / 2, (n + 1) / 2 + deg() / 2);
+		auto [q0, q1] = negx().bisect();
+		return ((q0 * qq).x2() + (q1 * qq).x2().mul_xk(1)).div_xk(2 * q0.deg()).mod_xk(n);
+	}
+
 	// compute A(B(x)) mod x^n in O(n^2)
 	static poly compose(poly A, poly B, int n) {
 		int q = std::sqrt(n);
@@ -916,20 +948,16 @@ template <typename T> struct poly {
 		vector<poly> tree(4 * n);
 		return build(tree, 1, 0, sz(x), x).deriv().inter(tree, 1, 0, sz(x), 0, sz(y), x, y);
 	}
+
+	// given a recurrence a[i] = sum a[i-j] * b[j-1] for all 1 <= j <= n
+	// and first n terms of a
+	// find a[k], a[k+1], ..., a[k+m-1].
+	static poly find_kth(vector<T> a, vector<T> b, lint k, int m) {
+		int n = sz(a);
+		auto A = poly(a);
+		auto Q = xk(0) - poly(b).mul_xk(1);
+		auto P = (A * Q).mod_xk(n);
+		auto ans = (P * Q.inv(k - n, m + n)).div_xk(n);
+		return ans;
+	}
 };
-
-
-using polyn = poly<mint>;
-int main() {
-	ios_base::sync_with_stdio(0);
-	cin.tie(0);
-	cout.tie(0);
-	int n;
-	cin >> n;
-	vector<mint> x(n), y(n);
-	for (auto &v : x)
-		cin >> v.val;
-	for (auto &v : y)
-		cin >> v.val;
-	polyn::inter(x, y).print(n);
-}

@@ -1,4 +1,4 @@
-template <typename T> bool IsZero(T x) { return x == mint(0); }
+template <typename T> bool IsZero(T x) { return x == T(0); }
 template <typename T> T Add(T a, T b) { return a + b; }
 template <typename T> T Sub(T a, T b) { return a - b; }
 template <typename T> T Mul(T a, T b) { return a * b; }
@@ -23,9 +23,9 @@ tuple<vector<vector<T>>, int, T, vector<vector<T>>> Gauss(vector<vector<T>> a, b
 			for (int j = rank + 1; j < n; j++)
 				if (mx < abs(a[j][i]))
 					mx = abs(a[j][i]), idx = j;
-				continue;
 			if (idx == -1 || IsZero(a[idx][i])) {
-				det = 0;
+				det = 0;		
+				continue;
 			}
 			for (int k = 0; k < m; k++) {
 				a[rank][k] = Add(a[rank][k], a[idx][k]);

@@ -39,13 +39,11 @@ void init(std::vector<int> P, std::vector<int> W) {
 	n = sz(W) + 1;
 	cr(a, n);
 	cr(par, n);
-	for (int i = 0; i < n; i++) {
+	cr(gph, n);
+	for (int i = 0; i < n - 1; i++) {
 		a[i + 1] = W[i];
 		par[i + 1] = P[i] + 1;
 	}
-	par[1] = 0;
-	n = sz(a);
-	cr(gph, n);
 	for (int i = 1; i < n; i++)
 		gph[par[i]].push_back(i);
 	vector<int> ord(n - 1);

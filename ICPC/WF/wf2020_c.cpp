@@ -1,3 +1,11 @@
+#include <bits/stdc++.h>
+using namespace std;
+using lint = long long;
+using pi = array<lint, 2>;
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+#define cr(v, n) (v).clear(), (v).resize(n);
+
 struct hpi {
 	const double eps = 1e-8;
 	typedef pair<long double, long double> pi;
@@ -58,3 +66,45 @@ struct hpi {
 		return true;
 	}
 } hpi;
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	int w, h, n;
+	cin >> w >> h >> n;
+	vector<hpi::line> v;
+	v.push_back({-1, 0, 0});
+	v.push_back({0, -1, 0});
+	v.push_back({1, 0, 1.0L * w});
+	v.push_back({0, 1, 1.0L * h});
+	vector<pi> a(n);
+	for (auto &[x, y] : a)
+		cin >> x >> y;
+	vector<int> p(n);
+	for (int i = 0; i < n; i++)
+		cin >> p[i], p[i]--;
+	reverse(all(p));
+	for (int i = 1; i < n; i++) {
+		pi x = a[p[0]], y = a[p[i]];
+		v.push_back({1.0L * y[1] - 1.0L * x[1], 1.0L * x[0] - 1.0L * y[0], 1.0L * x[0] * y[1] - 1.0L * x[1] * y[0]});
+	}
+	for (int i = 0; i + 1 < n; i++) {
+		pi x = a[p[i]], y = a[p[n - 1]];
+		v.push_back({1.0L * y[1] - 1.0L * x[1], 1.0L * x[0] - 1.0L * y[0], 1.0L * x[0] * y[1] - 1.0L * x[1] * y[0]});
+	}
+	for (int i = 0; i + 1 < n; i++) {
+		pi x = a[p[i]], y = a[p[i + 1]];
+		v.push_back({1.0L * y[1] - 1.0L * x[1], 1.0L * x[0] - 1.0L * y[0], 1.0L * x[0] * y[1] - 1.0L * x[1] * y[0]});
+	}
+	vector<hpi::pi> ans;
+	if (!hpi.solve(v, ans)) {
+		cout << "0\n";
+		return 0;
+	}
+	long double dap = 0;
+	for (int i = 2; i < sz(ans); i++) {
+		dap += hpi.ccw(ans[0], ans[i - 1], ans[i]);
+	}
+	cout << setprecision(69) << dap / 2 << "\n";
+}

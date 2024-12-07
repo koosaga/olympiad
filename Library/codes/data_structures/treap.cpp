@@ -480,7 +480,7 @@ template <bool HAS_QUERY, bool HAS_UPDATE, bool HAS_FLIP, bool IS_COMMUTATIVE, c
 		auto recurse = [&](auto self, int l, int r) -> int {
 			if (l == r)
 				return -1;
-			int m = l + (r - l >> 1);
+			int m = l + ((r - l) >> 1);
 			return new_node(a[m], self(self, l, m), self(self, m + 1, r));
 		};
 		return recurse(recurse, 0, (int)a.size());

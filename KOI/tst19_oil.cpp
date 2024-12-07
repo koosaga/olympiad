@@ -1,4 +1,6 @@
 #include <bits/stdc++.h>
+#include <vector>
+#include "oil.h"
 using namespace std;
 using lint = long long;
 using pi = array<lint, 2>;
@@ -116,20 +118,16 @@ struct seg {
 	}
 } seg;
 
-int main() {
-	ios_base::sync_with_stdio(0);
-	cin.tie(0);
-	cout.tie(0);
-	int n, m;
-	cin >> n >> m;
+long long findEdges(int N, std::vector<int> A, std::vector<int> B) {
+	int n = N;
 	vector<pi> edges;
-	for (int i = 0; i < m; i++) {
-		int u, v;
-		cin >> u >> v;
+	for (int i = 0; i < sz(A); i++) {
+		int u = A[i], v = B[i];
 		if (u > v)
 			swap(u, v);
 		edges.push_back({u - 1, v - 1});
 	}
+	int m = sz(edges);
 	lint ans = 0;
 	// case 1: remove one M
 	{
@@ -209,5 +207,5 @@ int main() {
 			}
 		}
 	}
-	cout << 2 * ans << "\n";
+	return 2 * ans;
 }

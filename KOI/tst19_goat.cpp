@@ -1,3 +1,13 @@
+#include <bits/stdc++.h>
+#include <vector>
+using namespace std;
+using lint = long long;
+using pi = array<lint, 2>;
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+#define cr(v, n) (v).clear(), (v).resize(n);
+
+#include "goat.h"
 // Given point set A, B, respond to query (i, j, k)
 // where we find a # of points in B included in convex hull of a[i], a[j], a[k]
 // coordinates in int32 range
@@ -151,3 +161,14 @@ struct CountPointsTriangle {
 		return ans;
 	}
 } ds;
+
+void init(std::vector<int> X, std::vector<int> Y) {
+	vector<pi> a, b;
+	for (int i = 0; i < sz(X); i++) {
+		a.push_back({X[i], Y[i]});
+	}
+	b = a;
+	ds.init(a, b);
+}
+
+int count(int A, int B, int C) { return ds.query(A, B, C, true); }

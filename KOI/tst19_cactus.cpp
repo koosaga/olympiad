@@ -5,20 +5,20 @@ using pi = array<lint, 2>;
 #define sz(v) ((int)(v).size())
 #define all(v) (v).begin(), (v).end()
 #define cr(v, n) (v).clear(), (v).resize(n);
+
+#include "cactus.h"
+
 const int MAXN = 1000005;
 
-int par[20][MAXN];
+int n, par[20][MAXN];
 lint dep[MAXN];
-
-int main() {
-	ios_base::sync_with_stdio(0);
-	cin.tie(0);
-	cout.tie(0);
-	lint n, q;
-	cin >> n >> q;
-	vector<lint> g(2 * n), ps(2 * n);
+vector<lint> g, ps;
+void init(std::vector<int> H) {
+	n = sz(H);
+	cr(g, 2 * n);
+	cr(ps, 2 * n);
 	for (int i = 0; i < n; i++) {
-		cin >> g[i];
+		g[i] = H[i];
 		g[2 * n - 1 - i] = g[i];
 	}
 	for (int i = 0; i < n * 2; i++)
@@ -36,6 +36,10 @@ int main() {
 			par[i][j] = par[i - 1][par[i - 1][j]];
 		}
 	}
+}
+
+long long query(int l, int r) {
+	l--;
 	int mx = -1;
 	auto sum = [&](int l, int r) {
 		int lup = r;
@@ -47,13 +51,8 @@ int main() {
 		lint moksum = dep[r] - dep[lup] + (lup - l) * g[lup - 1];
 		return moksum;
 	};
-	while (q--) {
-		int l, r;
-		cin >> l >> r;
-		l--;
-		lint ans = sum(l, r) + sum(2 * n - r, 2 * n - l);
-		ans -= 1ll * mx * (r - l);
-		ans -= ps[r - 1] - (l ? ps[l - 1] : 0);
-		cout << ans << "\n";
-	}
+	lint ans = sum(l, r) + sum(2 * n - r, 2 * n - l);
+	ans -= 1ll * mx * (r - l);
+	ans -= ps[r - 1] - (l ? ps[l - 1] : 0);
+	return ans;
 }

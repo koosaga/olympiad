@@ -1,9 +1,10 @@
 #include <bits/stdc++.h>
 using namespace std;
 using lint = long long;
-using pi = pair<lint, lint>;
-#define sz(a) ((int)(a).size())
-#define all(a) (a).begin(), (a).end()
+using pi = array<lint, 2>;
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+#define cr(v, n) (v).clear(), (v).resize(n);
 
 int main() {
 	ios_base::sync_with_stdio(0);

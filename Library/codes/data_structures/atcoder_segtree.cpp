@@ -1,4 +1,4 @@
-// atcoder lazy segtree - range add, range get min.
+// atcoder lazy segtree.
 // aggregation follows aeren treap standard, no monoid trash here
 // Source: https://atcoder.github.io/ac-library/production/document_en/lazysegtree.html
 // Code below implements https://www.acmicpc.net/problem/33620

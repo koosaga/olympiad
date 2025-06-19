@@ -1,76 +1,127 @@
 #include <bits/stdc++.h>
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+#define cr(v, n) (v).clear(), (v).resize(n);
 using namespace std;
-typedef long long lint;
-typedef pair<int, int> pi;
+using lint = long long;
+using pi = array<lint, 2>;
+const int MAXT = 1050000;
 
-int n, q, a[500005];
-int cnt[500005];
-int cnt2[500005];
-
-int count_range(lint val, int s, int e){
-	return upper_bound(cnt + cnt2[val-1], cnt + cnt2[val], e) - lower_bound(cnt + cnt2[val-1], cnt + cnt2[val], s);
+pi combine(pi a, pi b) {
+	if (a[0] == b[0])
+		return pi{a[0], a[1] + b[1]};
+	if (a[1] > b[1])
+		swap(a, b);
+	return pi{b[0], b[1] - a[1]};
 }
 
-int tree[1050000];
-
-void init(int s, int e, int p){
-	if(s == e){
-		tree[p] = a[s];
-		return;
-	}
-	int m = (s+e)/2;
-	init(s, m, 2*p);
-	init(m+1, e, 2*p+1);
-	if(count_range(tree[2*p], s, e) > count_range(tree[2*p+1], s, e)){
-		tree[p] = tree[2*p];
-	}
-	else{
-		tree[p] = tree[2*p+1];
-	}
-}
-
-int lis[40], sz;
-void query(int s, int e, int ps, int pe, int p){
-	if(e < ps || pe < s) return;
-	if(s <= ps && pe <= e){
-		lis[sz++] = tree[p];
-		return;
-	}
-	int pm = (ps + pe) / 2;
-	query(s, e, ps, pm, 2*p);
-	query(s, e, pm+1, pe, 2*p+1);
-}
-
-int main(){
-	vector<pi> v;
-	scanf("%d %d",&n,&q);
-	for(int i=1; i<=n; i++){
-		scanf("%d",&a[i]);
-		v.push_back(pi(a[i], i));
-		cnt2[a[i]]++;
-	}
-	for(int i=1; i<=n; i++) cnt2[i] += cnt2[i-1];
-	sort(v.begin(), v.end());
-	int p = 0;
-	for(auto &i : v){
-		cnt[p++] = i.second;
-	}
-	init(1, n, 1);
-	for(int i=1; i<=q; i++){
-		int s, e;
-		scanf("%d %d",&s,&e);
-		sz = 0;
-		query(s, e, 1, n, 1);
-		bool f = 0;
-		sort(lis, lis + sz);
-		for(int i=0; i<sz; i++){
-			if(i && lis[i-1] == lis[i]) continue;
-			if(e - s + 1 < 2 * count_range(lis[i], s, e)){
-				printf("%d\n", lis[i]);
-				f = 1;
-				continue;
-			}
+struct bit {
+	int tree[MAXT];
+	void add(int x, int v) {
+		for (int i = x + 1; i < MAXT; i += i & -i) {
+			tree[i] += v;
 		}
-		if(!f) puts("0");
+	}
+	int query(int x) {
+		int ret = 0;
+		for (int i = x + 1; i; i -= i & -i)
+			ret += tree[i];
+		return ret;
+	}
+} bit;
+
+struct seg {
+	pi tree[MAXT];
+	int lim;
+	void init(vector<int> &a) {
+		for (lim = 1; lim <= sz(a); lim <<= 1)
+			;
+		for (int i = 0; i < sz(a); i++)
+			tree[i + lim] = pi{a[i], 1};
+		for (int i = lim - 1; i; i--)
+			tree[i] = combine(tree[2 * i], tree[2 * i + 1]);
+	}
+	void upd(int x, int v) {
+		x += lim;
+		tree[x] = pi{v, 1};
+		while (x > 1) {
+			x >>= 1;
+			tree[x] = combine(tree[2 * x], tree[2 * x + 1]);
+		}
+	}
+	int query(int l, int r) {
+		l += lim;
+		r += lim;
+		pi ret{0, 0};
+		while (l < r) {
+			if (l % 2 == 1)
+				ret = combine(ret, tree[l++]);
+			if (r % 2 == 0)
+				ret = combine(tree[r--], ret);
+			l >>= 1;
+			r >>= 1;
+		}
+		if (l == r)
+			ret = combine(ret, tree[l]);
+		return ret[0];
+	}
+} seg;
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	int n, q;
+	cin >> n >> q;
+	vector<int> a(n);
+	for (int i = 0; i < n; i++)
+		cin >> a[i];
+	vector<pi> coords;
+	for (int i = 0; i < n; i++)
+		coords.push_back({a[i], i});
+	vector<array<int, 3>> queries(q);
+	for (int i = 0; i < q; i++) {
+		for (int j = 1; j < 3; j++)
+			cin >> queries[i][j];
+		queries[i][0] = 1;
+		queries[i][1]--;
+		if (queries[i][0] == 0) {
+			coords.push_back({queries[i][2], queries[i][1]});
+		}
+	}
+	seg.init(a);
+	for (auto &[x, y, z] : queries) {
+		if (x == 0) {
+			seg.upd(y, z);
+			x = -1;
+		} else {
+			x = seg.query(y, z - 1);
+		}
+	}
+	sort(all(coords));
+	coords.resize(unique(all(coords)) - coords.begin());
+	auto Add = [&](pi p, int v) {
+		int z = lower_bound(all(coords), p) - coords.begin();
+		bit.add(z + 1, v);
+	};
+	for (int i = 0; i < n; i++) {
+		Add(pi{a[i], i}, +1);
+	}
+	for (int i = 0; i < q; i++) {
+		if (~queries[i][0]) {
+			int ll = lower_bound(all(coords), pi{queries[i][0], queries[i][1]}) - coords.begin();
+			int rr = lower_bound(all(coords), pi{queries[i][0], queries[i][2]}) - coords.begin();
+			int qq = bit.query(rr) - bit.query(ll);
+			if (qq * 2 <= queries[i][2] - queries[i][1])
+				cout << "0\n";
+			else
+				cout << queries[i][0] << "\n";
+		} else {
+			int j = queries[i][1];
+			int k = queries[i][2];
+			Add(pi{a[j], j}, -1);
+			a[j] = k;
+			Add(pi{a[j], j}, +1);
+		}
 	}
 }

@@ -76,6 +76,14 @@ template <class T, class Op> struct DequeAggregate {
 			return aggregates[0].back();
 		return op(aggregates[0].back(), aggregates[1].back());
 	}
+	T at(int x) {
+		assert(x >= 0);
+		assert(x < (int)values[0].size() + (int)values[1].size());
+		if (x < (int)values[0].size()) {
+			return values[0][values[0].size() - 1 - x];
+		}
+		return values[1][x - values[0].size()];
+	}
 	void recompute() {
 		if (not values[0].empty()) {
 			aggregates[0].assign(values[0].size(), values[0].front());

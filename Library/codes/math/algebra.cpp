@@ -11,6 +11,8 @@ const int mod = 998244353; // 1e9 + 7;//993244853;
 // I don't remember the credit of FFT, but it's probably mine.
 // Polynomial library is due to adamant:
 // https://github.com/cp-algorithms/cp-algorithms-aux/blob/master/src/polynomial.cpp
+// Polynomial composition is due to ecnerwala:
+// https://judge.yosupo.jp/submission/336262
 // To use polynomial sqrt, need to amend sqrt for modint.
 
 struct mint {
@@ -335,7 +337,7 @@ template <typename T> struct poly {
 			}
 			A.pop_back();
 		}
-		std::reverse(begin(res), end(res));
+		reverse(begin(res), end(res));
 		return {res, A};
 	}
 
@@ -370,7 +372,9 @@ template <typename T> struct poly {
 		poly a, b, c, d;
 		transform(poly a, poly b = T(1), poly c = T(1), poly d = T(0)) : a(a), b(b), c(c), d(d) {}
 
-		transform operator*(transform const &t) { return {a * t.a + b * t.c, a * t.b + b * t.d, c * t.a + d * t.c, c * t.b + d * t.d}; }
+		transform operator*(transform const &t) {
+			return {a * t.a + b * t.c, a * t.b + b * t.d, c * t.a + d * t.c, c * t.b + d * t.d};
+		}
 
 		transform adj() { return transform(d, -b, -c, a); }
 
@@ -866,7 +870,7 @@ template <typename T> struct poly {
 	// [x^k]..[x^{k+n-1}] of inv()
 	// supports negative k if k+n >= 0
 	poly inv(int64_t k, size_t n) {
-		if (k <= std::max<int64_t>(n, (int64_t)a.size())) {
+		if (k <= max<int64_t>(n, (int64_t)a.size())) {
 			return inv(k + n).div_xk(k);
 		}
 		if (k % 2) {
@@ -878,26 +882,102 @@ template <typename T> struct poly {
 		return ((q0 * qq).x2() + (q1 * qq).x2().mul_xk(1)).div_xk(2 * q0.deg()).mod_xk(n);
 	}
 
-	// compute A(B(x)) mod x^n in O(n^2)
-	static poly compose(poly A, poly B, int n) {
-		int q = std::sqrt(n);
-		vector<poly> Bk(q);
-		auto Bq = B.pow(q, n);
-		Bk[0] = poly(T(1));
-		for (int i = 1; i < q; i++) {
-			Bk[i] = (Bk[i - 1] * B).mod_xk(n);
-		}
-		poly Bqk(1);
-		poly ans;
-		for (int i = 0; i <= n / q; i++) {
-			poly cur;
-			for (int j = 0; j < q; j++) {
-				cur += Bk[j] * A[i * q + j];
+	static int nextPow2(int s) { return 1 << (s > 1 ? 32 - __builtin_clz(s - 1) : 0); }
+	// Calculates f(g(x)) mod x^n where deg(g) == n
+
+	static poly compose(poly f, poly g) {
+		if (g.deg() == -1)
+			return poly(f[0]);
+
+		int m = f.deg() + 1;
+		int n = g.deg() + 1;
+		// https://arxiv.org/pdf/2404.05177
+		// Consider P(y) = f(1/y) has terms from y^{-(m-1)}...y^0 (Laurent series)
+		// We want [y^0] P(y) / (1 - y g(x))
+		// Let Q_0 = 1 - yg(x)
+		// Q_{i+1}(x^2, y) = Q_i(x, y) * Q_i(-x, y) mod x^{ceil(n / 2^i)}
+		// deg_y(Q_i) = 2^i, deg_x(Q_i) = ceil(n / 2^i) - 1
+		//
+		// [y^0] P(y) / Q_l(x^2^l, y) * Q_{l-1}(-x^2^{l-1}, y) * Q_{l-2}(-x^2^{l-2}, y) * ... * Q_0(-x, y)
+		// The total y deg of Q_{k-1} ... Q_0 is 2^k-1
+		int L = __builtin_ctz(nextPow2(n));
+		vector<vector<T>> Q(L + 1);
+		Q[0] = vector<T>(4 << L);
+		Q[0][0] = 1;
+		for (int i = 0; i < n; i++)
+			Q[0][(2 << L) + i] = -g[i];
+		for (int l = 1; l <= L; l++) {
+			auto a = Q[l - 1];
+			// negate in place
+			for (int i = 1; i < (4 << L); i += 2)
+				Q[l - 1][i] = -Q[l - 1][i];
+			Q[l] = vector<T>(4 << L);
+			// TODO: Could be much more efficient:
+			// We only need to do 1 forward FFT and then reflect it, and the backwards can be half the size and
+			// compactify at the same time. We could also cache the forward FFT for the backwards pass
+			poly A(vector<T>(a.begin(), a.begin() + (4 << L)));
+			poly B(vector<T>(Q[l - 1].begin(), Q[l - 1].begin() + (4 << L)));
+			poly C = A * B;
+			for (int i = 0; i < (4 << L); i++)
+				Q[l][i] = C[i] + C[i + (4 << L)];
+			// Compactify
+			for (int i = 1; i < (2 << L); i++) {
+				Q[l][i] = Q[l][2 * i];
 			}
-			ans += (Bqk * cur).mod_xk(n);
-			Bqk = (Bqk * Bq).mod_xk(n);
+			// Undo the circularity since we know it's monic
+			for (int i = 0; i < (2 << (L - l)); i++) {
+				Q[l][(2 << L) + i] = Q[l][i];
+				Q[l][i] = 0;
+			}
+			Q[l][(2 << L)] -= T(1);
+			Q[l][0] = T(1);
+			// Zero out xs which are too big
+			fill(Q[l].begin() + (2 << L) + (1 << (L - l)), Q[l].end(), T(0));
+			for (int i = 0; i < (2 << L); i += 2 << (L - l)) {
+				for (int j = 0; j < (1 << (L - l)); j++) {
+					Q[l][i + (1 << (L - l)) + j] = 0;
+				}
+			}
 		}
-		return ans;
+		vector<T> P;
+		{
+			poly p = f.reverse();
+			vector<T> QL((1 << L) + 1);
+			for (int i = 0; i <= (1 << L); i++) {
+				QL[i] = Q[L][2 * i];
+			}
+			QL.resize(m, T(0));
+			p *= poly(QL).inv(m);
+			p = p.reverse();
+			P.resize(1 << L, T(0));
+			for (int i = 0; i <= p.deg(); i++)
+				P[i] = p[i];
+			std::reverse(P.begin(), P.end());
+			P.resize(4 << L, T(0));
+			for (int i = (1 << L) - 1; i > 0; i--) {
+				P[2 * i] = P[i];
+				P[i] = T(0);
+			}
+		}
+		for (int l = L - 1; l >= 0; l--) {
+			// Spread it out, clear the high terms
+			for (int i = (2 << L) - 1; i > 0; i--) {
+				T v = P[i];
+				P[2 * i] = ((2 * i) & (1 << (L - l))) ? T(0) : v;
+				P[i] = T(0);
+			}
+			poly A(vector<T>(P.begin(), P.begin() + (4 << L)));
+			poly B(vector<T>(Q[l].begin(), Q[l].begin() + (4 << L)));
+			poly C = A * B;
+			for (int i = 0; i < (4 << L); i++)
+				P[i] = C[i] + C[i + (4 << L)];
+			for (int i = 0; i < (2 << L); i++) {
+				P[i] = P[(2 << L) + i];
+				P[(2 << L) + i] = T(0);
+			}
+		}
+		P.resize(n);
+		return poly(P);
 	}
 
 	vector<T> eval(vector<poly> &tree, int v, int l, int r, vector<T> &vec) { // auxiliary evaluation function
@@ -922,7 +1002,8 @@ template <typename T> struct poly {
 		return eval(tree, 1, 0, sz(x), x);
 	}
 
-	poly inter(vector<poly> &tree, int v, int l, int r, int ly, int ry, vector<T> &vecx, vector<T> &vecy) { // auxiliary interpolation function
+	poly inter(vector<poly> &tree, int v, int l, int r, int ly, int ry, vector<T> &vecx,
+			   vector<T> &vecy) { // auxiliary interpolation function
 		if (r - l == 1) {
 			return {vecy[ly] / a[0]};
 		} else {
@@ -934,7 +1015,8 @@ template <typename T> struct poly {
 		}
 	}
 
-	static poly build(vector<poly> &res, int v, int L, int R, vector<T> &vec) { // builds evaluation tree for (x-a1)(x-a2)...(x-an)
+	static poly build(vector<poly> &res, int v, int L, int R,
+					  vector<T> &vec) { // builds evaluation tree for (x-a1)(x-a2)...(x-an)
 		if (R - L == 1) {
 			return res[v] = vector<T>{-vec[L], 1};
 		} else {

@@ -1,3 +1,10 @@
+#include <bits/stdc++.h>
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+#define cr(v, n) (v).clear(), (v).resize(n);
+using namespace std;
+using lint = long long;
+using pi = array<lint, 2>;
 vector<int> split(int n, vector<pi> edges) {
 	if (sz(edges) == 0)
 		return {};
@@ -166,4 +173,45 @@ vector<int> EdgeColoring(int l, int r, vector<pi> edges) {
 	auto sol = EdgeColoringRegular(n, k, edges);
 	sol.resize(orig);
 	return sol;
+}
+int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int n;
+	cin >> n;
+	bool triv = true;
+	vector<pi> edges;
+	vector<vector<int>> a(n, vector<int>(n));
+	for (int i = 0; i < n; i++) {
+		set<int> s;
+		for (int j = 0; j < n; j++) {
+			cin >> a[i][j];
+			edges.push_back({i, a[i][j] / n});
+			s.insert(a[i][j] / n);
+		}
+		if (sz(s) != n)
+			triv = false;
+	}
+	if (triv) {
+		cout << "0\n";
+		return 0;
+	}
+	auto sol = EdgeColoring(n, n, edges);
+	for (int i = 0; i < n; i++) {
+		vector<int> dest(n);
+		for (int j = 0; j < n; j++) {
+			dest[sol[i * n + j]] = a[i][j];
+		}
+		for (int j = 0; j < n; j++)
+			a[i][j] = dest[j];
+	}
+	cout << (n * n - n) / 2 << "\n";
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < i; j++) {
+			if (a[i][j] > a[j][i])
+				swap(a[i][j], a[j][i]);
+			cout << a[i][j] << " " << a[j][i] << "\n";
+		}
+	}
 }

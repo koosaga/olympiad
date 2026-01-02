@@ -1,28 +1,52 @@
-vector<int> split(int n, vector<pi> edges) {
+
+vector<int> split(int n, vector<pi> &edges) {
 	if (sz(edges) == 0)
 		return {};
-	vector<vector<int>> gph(n);
+	vector<int> gph(n, -1);
 	vector<int> nxt(sz(edges) * 2), vis(sz(edges) * 2);
+	auto reg = [&](int p, int v) {
+		if (gph[p] == -1)
+			gph[p] = v;
+		else {
+			nxt[gph[p]] = (v ^ 1);
+			nxt[v] = gph[p] ^ 1;
+			gph[p] = -1;
+		}
+	};
 	for (int i = 0; i < sz(edges); i++) {
 		auto [u, v] = edges[i];
-		v += n / 2;
-		gph[u].push_back(2 * i);
-		gph[v].push_back(2 * i + 1);
-	}
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < sz(gph[i]); j += 2) {
-			nxt[gph[i][j]] = (gph[i][j + 1] ^ 1);
-			nxt[gph[i][j + 1]] = (gph[i][j] ^ 1);
-		}
+		reg(u, 2 * i);
+		reg(v + n / 2, 2 * i + 1);
 	}
 	vector<int> ans;
 	for (int i = 0; i < sz(edges) * 2; i++) {
 		if (!vis[i]) {
 			for (int j = i; !vis[j]; j = nxt[j]) {
-				ans.push_back(j);
+				ans.push_back(j >> 1);
 				vis[j] = vis[j ^ 1] = 1;
 			}
 		}
+	}
+	return ans;
+}
+
+vector<int> EdgeColoringPowerOfTwo(int n, int k, vector<pi> edges) {
+	vector<vector<pi>> matchings(2 * k - 1);
+	vector<vector<int>> indices(2 * k - 1);
+	matchings[0] = edges;
+	cr(indices[0], sz(edges));
+	iota(all(indices[0]), 0);
+	for (int i = 0; i < k - 1; i++) {
+		auto decomp = split(2 * n, matchings[i]);
+		for (int j = 0; j < sz(matchings[i]); j++) {
+			matchings[2 * i + 1 + j % 2].push_back(matchings[i][decomp[j]]);
+			indices[2 * i + 1 + j % 2].push_back(indices[i][decomp[j]]);
+		}
+	}
+	vector<int> ans(sz(edges));
+	for (int i = 0; i < k; i++) {
+		for (auto &j : indices[i + k - 1])
+			ans[j] = i;
 	}
 	return ans;
 }
@@ -32,21 +56,35 @@ vector<int> EdgeColoringRegular(int n, int k, vector<pi> edges) {
 	for (auto &[u, v] : edges)
 		cout << u << " " << v << endl;*/
 	assert(k > 0);
-	if (k == 1) {
-		return vector<int>(sz(edges));
+	if ((k & -k) == k) {
+		return EdgeColoringPowerOfTwo(n, k, edges);
 	}
 	if (k % 2 == 0) {
 		auto decomp = split(2 * n, edges);
 		vector<pi> sub[2];
 		for (int i = 0; i < sz(decomp); i++) {
-			sub[i % 2].push_back(edges[decomp[i] / 2]);
+			sub[i % 2].push_back(edges[decomp[i]]);
 		}
 		vector<int> rec[2];
 		rec[0] = EdgeColoringRegular(n, k / 2, sub[0]);
-		rec[1] = EdgeColoringRegular(n, k / 2, sub[1]);
+		int phi = 1;
+		while (phi < k / 2)
+			phi *= 2;
 		vector<int> ans(sz(edges));
+		int ptr = sz(sub[1]);
+		for (int i = 0; i < sz(decomp) / 2; i++) {
+			ans[decomp[2 * i]] = rec[0][i];
+			if (rec[0][i] >= k - phi) {
+				sub[1].push_back(edges[decomp[2 * i]]);
+			}
+		}
+		rec[1] = EdgeColoringPowerOfTwo(n, phi, sub[1]);
 		for (int i = 0; i < sz(decomp); i++) {
-			ans[decomp[i] / 2] = rec[i % 2][i / 2] + (i % 2) * (k / 2);
+			if (i % 2 == 0 && ans[decomp[i]] >= k - phi) {
+				ans[decomp[i]] = rec[1][ptr++] + k - phi;
+			} else if (i % 2 == 1) {
+				ans[decomp[i]] = rec[1][i / 2] + k - phi;
+			}
 		}
 		return ans;
 	}
@@ -75,7 +113,7 @@ vector<int> EdgeColoringRegular(int n, int k, vector<pi> edges) {
 		auto pth = split(2 * n, toeuler);
 		vector<int> parity(sz(toeuler));
 		for (int i = 1; i < sz(pth); i += 2)
-			parity[pth[i] / 2] = 1;
+			parity[pth[i]] = 1;
 		int ptr = 0, bal = 0;
 		for (auto &[u, v, k, idx] : todnc) {
 			int l = k / 2, r = k / 2;

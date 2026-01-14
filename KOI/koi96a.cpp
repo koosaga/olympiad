@@ -1,14 +1,38 @@
-#include <cstdio>
-int automata[10][2]={{1,3},{9,2},{1,3},{4,9},{5,9},{5,6},{1,7},{8,7},{5,2},{9,9}};
-int main(){
-	char str[1000];
-	int pos=0;
-	while (scanf("%s",str)!=EOF) {
-		pos=0;
-		for (int i=0; str[i]; i++) {
-			pos=automata[pos][str[i]-'0'];
+#include <bits/stdc++.h>
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+#define cr(v, n) (v).clear(), (v).resize(n);
+using namespace std;
+using lint = long long;
+using pi = array<int, 2>;
+const int mod = 1e9 + 7;
+
+int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	string s;
+	cin >> s;
+	vector<int> dp(sz(s) + 1);
+	dp[0] = 1;
+	for (int i = 0; i + 1 < sz(s); i++) {
+		if (dp[i] == 0)
+			continue;
+		if (s.substr(i, 2) == "01") {
+			dp[i + 2] = 1;
 		}
-		printf(pos==2 || pos==6 ? "SUBMARINE":"NOISE");
-		puts("");
+		if (s.substr(i, 2) == "10") {
+			int j = i + 2;
+			if (j == sz(s) || s[j] != '0')
+				continue;
+			while (j < sz(s) && s[j] == '0')
+				j++;
+			if (j == sz(s) || s[j] != '1')
+				continue;
+			while (j < sz(s) && s[j] == '1') {
+				dp[++j] = 1;
+			}
+		}
 	}
+	cout << (dp.back() ? "SUBMARINE" : "NOISE") << "\n";
 }

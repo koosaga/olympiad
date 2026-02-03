@@ -9,8 +9,10 @@ struct BusanTree {
 	struct seg {
 		vector<int> tree, lazy;
 		void init(int n) {
-			tree.resize(MAXT);
-			lazy.resize(MAXT);
+			tree.clear();
+			lazy.clear();
+			tree.resize(4 * n);
+			lazy.resize(4 * n);
 		}
 		void lazydown(int p) {
 			if (!lazy[p])
@@ -66,6 +68,7 @@ struct BusanTree {
 	node *root;
 	void init(vector<int> a) {
 		n = sz(a);
+		cnt = 0;
 		vector<node *> stk;
 		seg.init(n); // max A - min A - (r - l) >= 0
 		vector<int> stkMax, stkMin;

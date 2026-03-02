@@ -761,6 +761,19 @@ template <typename T> struct poly {
 				ans[0] += a[i];
 			return ans;
 		}
+		if (n <= 4) {
+			vector<T> ans(n);
+			T p = 1;
+			for (int i = 0; i < n; i++) {
+				T xx = 1;
+				for (int j = 0; j <= deg(); j++) {
+					ans[i] += xx * a[j];
+					xx *= p;
+				}
+				p *= z;
+			}
+			return ans;
+		}
 		auto even = chirpz_even(z, (n + 1) / 2);
 		auto odd = mulx(z).chirpz_even(z, n / 2);
 		vector<T> ans(n);
@@ -773,7 +786,7 @@ template <typename T> struct poly {
 		}
 		return ans;
 	}
-
+	
 	static auto resultant(poly a, poly b) { // computes resultant of a and b
 		if (b.is_zero()) {
 			return 0;

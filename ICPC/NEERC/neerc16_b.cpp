@@ -76,8 +76,6 @@ char buf[MAXN];
 vector<string> ans;
 
 int main(){
-    freopen("binary.in", "r", stdin);
-    freopen("binary.out", "w", stdout);
     scanf("%d",&n);
     vector<int> tmp;
     for(int i=0; i<n; i++){

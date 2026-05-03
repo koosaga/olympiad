@@ -102,9 +102,6 @@ int main(){
 	scanf("%d %d",&n,&k);
 	while(k--){
 		int x, y; scanf("%d %d",&x,&y);
-		gph[x].push_back(y);
-		gph[y].push_back(x);
-		continue;
 		for(int i=0; i<x-1; i++){
 			int z; scanf("%d",&z);
 			gph[y].push_back(z);

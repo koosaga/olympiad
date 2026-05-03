@@ -8,6 +8,12 @@ const int MAXN = 305;
 
 struct kek{
 	pi x[3];
+	void flip(){
+		pi sum(x[0].first + x[2].first, x[0].second + x[2].second);
+		x[1].first = sum.first - x[1].first;
+		x[1].second = sum.second - x[1].second;
+		swap(x[0], x[2]);
+	}
 };
 
 vector<kek> solve(int n, int a, int b){
@@ -57,10 +63,10 @@ vector<kek> solve(int n, int a, int b){
 			}
 		}
 		else{
-			delta = K + n - 2 - delta;
+			delta -= (n - 1);
 			if(delta > 0){
 				for(int j = sz(v) - delta; j < sz(v); j++){
-					v[j].x[0] = v[j - 1].x[0]; v[j].x[0].second++;
+					v[j].x[0] = v[j - 1].x[2]; v[j].x[0].second++;
 					v[j].x[1] = v[j].x[0]; v[j].x[1].second += n - 1;
 					v[j].x[2] = v[j].x[1]; v[j].x[2].first += n - 1;
 				}

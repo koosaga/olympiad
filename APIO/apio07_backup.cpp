@@ -1,54 +1,60 @@
-#include <cstdio>
-#include <map>
-#include <queue>
-#include <utility>
+#include <bits/stdc++.h>
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+#define cr(v, n) (v).clear(), (v).resize(n);
 using namespace std;
-typedef pair<int,int> pi;
-typedef map<int,bool> mp;
- 
-priority_queue<pi,vector<pi>,greater<pi> > pq;
-mp viable;
- 
-int n,k,a[100005];
- 
-int main(){
-    scanf("%d %d",&n,&k);
-    for (int i=0; i<n; i++) {
-        scanf("%d",&a[i]);
+using lint = long long;
+using pi = array<lint, 2>;
+
+vector<lint> backup(vector<lint> a) {
+    sort(all(a));
+    set<pi> s;
+    priority_queue<pi, vector<pi>, greater<pi>> pq;
+    for (int i = 1; i < sz(a); i++) {
+        s.insert({i, a[i] - a[i - 1]});
+        pq.push({a[i] - a[i - 1], i});
     }
-    for (int i=n-1; i; i--) {
-        a[i] -= a[i-1];
-        pq.push(pi(a[i],i));
-        viable[i] = 1;
-    }
-    int res = 0;
-    for (int i=0; i<k; i++) {
-        int p = pq.top().second;
+    vector<lint> dap = {0};
+    while (sz(pq)) {
+        auto [d, p] = pq.top();
         pq.pop();
-        if(viable.count(p) == 0){
-            i--;
+        if (s.count({p, d}) == 0)
             continue;
+        lint cost = dap.back() + d;
+        dap.push_back(cost);
+        s.erase({p, d});
+        auto it = s.lower_bound(pi{p, -1});
+        d = -d;
+        int merged = 0;
+        if (it != s.end()) {
+            d += (*it)[1];
+            s.erase(it);
+            merged++;
         }
-        res += a[p];
-        viable.erase(viable.find(p));
-        mp::iterator it = viable.upper_bound(p);
-        int x = 0, cont = 0;
-        if(it != viable.end()){
-            x += a[(*it).first];
-            viable.erase((*it).first);
-        }
-        else cont = 1;
-        it = viable.upper_bound(p);
-        if(it != viable.begin()){
+        it = s.lower_bound(pi{p, -1});
+        if (it != s.begin()) {
             it--;
-            x += a[(*it).first];
-            viable.erase((*it).first);
+            d += (*it)[1];
+            p = (*it)[0];
+            s.erase(it);
+            merged++;
         }
-        else cont = 1;
-        if(cont) continue;
-        viable[p] = 1;
-        a[p] = x - a[p];
-        pq.push(pi(a[p],p));
+        if (merged == 2) {
+            s.insert({p, d});
+            pq.push({d, p});
+        }
     }
-    printf("%d",res);
+    return dap;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    int n, k;
+    cin >> n >> k;
+    vector<lint> pos(n);
+    for (auto &x : pos)
+        cin >> x;
+    cout << backup(pos)[k] << "\n";
 }

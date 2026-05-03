@@ -1,10 +1,10 @@
 #include<bits/stdc++.h>
 using namespace std;
- 
+
 const int N = 100005;
- 
+
 int l, n, a[N], dmn[N], dmx[N], tr[N];
- 
+
 bool can (int L, int R, bool TRK = false)
 {
 	dmn[0] = dmx[0] = 0;
@@ -26,7 +26,7 @@ bool can (int L, int R, bool TRK = false)
 	}
 	return true;
 }
- 
+
 int main()
 {
 	scanf("%d%d",&l,&n);

@@ -1,57 +1,56 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long lint;
+using pi = pair<lint, lint>;
 const int mod = 1e9 + 7;
-const int MAXN = 4005;
-typedef pair<int, int> pi;
+const int MAXN = 2005;
 
-int n;
-vector<pi> l, r;
-lint dp[MAXN][MAXN];
-lint tmp[MAXN];
+int n, x; lint d;
+int bino[MAXN][MAXN];
+lint dcn[MAXN];
+
+lint solve(int n, lint d, int x){
+	if(n < 0) return 0;
+	if(n == 0) return dcn[x];
+	lint ret = 0;
+	for(int i=1; i<=n; i++){
+		ret += (dcn[i] * dcn[x] % mod) * bino[n-1][i-1] % mod;
+	}
+	return ret % mod;
+}
+
+lint ipow(int x, int p){
+	lint ret = 1, piv = x;
+	while(p){
+		if(p & 1) ret = ret * piv % mod;
+		piv = piv * piv % mod;
+		p >>= 1;
+	}
+	return ret;
+}
 
 int main(){
+	for(int i=0; i<MAXN; i++){
+		bino[i][0] = 1;
+		for(int j=1; j<=i; j++) bino[i][j] = (bino[i-1][j-1] + bino[i-1][j]) % mod;
+	}
 	while(true){
-		l.clear();
-		r.clear();
-	cin >> n;
-	if(n == 0)  break;
-	if(n == 2){
-		int a, b, c, d;
-		cin >> a >> b >> c >> d;
-		cout << abs(a - c) << endl;
-		continue;
-	}
-	for(int i=0; i<n; i++){
-		int x, y;
-		cin >> x >> y;
-		if(y == 1) l.push_back(pi(x, 1));
-		else r.push_back(pi(x, y));
-	}
-	sort(l.begin(), l.end());
-	sort(r.begin(), r.end());
-	if(r.empty()){
-		cout << -1 << endl;
-		continue;
-	}
-	if(r.size() >= 2){
-		r[0].second--;
-		for(int i=1; i+1<r.size(); i++) r[i].second -= 2;
-		r.back().second--;
-	}
-	memset(dp, 0x3f, sizeof(dp));
-	dp[0][0] = 0;
-	for(int i=1; i<=r.size(); i++){
-		for(int j=0; j<l.size(); j++) tmp[j+1] = tmp[j] + abs(r[i-1].first - l[j].first);
-		priority_queue<pair<lint, int> , vector<pair<lint, int>> , greater<pair<lint, int>> > pq;
-		for(int j=0; j<=l.size(); j++){
-			pq.push(make_pair(dp[i-1][j] - tmp[j], j));
-			while(!pq.empty() && j - pq.top().second > r[i-1].second) pq.pop();
-			dp[i][j] = pq.top().first + tmp[j];
+		cin >> n >> d >> x;
+		if(d == 0) break;
+		if(x == 1){
+			cout << 0 << endl;
+			continue;
 		}
-	}
-	lint ans = dp[r.size()][l.size()] + r.back().first - r[0].first;
-	if(ans > 1e17) ans = -1;
-	cout << ans << endl;
+		memset(dcn, 0, sizeof(dcn));
+		dcn[0] = 1;
+		for(int i=1; i<MAXN && i <= d+1; i++){
+			dcn[i] = dcn[i-1] * (((d + 1 - i) % mod) * ipow(i, mod - 2) % mod) % mod;
+		}
+		lint ret = 0;
+		for(int i=0; i<n; i++){
+			if(i % 2 == 0) ret += solve(n - i * x, d, i);
+			else ret += mod - solve(n - i * x, d, i);
+		}
+		cout << ret%mod << endl;
 	}
 }

@@ -1,80 +1,99 @@
-#include <cstdio>
-#include <vector>
-#include <cstring>
+#include <bits/stdc++.h>
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+#define cr(v, n) (v).clear(), (v).resize(n);
 using namespace std;
- 
-int n,m,s,p;
-int v[500005];
-vector<int> graph[500005],rev[500005];
-int cst[500005];
- 
-vector<int> dfn;
- 
-int comp[500005];
-vector<int> cond[500005];
-int newcost[500005], canend[500005];
-void dfs(int x){
-    v[x] = 1;
-    for (int i=0; i<graph[x].size(); i++) {
-        if(!v[graph[x][i]]) dfs(graph[x][i]);
+using lint = long long;
+using pi = array<lint, 2>;
+const int mod = 998244353; // 1e9 + 7;//993244853;
+
+vector<vector<int>> gph;
+
+void init(int n) { gph.resize(n); }
+
+void add_edge(int s, int e) { gph[s].push_back(e); }
+
+vector<int> val, comp, z, cont;
+int Time, ncomps;
+template <class G, class F> int dfs(int j, G &g, F f) {
+    int low = val[j] = ++Time, x;
+    z.push_back(j);
+    for (auto e : g[j])
+        if (comp[e] < 0)
+            low = min(low, val[e] ?: dfs(e, g, f));
+
+    if (low == val[j]) {
+        do {
+            x = z.back();
+            z.pop_back();
+            comp[x] = ncomps;
+            cont.push_back(x);
+        } while (x != j);
+        f(cont);
+        cont.clear();
+        ncomps++;
     }
-    dfn.push_back(x);
+    return val[j] = low;
 }
- 
-void rdfs(int x, int t){
-    comp[x] = t;
-    v[x] = 1;
-    for (int i=0; i<rev[x].size(); i++) {
-        if(!v[rev[x][i]]) rdfs(rev[x][i],t);
-    }
+template <class G, class F> void scc(G &g, int n, F f) {
+    val.assign(n, 0);
+    comp.assign(n, -1);
+    Time = ncomps = 0;
+    for (int i = 0; i < n; i++)
+        if (comp[i] < 0)
+            dfs(i, g, f);
 }
- 
-int mem[500005];
-int dp(int x){
-    if(x == comp[s]) return newcost[x];
-    if(mem[x]) return mem[x];
-    int res = -1e9;
-    for (int i=0; i<cond[x].size(); i++) {
-        res = max(res,dp(cond[x][i]));
+
+int piv;
+void get_scc(int n) {
+    scc(gph, n, [&](vector<int> &v) {});
+    for (int i = 0; i < n; i++) {
+        comp[i] = ncomps - comp[i] - 1;
     }
-    return mem[x] = res + newcost[x];
+    piv = ncomps;
 }
-int main(){
-    scanf("%d %d",&n,&m);
-    for (int i=0; i<m; i++) {
-        int x,y;
-        scanf("%d %d",&x,&y);
-        graph[x].push_back(y);
-        rev[y].push_back(x);
+
+int n, m, s, p;
+int dp[500005], cost[500005];
+
+int main() {
+    scanf("%d %d", &n, &m);
+    init(n);
+    for (int i = 0; i < m; i++) {
+        int x, y;
+        scanf("%d %d", &x, &y);
+        add_edge(x - 1, y - 1);
     }
-    for (int i=1; i<=n; i++) {
-        scanf("%d",&cst[i]);
-    }
-    scanf("%d %d",&s,&p);
-    for (int i=1; i<=n; i++) {
-        if(!v[i]) dfs(i);
-    }
-    memset(v,0,sizeof(v));
-    int t = 0;
-    for (int i=n-1; i>=0; i--) {
-        if(!v[dfn[i]]) rdfs(dfn[i],++t);
-    }
-    for (int i=1; i<=n; i++) {
-        for (int j=0; j<rev[i].size(); j++) {
-            if(comp[i] != comp[rev[i][j]]) cond[comp[i]].push_back(comp[rev[i][j]]);
-        }
-        newcost[comp[i]] += cst[i];
-    }
-    for (int i=0; i<p; i++) {
+    get_scc(n);
+    vector<int> ord(n);
+    iota(all(ord), 0);
+    sort(all(ord), [&](const int &a, const int &b) { return comp[a] < comp[b]; });
+    for (int i = 0; i < n; i++) {
         int x;
-        scanf("%d",&x);
-        canend[comp[x]] = 1;
+        scanf("%d", &x);
+        cost[comp[i]] += x;
     }
-    int res = 0;
-    for (int i=1; i<=t; i++) {
-        if(canend[i]){
-            res = max(res,dp(i));
+    scanf("%d %d", &s, &p);
+    s--;
+    fill(dp, dp + n, -1e9);
+    int j = 0;
+    for (int i = 0; i < piv; i++) {
+        if (i == comp[s])
+            dp[i] = max(dp[i], 0);
+        dp[i] += cost[i];
+
+        while (j < n && comp[ord[j]] == i) {
+            for (auto &k : gph[ord[j]]) {
+                dp[comp[k]] = max(dp[i], dp[comp[k]]);
+            }
+            j++;
         }
     }
-    printf("%d",max(0,res));
+    int ans = 0;
+    for (int i = 0; i < p; i++) {
+        int x;
+        scanf("%d", &x);
+        ans = max(ans, dp[comp[x - 1]]);
+    }
+    printf("%d\n", ans);
 }

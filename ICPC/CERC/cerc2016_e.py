@@ -1,5 +1,5 @@
 k, n = map(int, input().split())
-que = [(0, 1, k)]
+que = [(0, 0, 1)]
 vis = {0}
 
 def good(x):
@@ -15,6 +15,5 @@ for i in range(0, 1000000):
 		n -= 1
 	if n == 0:
 		break
-	que.append((k * (y + z) - x, y, z))
-	que.append((x, k * (x + z) - y, z))
-	que.append((x, y, k * (x + y) - z))
+	que.append((x, z, k * (x + z) - x))
+	que.append((y, z, k * (y + z) - y))

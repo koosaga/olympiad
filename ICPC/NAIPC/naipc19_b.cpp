@@ -13,7 +13,7 @@ set<int> Col[MAXN];
 
 void dfs(int x, int y);
 
-auto go = [&](int x, int y){
+int go(int x, int y){
 	int cnt = 0;
 	if(Col[y].empty() || (Col[y].size() == 1 && *Col[y].begin() == x)) cnt++;
 	if(Row[x].empty() || (Row[x].size() == 1 && *Row[x].begin() == y)) cnt++;

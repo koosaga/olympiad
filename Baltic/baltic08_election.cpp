@@ -1,14 +1,11 @@
-#include <cstdio>
-#include <vector>
-#include <algorithm>
-#include <utility>
+#include <bits/stdc++.h>
 using namespace std;
 typedef pair<int,int> pi;
  
 pi a[305];
 int n,s;
  
-bool dp[305][100005], tra[305][100005];
+bitset<100005> dp[305], tra[305];
 vector<int> ret;
  
 void track(int i, int j){
@@ -32,13 +29,13 @@ int main(){
     reverse(a+1,a+n+1);
     dp[0][0] = 1;
     for (int i=1; i<=n; i++) {
+        dp[i] = (dp[i - 1] << a[i].first);
         for (int j=0; j<=s; j++) {
             if(j >= a[i].first){
-                dp[i][j] |= dp[i-1][j - a[i].first];
                 if(dp[i][j]) tra[i][j] = 1;
             }
-            dp[i][j] |= dp[i-1][j];
         }
+        dp[i] |= dp[i - 1];
     }
     pi mx(0,0);
     for (int i=1; i<=n; i++) {

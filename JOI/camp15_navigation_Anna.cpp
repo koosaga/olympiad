@@ -1,4 +1,4 @@
-#include "navigation_lib.h"
+#include "Annalib.h"
 #include <vector>
 using namespace std;
  
@@ -21,20 +21,4 @@ void Anna(int K, int N, int T, int A[], int B[]){
         graph[B[i]].push_back(A[i]);
     }
     dfs(T,-1);
-}
- 
-void Bruno(int K, int S, int F, int L, int P[], int Q[]){
-    for (int i=0; i<L; i++) {
-        if(P[i] < S){
-            if(Q[i] != F){
-                Answer(P[i]);
-            }
-        }
-        else{
-            if(Q[i] == F){
-                Answer(P[i]);
-            }
-        }
-    }
-    Answer(S);
 }

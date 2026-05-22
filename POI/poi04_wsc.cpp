@@ -1,124 +1,146 @@
-#include<bits/stdc++.h>
-#define sz(v) ((int)(v).size())
-#define all(v) (v).begin(), (v).end()
+#include <bits/stdc++.h>
 using namespace std;
-using lint = long long;
-using pi = pair<int, int>;
+
 const int MAXN = 1000005;
 
-int frnt[MAXN];
-int val[MAXN * 2], nxt[MAXN * 2], lsz;
-
-void add_edge(int s, int e){
-	lsz++;
-	val[lsz] = e;
-	nxt[lsz] = frnt[s];
-	frnt[s] = lsz;
-}
-
-int dep[MAXN];
 int n, e, w;
-int cur, pos;
-int sz[MAXN];
 
-pi que[MAXN];
-int dfs(int x, int p){
-	int piv = 0;
-	que[piv++] = pi(x, p);
-	for(int itr = 0; itr < piv; itr++){
-		int x = que[itr].first;
-		int p = que[itr].second;
-		for(int ii = frnt[x]; ii; ii = nxt[ii]){
-			int i = val[ii];
-			if(i == p) continue;
-			dep[i] = dep[x] + 1;
-			que[piv++] = pi(i, x);
+// CSR adjacency
+int head[MAXN + 5];
+int adj[2 * MAXN + 5];
+
+// Reused arrays
+int buf1[MAXN + 5]; // deg -> ptr -> cnt
+int buf2[MAXN + 5]; // edge_u -> parent -> vl
+int buf3[MAXN + 5]; // edge_v -> order -> vr
+int dep[MAXN + 5];
+
+int main() {
+	scanf("%d %d %d", &n, &e, &w);
+
+	for (int i = 0; i < n - 1; i++) {
+		int s, t;
+		scanf("%d %d", &s, &t);
+		buf2[i] = s;
+		buf3[i] = t;
+		buf1[s]++;
+		buf1[t]++;
+	}
+
+	head[1] = 0;
+	for (int i = 1; i <= n; i++) {
+		head[i + 1] = head[i] + buf1[i];
+	}
+
+	for (int i = 1; i <= n; i++) {
+		buf1[i] = head[i]; // ptr
+	}
+
+	for (int i = 0; i < n - 1; i++) {
+		int s = buf2[i];
+		int t = buf3[i];
+		adj[buf1[s]++] = t;
+		adj[buf1[t]++] = s;
+	}
+
+	// buf1 is now cnt
+	memset(buf1, 0, sizeof(int) * (n + 2));
+
+	int *cnt = buf1;
+	int *par = buf2;
+	int *ord = buf3;
+
+	// iterative dfs from 1
+	int osz = 0;
+	ord[osz++] = 1;
+	par[1] = 0;
+	dep[1] = 0;
+
+	for (int it = 0; it < osz; it++) {
+		int x = ord[it];
+		for (int p = head[x]; p < head[x + 1]; p++) {
+			int y = adj[p];
+			if (y == par[x]) continue;
+			par[y] = x;
+			dep[y] = dep[x] + 1;
+			ord[osz++] = y;
 		}
 	}
-	reverse(que, que + piv);
-	for(int itr = 0; itr < piv; itr++){
-		int x = que[itr].first;
-		int p = que[itr].second;
-		sz[x] = (x >= n - w + 1);
-		for(int ii = frnt[x]; ii; ii = nxt[ii]){
-			int i = val[ii];
-			if(i == p) continue;
-			sz[x] += sz[i];
-		}
-		if(sz[x] == w && cur < dep[x]){
+
+	int cur = -1, pos = 1;
+
+	for (int it = osz - 1; it >= 0; it--) {
+		int x = ord[it];
+		cnt[x] += (x >= n - w + 1);
+
+		if (cnt[x] == w && cur < dep[x]) {
 			cur = dep[x];
 			pos = x;
 		}
-	}
-	return 69;
-}
 
-void dfs2(int x, int p){
-	int piv = 0;
-	que[piv++] = pi(x, p);
-	for(int itr = 0; itr < piv; itr++){
-		int x = que[itr].first;
-		int p = que[itr].second;
-		for(int ii = frnt[x]; ii; ii = nxt[ii]){
-			int i = val[ii];
-			if(i == p) continue;
-			dep[i] = dep[x] + 1;
-			que[piv++] = pi(i, x);
+		if (par[x]) cnt[par[x]] += cnt[x];
+	}
+
+	// iterative dfs from pos, overwrite dep with dep2
+	osz = 0;
+	ord[osz++] = pos;
+	par[pos] = 0;
+	dep[pos] = 0;
+
+	for (int it = 0; it < osz; it++) {
+		int x = ord[it];
+		for (int p = head[x]; p < head[x + 1]; p++) {
+			int y = adj[p];
+			if (y == par[x]) continue;
+			par[y] = x;
+			dep[y] = dep[x] + 1;
+			ord[osz++] = y;
 		}
 	}
-}
 
-int vl[MAXN], vr[MAXN];
+	int *vl = buf2;
+	int *vr = buf3;
 
-int main(){
-	cin >> n >> e >> w;
-	for(int i=0; i<n-1; i++){
-		int s, e;
-		scanf("%d %d",&s,&e);
-		add_edge(s, e);
-		add_edge(e, s);
+	for (int i = 0; i < w; i++) {
+		vl[i] = dep[n - w + 1 + i];
 	}
-	dfs(1, 0);
-	dep[pos] = 0;
-	dfs2(pos, 0);
-	for(int i=n-w+1; i<=n; i++){
-		vl[n - i] = dep[i];
-	}
-	sort(vl, vl + w);
+
 	int q;
-	scanf("%d",&q);
-	for(int i=0; i<q; i++){
+	scanf("%d", &q);
+
+	for (int i = 0; i < q; i++) {
 		int x;
-		scanf("%d",&x);
+		scanf("%d", &x);
 		vr[i] = dep[x];
 	}
+
 	sort(vl, vl + w);
 	sort(vr, vr + q);
+
 	int low = -1;
-	for(int i=0; i<q; i++){
-		if(low < vl[i]){
+	for (int i = 0; i < q; i++) {
+		if (low < vl[i]) {
 			low = vl[i];
-		}
-		else{
+		} else {
 			low++;
 			vl[i] = low;
 		}
 	}
+
 	low = -1;
-	for(int i=0; i<q; i++){
-		if(low < vr[i]){
+	for (int i = 0; i < q; i++) {
+		if (low < vr[i]) {
 			low = vr[i];
-		}
-		else{
+		} else {
 			low++;
 			vr[i] = low;
 		}
 	}
+
 	int ret = 0;
-	for(int i=0; i<q; i++){
-		ret = max(ret, vl[i] + vr[q-i-1]);
+	for (int i = 0; i < q; i++) {
+		ret = max(ret, vl[i] + vr[q - i - 1]);
 	}
-	cout << ret;
+
+	printf("%d\n", ret);
 }
-
-

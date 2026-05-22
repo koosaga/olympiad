@@ -10,16 +10,16 @@ const double eps = 1e-1;
 
 using Point = complex<double>;
 struct Circle{ Point p; double r; };
-double dot(Point p, Point q){ return p.real() * p.real() + p.imag() * p.imag(); }
-double dist(Point p, Point q){ return dot(q - p, q - p); }
-double area2(Point p, Point q){ return p.real() * q.imag() - q.real() * p.imag(); }
-bool in(const Circle& c, Point p){ return dist(c.p, p) < c.r + eps; }
+double dot(Point &p){ return p.real() * p.real() + p.imag() * p.imag(); }
+double dist(Point &p, Point &q){ Point r = q - p; return dot(r); }
+double area2(Point &p, Point q){ return p.real() * q.imag() - q.real() * p.imag(); }
+bool in(Circle& c, Point p){ return dist(c.p, p) < c.r + eps; }
 Circle INVAL = Circle{Point(0, 0), -1};
 Circle mCC(Point a, Point b, Point c){
 	b -= a; c -= a;
 	double d = 2*area2(b, c); if(abs(d) < eps) return INVAL;
-	Point ans = (c*dot(b, b) - b*dot(c, c)) * Point(0, -1) / d;
-	return Circle{a + ans, dist(Point(0, 0), ans)};
+	Point ans = (c*dot(b) - b*dot(c)) * Point(0, -1) / d;
+	return Circle{a + ans, dot(ans) };
 }
 
 mt19937 gen(0x94949); 
@@ -92,16 +92,18 @@ int main(){
 	for(int i=0; i<n; i++){
 		int x = rand() % 2000001 - 1000000;
 		int y = rand() % 2000001 - 1000000;
-		scanf("%d %d",&x,&y);
+	scanf("%d %d",&x,&y);
 		a[i] = Point(x, y);
 	}
-	double s = 0, e = 2e12;
-	while(sqrt(e) - sqrt(s) > 5e-7){
-		double mid = (s+e)/2;
-		if(trial(mid)) e = mid;
+	double s = 0, e = 1.5e6;
+for(int i =0 ; i < 30; i++){
+		double mid=sqrt((s+1)*(e+1))-1;
+		if(trial(mid*mid)) e = mid;
 		else s = mid;
 	}
-	trial(e);
+	trial(e*e);
+e = 0;
+	for(auto &i : trace) e = max(e, i.r);
 	printf("%.10f\n", sqrt(e));
 	printf("%d\n", sz(trace));
 	for(auto &i : trace) printf("%.10f %.10f\n", i.p.real(), i.p.imag());

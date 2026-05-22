@@ -7,7 +7,7 @@ const int MAXN = 2000005;
 
 #include <stdio.h>
 #include <stdlib.h>
-static char _buffer[1 << 19];
+static char _buffer[1 << 15];
 static int _currentChar = 0;
 static int _charsNumber = 0;
 
@@ -44,7 +44,7 @@ static inline int _readInt() {
 	return x;
 }
 
-int vx[2][MAXN], vy[2][MAXN], vis[MAXN];
+short vx[2][MAXN], vy[2][MAXN], vis[MAXN];
 int p1[1005], p2[1005];
 
 int main(){

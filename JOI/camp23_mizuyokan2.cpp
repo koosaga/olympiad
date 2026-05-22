@@ -575,11 +575,11 @@ int main() {
 		}
 	}
 	auto update = [&](int p) {
-		for (int i = p + 1; i >= max(p - 40, 1); i--) {
+		for (int i = p + 1; i >= max(p - 64, 1); i--) {
 			lint sum = 0;
 			int cur = nxt[i - 1];
 			nxt[i - 1] = n;
-			for (int j = i; j < n - 1 && j < i + 40; j++) {
+			for (int j = i; j < n - 1 && j < i + 69; j++) {
 				sum += a[j];
 				if (max(a[i - 1], a[j + 1]) < sum) {
 					nxt[i - 1] = min(nxt[i - 1], j + 1);

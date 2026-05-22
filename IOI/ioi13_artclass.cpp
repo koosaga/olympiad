@@ -18,8 +18,8 @@ int style(int H, int W, int R[500][500], int G[500][500], int B[500][500]) {
         }
     }
     res /= cnt;
-    if(res < 10) return 4;
-    else if(res < 27) return 1;
-    else if(res < 55) return 2;
+    if(res < 9) return 4;
+    else if(res < 23) return 1;
+    else if(res < 58) return 2;
     else return 3;
 }

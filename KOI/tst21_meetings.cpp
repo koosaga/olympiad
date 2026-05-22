@@ -15,15 +15,17 @@ struct edge{
 lint dp[MAXN];
 vector<pi> gph[MAXN];
 
-int main(){
-	scanf("%d %d",&n,&k);
+
+long long min_charge(int K, std::vector<int> S, std::vector<int> E, std::vector<int> W) {
+	int n = S.size();
+	k = K;
 	vector<edge> a(n);
 	vector<int> v;
 	lint tot = 0;
-	for(auto &i : a){
-		scanf("%d %d %d",&i.s,&i.e,&i.x);
-		v.push_back(i.s);
-		tot += i.x;
+	for(int i = 0; i < n; i++){
+		a[i].s = S[i]; a[i].e = E[i]; a[i].x = W[i];
+		v.push_back(a[i].s);
+		tot += a[i].x;
 	}
 	sort(all(v));
 	v.resize(unique(all(v)) - v.begin());
@@ -47,6 +49,5 @@ int main(){
 			}
 			dp[i] = max(dp[i], dp[j] + sum);
 		}
-	}
-	cout << tot - dp[sz(v)] << endl;
+	}return tot - dp[sz(v)] ;
 }

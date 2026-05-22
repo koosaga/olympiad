@@ -22,6 +22,7 @@ int main(){
 	for(int i=n-2; i>=0; i--){
 		opt[i] = min(opt[i], opt[i+1]);
 	}
+printf("%lld\n", ret);
 	for(int i=0; i<n; i++){
 		printf("%d\n", opt[i] + i);
 	}

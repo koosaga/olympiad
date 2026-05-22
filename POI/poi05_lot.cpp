@@ -1,22 +1,22 @@
+#include <algorithm>
+#include <assert.h>
+#include <bitset>
+#include <deque>
+#include <functional>
+#include <iostream>
+#include <limits.h>
+#include <map>
+#include <math.h>
+#include <numeric>
+#include <queue>
+#include <set>
+#include <stack>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
-#include <limits.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
-#include <functional>
-#include <numeric>
-#include <algorithm>
-#include <stack>
-#include <queue>
-#include <deque>
-#include <vector>
 #include <string>
-#include <bitset>
-#include <map>
-#include <set>
+#include <time.h>
+#include <vector>
 using namespace std;
 typedef long long lint;
 typedef long double llf;
@@ -26,28 +26,51 @@ int n, p[1000005], d[1000005];
 lint ps[1000005], ds[1000005];
 bitset<1000005> dap1, dap2;
 
-void solve(bitset<1000005> &p){
-	deque<pi> dq;
-	lint q = ps[n] - ds[n];
-	for(int i=1; i<=n; i++){
-		while(!dq.empty() && dq.back().first >= ps[i-1] - ds[i-1]){
-			dq.pop_back();
-		}
-		dq.push_back(pi(ps[i-1] - ds[i-1], i));
+int dq[2000000];
+
+inline lint get_val(int idx, lint q) {
+	if (idx <= n) {
+		return ps[idx - 1] - ds[idx - 1];
 	}
-	for(int i=1; i<=n; i++){
-		while(!dq.empty() && dq.back().first >= q + ps[i-1] - ds[i-1]){
-			dq.pop_back();
+	idx -= n;
+	return q + ps[idx - 1] - ds[idx - 1];
+}
+
+void solve(bitset<1000005> &ans) {
+	int hd = 0, tl = 0;
+	lint q = ps[n] - ds[n];
+
+	for (int i = 1; i <= n; i++) {
+		lint v = get_val(i, q);
+		while (hd < tl && get_val(dq[tl - 1], q) >= v) {
+			tl--;
 		}
-		dq.push_back(pi(q + ps[i-1] - ds[i-1], i+n));
-		if(!dq.empty() && dq.front().first < ps[i-1] - ds[i-1]) p[i] = 0;
-		else p[i] = 1;
-		if(!dq.empty() && dq.front().second == i) dq.pop_front();
+		dq[tl++] = i;
+	}
+
+	for (int i = 1; i <= n; i++) {
+		int nxt = i + n;
+		lint v = get_val(nxt, q);
+
+		while (hd < tl && get_val(dq[tl - 1], q) >= v) {
+			tl--;
+		}
+		dq[tl++] = nxt;
+
+		if (hd < tl && get_val(dq[hd], q) < ps[i - 1] - ds[i - 1])
+			ans[i] = 0;
+		else
+			ans[i] = 1;
+
+		if (hd < tl && dq[hd] == i)
+			hd++;
 	}
 }
-static char buf[1 << 19]; // size : any number geq than 1024
+
+static char buf[1 << 19];
 static int idx = 0;
 static int bytes = 0;
+
 static inline int _read() {
 	if (!bytes || idx == bytes) {
 		bytes = (int)fread(buf, sizeof(buf[0]), sizeof(buf), stdin);
@@ -55,37 +78,51 @@ static inline int _read() {
 	}
 	return buf[idx++];
 }
+
 static inline int _readInt() {
 	int x = 0, s = 1;
 	int c = _read();
-	while (c <= 32) c = _read();
-	if (c == '-') s = -1, c = _read();
-	while (c > 32) x = 10 * x + (c - '0'), c = _read();
-	if (s < 0) x = -x;
+	while (c <= 32)
+		c = _read();
+	if (c == '-')
+		s = -1, c = _read();
+	while (c > 32)
+		x = 10 * x + (c - '0'), c = _read();
+	if (s < 0)
+		x = -x;
 	return x;
 }
 
-int main(){
+int main() {
 	n = _readInt();
-	for(int i=1; i<=n; i++){
+
+	for (int i = 1; i <= n; i++) {
 		p[i] = _readInt();
 		d[i] = _readInt();
 	}
-	for(int i=1; i<=n; i++){
-		ps[i] = ps[i-1] + p[i];
-		ds[i] = ds[i-1] + d[i];
+
+	for (int i = 1; i <= n; i++) {
+		ps[i] = ps[i - 1] + p[i];
+		ds[i] = ds[i - 1] + d[i];
 	}
+
 	solve(dap1);
-	reverse(p+1, p+n+1);
-	reverse(d+1, d+n+1);
-	rotate(d+1, d+2, d+n+1);
-	for(int i=1; i<=n; i++){
-		ps[i] = ps[i-1] + p[i];
-		ds[i] = ds[i-1] + d[i];
+
+	reverse(p + 1, p + n + 1);
+	reverse(d + 1, d + n + 1);
+	rotate(d + 1, d + 2, d + n + 1);
+
+	for (int i = 1; i <= n; i++) {
+		ps[i] = ps[i - 1] + p[i];
+		ds[i] = ds[i - 1] + d[i];
 	}
+
 	solve(dap2);
-	for(int i=1; i<=n; i++){
-		if(dap1[i] || dap2[n+1-i]) puts("TAK");
-		else puts("NIE");
+
+	for (int i = 1; i <= n; i++) {
+		if (dap1[i] || dap2[n + 1 - i])
+			puts("TAK");
+		else
+			puts("NIE");
 	}
 }

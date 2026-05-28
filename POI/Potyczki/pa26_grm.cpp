@@ -301,9 +301,9 @@ int main() {
 	int n, q;
 	cin >> n >> q;
 	vector<lint> a(n), b(n);
-	vector<int> nxt(n + 1);
+	vector<int> nxt(n + 1), sex(n + 1);
 	vector<lint> sums(n + 1);
-	nxt[n] = n;
+	nxt[n] = sex[n] = n;
 	for (int i = 0; i < n; i++) {
 		cin >> a[i] >> b[i];
 	}
@@ -311,6 +311,7 @@ int main() {
 	for (int i = n - 1; i >= 0; i--) {
 		sums[i] = sums[i + 1] + a[i];
 		nxt[i] = (b[i] > 1 ? i : nxt[i + 1]);
+		sex[i] = (a[i] > 0 ? i : sex[i + 1]);
 		toseg[i] = array<mint, 2>{b[i], (b[i] == 1 ? mint(a[i]) : mint(0))};
 	}
 	atcoder::lazy_segtree<array<mint, 2>, TT, ET, int, UT, UU, EU> seg(toseg);
@@ -319,6 +320,8 @@ int main() {
 		cin >> x;
 		int l, r;
 		cin >> l >> r;
+		if (x == 0)
+			l = min(sex[l], r);
 		while (l < r && x < 2e9) {
 			if (l < nxt[l]) {
 				x += sums[l] - sums[min(nxt[l], r)];

@@ -5,7 +5,7 @@ using namespace std;
 typedef long long lint;
 typedef long double llf;
 typedef pair<int, int> pi;
-const int MAXN = 1550000;
+const int MAXN = 1050000;
 
 int n, a[69];
 lint m;

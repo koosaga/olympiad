@@ -58,7 +58,7 @@ void solve(){
 	}
 	lint ret = 0;
 	for(int i=0; i<(1<<k); i++){
-		int tadj[21][21];
+		int tadj[20][20];
 		memcpy(tadj, adj, sizeof(tadj));
 		for(int j=0; j<n; j++){
 			for(int k=0; k<n; k++){

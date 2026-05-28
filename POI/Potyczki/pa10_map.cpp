@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 using lint = long long;
-using pi = pair<lint, lint>;
+using pi = pair<int, int>;
 #define sz(v) ((int)(v).size())
 #define all(v) (v).begin(), (v).end()
 const int MAXN = 1000005;
@@ -10,6 +10,7 @@ pi merge(pi a, pi b){
     return pi(min(a.first, b.first), max(a.second, b.second));
 }
 
+pi L[MAXN], R[MAXN];
 int main(){ 
     ios::sync_with_stdio(false);
     cin.tie(0);

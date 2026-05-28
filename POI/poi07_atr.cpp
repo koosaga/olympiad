@@ -8,8 +8,12 @@ vector<pi> gph[MAXN];
 priority_queue<pi, vector<pi>, greater<pi> > pq;
 int n, m, k;
 int dist[25][MAXN];
-int dp[1<<20][20];
+int dp[20][1<<19];
 int adj[25][25];
+
+int idx(int mask, int j){
+	return (mask & ((1 << j) - 1)) | ((mask >> (j + 1)) << j);
+}
 
 int main(){
 	scanf("%d %d %d",&n,&m,&k);
@@ -48,7 +52,7 @@ int main(){
 		return 0;
 	}
 	memset(dp, 0x3f, sizeof(dp));
-	for(int i=0; i<k; i++) dp[(1<<i)][i] = dist[1][i+2];
+	for(int i=0; i<k; i++) dp[i][idx(1<<i, i)] = dist[1][i+2];
 	for(int i=1; i<(1<<k); i++){
 		for(int j=0; j<k; j++){
 			if((i >> j) % 2 == 0) continue;
@@ -58,12 +62,12 @@ int main(){
 			}
 			if(!ok) continue;
 			for(int l=0; l<k; l++){
-				dp[i][j] = min(dp[i][j], dp[i ^ (1<<j)][l] + dist[l+2][j+2]);
+				if(((i ^ (1<<j)) >> l) % 2 == 0) continue;
+				dp[j][idx(i, j)] = min(dp[j][idx(i, j)], dp[l][idx(i ^ (1<<j), l)] + dist[l+2][j+2]);
 			}
 		}
 	}
 	int ret = 1e9;
-	for(int i=0; i<k; i++) ret = min(ret, dist[i+2][n] + dp[(1<<k)-1][i]);
+	for(int i=0; i<k; i++) ret = min(ret, dist[i+2][n] + dp[i][idx((1<<k)-1, i)]);
 	cout << ret << endl;
 }
-

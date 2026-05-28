@@ -1,203 +1,169 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
-const int MAXN = 500005;
-typedef pair<int, int> pi;
-typedef long long lint;
-typedef unsigned long long hash_t;
-
-int n, m, c;
-int dfn[MAXN], low[MAXN], piv;
-vector<int> bcc[MAXN], cmp[MAXN];
-vector<int> gph[MAXN];
-
-void Init(){
-	piv = 0;
-	memset(dfn, 0, sizeof(dfn));
-	memset(low, 0, sizeof(low));
-	for(int i=1; i<=n; i++) cmp[i].clear();
-}
-
-void dfs(int x, int p){
-	dfn[x] = low[x] = ++piv;
-	for(auto &i : gph[x]){
-		if(i == p) continue;
-		if(dfn[i] == 0){
-			dfs(i, x);
-			low[x] = min(low[x], low[i]);
-		}
-		else low[x] = min(low[x], dfn[i]);
-	}
-}
-
-void color(int x, int p){
-	if(p){
-		bcc[p].push_back(x);
-		cmp[x].push_back(p);
-	}
-	for(auto &i : gph[x]){
-		if(cmp[i].size()) continue;
-		if(low[i] >= dfn[x]){
-			bcc[++c].push_back(x);
-			cmp[x].push_back(c);
-			color(i, c);
-		}
-		else color(i, p);
-	}
-}
-
-int sz[MAXN], szm[MAXN];
-
-int find_cen(int x){
-	int sum = 0;
-	for(int i=1; i<bcc[x].size(); i++){
-		int p = bcc[x][i];
-		int vsum = 1;
-		for(auto &j : cmp[p]){
-			if(x != j){
-				int v = find_cen(j);
-				sz[p] = max(sz[p], v);
-				vsum += v;
-			}
-		}
-		sum += vsum;
-		szm[x] = max(szm[x], vsum);
-		sz[p] = max(sz[p], n - vsum);
-	}
-	szm[x] = max(szm[x], n - sum);
-	return sum;
-}
-
-void add_factor(int x);
-const hash_t prm = 1e9 + 409;
-const hash_t prm2 = 1e9 + 433;
-const hash_t mgc = 199807161;
-const hash_t mgc4 = 949494949;
-const hash_t mgc2 = 140043;
-const hash_t mgc3 = 98011;
-
-void apply_to_ans(vector<hash_t> &v){
-	sort(v.begin(), v.end());
-	for(int i=0; i<v.size(); ){
-		int e = i;
-		while(e < v.size() && v[i] == v[e]) e++;
-		for(int j=1; j<e-i; j++){
-			add_factor(j + 1);
-		}
-		i = e;
-	}
-}
-
-hash_t point_merge(vector<hash_t> &v, hash_t CC){
-	sort(v.begin(), v.end());
-	hash_t ans = 0;
-	auto fu = prm + CC * mgc2 * 2;
-	for(int i=0; i<v.size(); i++){
-		ans = ans * fu + v[i];
-	}
-	ans ^= mgc + CC * mgc2;
-	return ans;
-}
-
-pair<hash_t, int> cdfs(int x){
-	vector<hash_t> cyc;
-	int rr = 0;
-	for(int i=1; i<bcc[x].size(); i++){
-		int p = bcc[x][i];
-		vector<hash_t> hv;
-		int subsz = 1;
-		for(auto &j : cmp[p]){
-			if(x != j){
-				auto ret = cdfs(j);
-				hv.push_back(ret.first);
-				subsz += ret.second;
-			}
-		}
-		apply_to_ans(hv);
-		cyc.push_back(point_merge(hv, subsz));
-		rr += subsz;
-	}
-	auto fu = prm2 + rr * mgc3 * 2;
-	hash_t ans = 0;
-	for(int i=0; i<cyc.size(); i++){
-		ans = ans * fu + cyc[i];
-	}
-	ans ^= mgc4 + rr * mgc3;
-	return make_pair(ans, rr);
-}
-
-hash_t Do_root(int r){
-	for(int i=1; i<=c; i++){
-		bcc[i].clear();
-	}
-	c = 0;
-	dfs(r, -1);
-	color(r, 0);
-	vector<hash_t> hv;
-	int cc = 0;
-	for(auto &i : cmp[r]){
-		auto k = cdfs(i);
-		hv.push_back(k.first);
-		cc += k.second;
-	}
-	apply_to_ans(hv);
-	return point_merge(hv, cc + 1);
-}
-
-lint ans = 1;
+using lint = long long;
+using pi = array<lint, 2>;
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+#define cr(v, n) (v).clear(), (v).resize(n);
 const int mod = 1e9 + 7;
 
-void add_factor(int x){
-	ans *= x;
-	ans %= mod;
-}
+// I don't remember the credit of modint, but it's not mine.
+// I don't remember the credit of FFT, but it's probably mine.
+// Polynomial library is due to adamant:
+// https://github.com/cp-algorithms/cp-algorithms-aux/blob/master/src/polynomial.cpp
+// Polynomial composition is due to ecnerwala:
+// https://judge.yosupo.jp/submission/336262
+// To use polynomial sqrt, need to amend sqrt for modint.
 
-void print(){
-	cout << ans << endl;
-}
+struct mint {
+	int val;
+	mint() { val = 0; }
+	mint(const lint &v) {
+		val = (-mod <= v && v < mod) ? v : v % mod;
+		if (val < 0)
+			val += mod;
+	}
 
-int main(){
-	scanf("%d",&n);
-	for(int i=1; i<n; i++){
-		int s, e;
-		scanf("%d %d",&s,&e);
-		gph[s].push_back(e);
-		gph[e].push_back(s);
+	friend ostream &operator<<(ostream &os, const mint &a) { return os << a.val; }
+	friend bool operator==(const mint &a, const mint &b) { return a.val == b.val; }
+	friend bool operator!=(const mint &a, const mint &b) { return !(a == b); }
+	friend bool operator<(const mint &a, const mint &b) { return a.val < b.val; }
+
+	mint operator-() const { return mint(-val); }
+	mint &operator+=(const mint &m) {
+		if ((val += m.val) >= mod)
+			val -= mod;
+		return *this;
 	}
-	dfs(1, -1);
-	color(1, 0);
-	for(auto &i : cmp[1]){
-		sz[1] = max(sz[1], find_cen(i));
+	mint &operator-=(const mint &m) {
+		if ((val -= m.val) < 0)
+			val += mod;
+		return *this;
 	}
-	for(int i=1; i<=n; i++){
-		if(sz[i] < (n + 1)/ 2){
-			Init();
-			Do_root(i);
-			print();
-			return 0;
+	mint &operator*=(const mint &m) {
+		val = (lint)val * m.val % mod;
+		return *this;
+	}
+	friend mint ipow(mint a, lint p) {
+		mint ans = 1;
+		for (; p; p /= 2, a *= a)
+			if (p & 1)
+				ans *= a;
+		return ans;
+	}
+	mint inv() const { return ipow(*this, mod - 2); }
+	mint &operator/=(const mint &m) { return (*this) *= m.inv(); }
+
+	friend mint operator+(mint a, const mint &b) { return a += b; }
+	friend mint operator-(mint a, const mint &b) { return a -= b; }
+	friend mint operator*(mint a, const mint &b) { return a *= b; }
+	friend mint operator/(mint a, const mint &b) { return a /= b; }
+	operator int64_t() const { return val; }
+};
+
+vector<vector<int>> gph;
+vector<int> dfn, sz, msz;
+
+void dfs(int x, int p = -1) {
+	dfn.push_back(x);
+	sz[x] = 1, msz[x] = 0;
+	for (auto &y : gph[x]) {
+		if (y != p) {
+			dfs(y, x);
+			sz[x] += sz[y];
+			msz[x] = max(msz[x], sz[y]);
 		}
 	}
-	pi wedge(-1, -1);
-	for(int i=1; i<=n; i++){
-		if(n % 2 == 0 && sz[i] == n / 2){
-			for(auto &j : gph[i]){
-				if(sz[j] == n / 2){
-					wedge = pi(i, j);
-				}
+}
+
+int get_center(int x) {
+	dfn.clear();
+	dfs(x);
+	pi ret{int(1e9), -1};
+	for (auto &x : dfn) {
+		int w = max(sz(dfn) - sz[x], msz[x]);
+		ret = min(ret, pi{w, x});
+	}
+	return ret[1];
+}
+
+pair<int, vector<int>> isomorphism(const vector<vector<int>> &g, int root) {
+	const int n = g.size();
+	vector<int> ids(n);
+	vector<int> mp1(n, -1);
+	vector<map<vector<int>, int>> mps(n);
+	int next_id = 0;
+	vector<int> ch_ids;
+	ch_ids.reserve(n);
+	auto dfs = [&](auto dfs, int u, int p) -> void {
+		for (int v : g[u])
+			if (v != p)
+				dfs(dfs, v, u);
+		for (int v : g[u])
+			if (v != p)
+				ch_ids.push_back(ids[v]);
+		if (ch_ids.size() == 1) {
+			int ch = ch_ids[0];
+			ids[u] = mp1[ch] < 0 ? mp1[ch] = next_id++ : mp1[ch];
+		} else {
+			sort(ch_ids.begin(), ch_ids.end());
+			auto [it, inserted] = mps[ch_ids.size()].try_emplace(ch_ids, next_id);
+			next_id += inserted;
+			ids[u] = it->second;
+		}
+		ch_ids.clear();
+	};
+	dfs(dfs, root, -1);
+	return {next_id, ids};
+}
+
+mint f(int x, int p, vector<int> &q) {
+	mint ans = 1;
+	map<int, int> cnt;
+	for (auto &y : gph[x]) {
+		if (y == p)
+			continue;
+		ans *= f(y, x, q);
+		cnt[q[y]]++;
+	}
+	for (auto &[k, v] : cnt) {
+		for (int j = 2; j <= v; j++)
+			ans *= mint(j);
+	}
+	return ans;
+}
+int main() {
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+	int n;
+	cin >> n;
+	cr(gph, n + 1);
+	cr(sz, n + 1);
+	cr(msz, n + 1);
+	for (int i = 0; i < n - 1; i++) {
+		int u, v;
+		cin >> u >> v;
+		u--;
+		v--;
+		gph[u].push_back(v);
+		gph[v].push_back(u);
+	}
+	int c = get_center(0);
+	dfs(c, -1);
+	if (msz[c] * 2 == n) {
+		for (auto &d : gph[c]) {
+			if (sz[d] * 2 == n) {
+				gph[n].push_back(c);
+				gph[n].push_back(d);
+				gph[d].erase(find(all(gph[d]), c));
+				gph[d].push_back(n);
+				d = n;
+				break;
 			}
 		}
+		c = n;
 	}
-	if(wedge.first != -1){
-		int s = wedge.first;
-		int e = wedge.second;
-		gph[s].erase(find(gph[s].begin(), gph[s].end(), e));
-		gph[e].erase(find(gph[e].begin(), gph[e].end(), s));
-		Init();
-		hash_t h1 = Do_root(s);
-		hash_t h2 = Do_root(e);
-		if(h1 == h2) add_factor(2);
-		print();
-		return 0;
-	}
+	auto ans = isomorphism(gph, c).second;
+	cout << f(c, -1, ans) << "\n";
 }
-
-

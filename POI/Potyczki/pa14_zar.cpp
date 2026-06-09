@@ -28,7 +28,7 @@ int getnxt(int x){
 	return fr(x+1) - 1;
 }
 
-int erase(int x){
+void erase(int x){
 	x++;
 	prv[x] = fl(x - 1);
 	nxt[x] = fr(x + 1);

@@ -49,7 +49,7 @@ namespace CD{
 		return ret.second;
 	}
 	int dist[MAXL][MAXN];
-	int sub[MAXL][MAXN];
+//	int sub[MAXL][MAXN];
 	vector<node> vect[MAXN];
 	int ptr[MAXN];
 	void init(){
@@ -62,7 +62,7 @@ namespace CD{
 			vis[x] = 1;
 			{
 				vect[x].push_back({-1, 0, x});
-				sub[dep[x]][x] = -1;
+		//		sub[dep[x]][x] = -1;
 				queue<foo> que;
 				for(auto &i : gph[x]){
 					if(!vis[i]){
@@ -77,7 +77,7 @@ namespace CD{
 						if(!vis[i] && i != fr.par){
 							que.push({fr.vtx, i, fr.sub});
 							dist[dep[x]][i] = dist[dep[x]][fr.vtx] + 1;
-							sub[dep[x]][i] = sub[dep[x]][fr.vtx];
+					//		sub[dep[x]][i] = sub[dep[x]][fr.vtx];
 						}
 					}
 				}

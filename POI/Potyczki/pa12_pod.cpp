@@ -1,89 +1,78 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int MAXN = 400005;
-typedef long long lint;
-typedef pair<lint, lint> pi;
+using lint = long long;
+using pi = array<lint, 2>;
+#define sz(v) ((int)(v).size())
+#define all(v) (v).begin(), (v).end()
+vector<pi> gph[800004];
 
-int n, m;
-int s[MAXN], e[MAXN], x[MAXN];
-
-struct edg{
-	int cost, type, idx;
-	bool operator<(const edg &e)const{
-		return make_tuple(cost, type, idx) < make_tuple(e.cost, e.type, e.idx);
-	}
-};
-
-vector<edg> tgph[100005];
-vector<pi> gph[2000005];
-vector<int> nxt[2000005];
-
-lint dist[2000005];
-
-lint dijkstra(){
-	memset(dist, 0x3f, sizeof(dist));
-	priority_queue<pi, vector<pi>, greater<pi> > pq;
-	for(int i=0; i<2*m; i++){
-		if(s[i] == 1){
-			dist[i] = x[i];
-			pq.push(pi(x[i], i));
+vector<lint> dijkstra(int s, int n) {
+	priority_queue<pi, vector<pi>, greater<pi>> pq;
+	vector<lint> dist(n, 1e18);
+	auto enq = [&](int x, lint v) {
+		if (dist[x] > v) {
+			dist[x] = v;
+			pq.push({v, x});
 		}
-	}
-	while(!pq.empty()){
+	};
+	enq(s, 0);
+	while (sz(pq)) {
 		auto x = pq.top();
 		pq.pop();
-		if(dist[x.second] != x.first) continue;
-		for(auto &i : gph[x.second]){
-			if(dist[i.second] > dist[x.second] + i.first){
-				dist[i.second] = dist[x.second] + i.first;
-				pq.push(pi(dist[i.second], i.second));
-			}
-		}
+		if (dist[x[1]] != x[0])
+			continue;
+		for (auto &[w, y] : gph[x[1]])
+			enq(y, w + x[0]);
 	}
-	lint ans = 1e18;
-	for(int i=0; i<2*m; i++){
-		if(e[i] == n) ans = min(ans, x[i] + dist[i]);
-	}
-	return ans;
+	return dist;
 }
 
-int main(){
-	scanf("%d %d",&n,&m);
-	for(int i=0; i<m; i++){
-		int sv, ev, xv;
-		scanf("%d %d %d",&sv,&ev,&xv);
-		s[2*i] = sv, e[2*i] = ev, x[2*i] = xv;
-		s[2*i+1] = ev, e[2*i+1] = sv, x[2*i+1] = xv;
-		tgph[sv].push_back({xv, 0, 2*i});
-		tgph[ev].push_back({xv, 1, 2*i});
-		tgph[ev].push_back({xv, 0, 2*i+1});
-		tgph[sv].push_back({xv, 1, 2*i+1});
-	}
-	for(int i=1; i<=n; i++) sort(tgph[i].begin(), tgph[i].end());
-	int idx = 0;
-	for(int i=1; i<=n; i++){
-		nxt[i].resize(tgph[i].size());
-		for(auto &j : nxt[i]) j = idx++;
-	}
-	assert(2 * m + 2 * idx == 10 * m);
-	for(int i=1; i<=n; i++){
-		// stuffs between them
-		for(int j=1; j<nxt[i].size(); j++){
-			int l = 2 * m + nxt[i][j-1] * 2;
-			int r = 2 * m + nxt[i][j] * 2;
-			gph[l].push_back(pi(0, r));
-			gph[r+1].push_back(pi(0, l+1));
+void add_edge(int s, int e, lint x) { gph[s].push_back({x, e}); }
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+	cout.tie(nullptr);
+	int n, m;
+	cin >> n >> m;
+	vector<vector<int>> events(n);
+	vector<array<int, 3>> edges;
+	for (int i = 0; i < m; i++) {
+		int s, e, x;
+		cin >> s >> e >> x;
+		s--;
+		e--;
+		for (int j = 0; j < 2; j++) {
+			swap(s, e);
+			events[s].push_back(x);
+			events[e].push_back(x);
+			edges.push_back({s, e, x});
 		}
 	}
-	for(int i=0; i<2*m; i++){
-		auto l = lower_bound(tgph[s[i]].begin(), tgph[s[i]].end(), (edg){x[i], 0, i});
-		int pos = nxt[s[i]][l - tgph[s[i]].begin()];
-		gph[pos * 2 + 2 * m].push_back(pi(x[i], i));
-		gph[pos * 2 + 1 + 2 * m].push_back(pi(0, i));
-		l = lower_bound(tgph[e[i]].begin(), tgph[e[i]].end(), (edg){x[i], 1, i});
-		pos = nxt[e[i]][l - tgph[e[i]].begin()];
-		gph[i].push_back(pi(0, pos * 2 + 2 * m));
-		gph[i].push_back(pi(x[i], pos * 2 + 2 * m + 1));
+	vector<int> idx(n + 1);
+	for (int i = 0; i < n; i++) {
+		sort(all(events[i]));
+		events[i].resize(unique(all(events[i])) - events[i].begin());
+		idx[i + 1] = idx[i] + sz(events[i]);
 	}
-	cout << dijkstra() << endl;
+	for (auto &[s, e, x] : edges) {
+		int l = lower_bound(all(events[s]), x) - events[s].begin();
+		l += idx[s];
+		int r = lower_bound(all(events[e]), x) - events[e].begin();
+		r += idx[e];
+		add_edge(l, r, x);
+	}
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < sz(events[i]) - 1; j++) {
+			add_edge(idx[i] + j, idx[i] + j + 1, events[i][j + 1] - events[i][j]);
+			add_edge(idx[i] + j + 1, idx[i] + j, 0);
+		}
+	}
+	for (int i = 0; i < sz(events[0]); i++) {
+		add_edge(4 * m, i, events[0][i]);
+	}
+	for (int i = 0; i < sz(events[n - 1]); i++) {
+		add_edge(idx[n - 1] + i, 4 * m + 1, 0);
+	}
+	cout << dijkstra(4 * m, 4 * m + 2)[4 * m + 1] << "\n";
 }

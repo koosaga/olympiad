@@ -68,7 +68,7 @@ int main(){
 		if(dist >= r) continue;
 		double ang = acos(dist / r);
 		double base = atan2(a, b);
-		if(c < 0) base = base + 2 * PI;
+		if(c < 0) base = base + PI;
 		double start = fmod(base - ang + 4 * PI, 2 * PI);
 		double end = fmod(base + ang + 4 * PI, 2 * PI);
 

@@ -337,7 +337,7 @@ template <typename T> struct poly {
 			}
 			A.pop_back();
 		}
-		reverse(begin(res), end(res));
+		std::reverse(begin(res), end(res)); // std? wtf?
 		return {res, A};
 	}
 

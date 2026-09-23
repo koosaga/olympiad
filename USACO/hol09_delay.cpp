@@ -6,7 +6,7 @@ const int mod = 1e8;
 
 int n, d, k;
 vector<int> zero, one;
-bool vis[2005][2005];
+bitset<2005> vis[2005];
 int dp1[2005][2005], dp2[2005][2005]; // dp1 = mod, dp2 = exceed
 
 void f(int x, int y){
